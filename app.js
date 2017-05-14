@@ -112,13 +112,16 @@ class Client {
         }
     }
 
-    clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize) {
+    static clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize) {
         for(var i in canvasX) {
             canvasX[i].splice(0, canvasX[i].length);
             canvasY[i].splice(0, canvasY[i].length);
             canvasDrag[i].splice(0, canvasDrag[i].length);
             canvasColour[i].splice(0, canvasColour[i].length);
             canvasSize[i].splice(0, canvasSize[i].length);
+        }
+        for(var i in SOCKET_LIST) {
+            SOCKET_LIST[i].emit('clear');
         }
     }
     // Handle new connections
@@ -146,7 +149,7 @@ class Client {
         socket.emit('initCanvas', initPack);
 
         socket.on('clear', function() {
-            client.clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize);
+            Client.clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize);
         })
 
         socket.on('colour', function(data) {
@@ -155,7 +158,7 @@ class Client {
 
         socket.on('size', function(data) {
             client.size = data.value;
-            console.log("size changed " + data.value);
+            console.log("size changed");
         })
 
         socket.on('keyPress', function (data) {

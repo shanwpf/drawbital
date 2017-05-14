@@ -73,6 +73,10 @@ socket.on('updateCanvas', function (data) {
     */
 });
 
+socket.on('clear', function() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
