@@ -3,13 +3,13 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
-// canvasX/Y/Drag contains all drawing data from all clients
+// canvas contains all drawing data from all clients
 var canvasX = {};
 var canvasY = {};
 var canvasDrag = {};
 var canvasColour = {};
 var canvasSize = {};
-// deltaCanvasX/Y/Drag contains data to be sent to clients
+// delta contains data to be sent to clients
 var deltaCanvasX = {};
 var deltaCanvasY = {};
 var deltaCanvasDrag = {};
@@ -41,8 +41,6 @@ io.sockets.on('clear', function() {
     clearCanvas(canvasX, canvasY, canvasDrag);
 });
 
-
-
 class Client {
     constructor(id) {
         this.id = id;
@@ -61,9 +59,6 @@ class Client {
 
     // This function stores client's clicks
     addClick(x, y, dragging, colour, size) {
-        if(x === 0 && y === 0) {
-            return;
-        }
         canvasX[this.id].push(x);
         canvasY[this.id].push(y);
         canvasDrag[this.id].push(dragging);
@@ -92,20 +87,17 @@ class Client {
         }
     }
 
-    // This function clears the delta after it has been sent to clients
+    // This function clears the delta after it has been sent to clients for efficiency
     static clearDelta() {
         for (var i in deltaCanvasDrag) {
             if (deltaCanvasDrag[i][deltaCanvasDrag[i].length - 1]) {
                     deltaCanvasX[i].splice(0, deltaCanvasX[i].length - 2);
                     deltaCanvasY[i].splice(0, deltaCanvasY[i].length - 2);
                     deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 2);
+                    deltaCanvasColour[i].splice(0, deltaCanvasDrag[i].length - 2);
+                    deltaCanvasSize[i].splice(0, deltaCanvasDrag[i].length - 2);
             }
             else {
-                    /*
-                    deltaCanvasX[i].splice(0, deltaCanvasX[i].length);
-                    deltaCanvasY[i].splice(0, deltaCanvasY[i].length);
-                    deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length);
-                    */
                     deltaCanvasX[i] = [];
                     deltaCanvasY[i] = [];
                     deltaCanvasDrag[i] = [];
@@ -127,6 +119,7 @@ class Client {
             SOCKET_LIST[i].emit('clear');
         }
     }
+
     // Handle new connections
     static onConnect(socket) {
         var client = new Client(socket.id);
@@ -142,6 +135,7 @@ class Client {
         deltaCanvasDrag[client.id] = [];
         deltaCanvasSize[client.id] = [];
 
+        // Send all drawing data to new client to get their canvas up to date with the current drawings
         var initPack = {
             initX: canvasX,
             initY: canvasY,
@@ -198,21 +192,11 @@ class Client {
         }
     }
 }
+
 Client.list = {};
 
 setInterval(function () {
     Client.update();
-
-    /*
-    if (prevX != undefined) {
-        for (var i in deltaCanvasX) {
-            deltaCanvasX[i].unshift(prevX[i]);
-            deltaCanvasY[i].unshift(prevY[i]);
-            deltaCanvasDrag[i].unshift(prevDrag[i]);
-        }
-    }
-    */
-
     var pack = {
         canvasX: deltaCanvasX,
         canvasY: deltaCanvasY,
@@ -223,28 +207,5 @@ setInterval(function () {
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('updateCanvas', pack);
     }
-    /*
-    for(var i in deltaCanvasX) {
-        deltaCanvasX[i] = [];
-        deltaCanvasY[i] = [];
-        deltaCanvasDrag[i] = [];
-    }
-    */
-
-    /*
-    for (var i in deltaCanvasX) {
-        prevX[i] = deltaCanvasX[i][deltaCanvasX[i].length - 1];
-        prevY[i] = deltaCanvasY[i][deltaCanvasY[i].length - 1];
-        prevDrag[i] = deltaCanvasDrag[i][deltaCanvasDrag[i].length - 1];
-    }
-    */
     Client.clearDelta();
-
-    /*
-    for(var i in deltaCanvasX) {
-            deltaCanvasX[i].splice(0, deltaCanvasX[i].length - 1);
-            deltaCanvasY[i].splice(0, deltaCanvasY[i].length - 1);
-            deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 1);
-    }
-    */
 }, 1000/60);
