@@ -114,7 +114,7 @@ class Client {
         }
     }
 
-    static clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize) {
+    static clearCanvas() {
         for(var i in canvasX) {
             canvasX[i].splice(0, canvasX[i].length);
             canvasY[i].splice(0, canvasY[i].length);
@@ -146,7 +146,7 @@ class Client {
         deltaCanvasSize[client.id] = [];
         deltaCanvasText[client.id] = [];
 
-        // Send all drawing data to new client to get their canvas up to date with the current drawings
+        // Send all canvas data to new client to get their canvas up to date with the server's canvas
         var initPack = {
             canvasX: canvasX,
             canvasY: canvasY,
@@ -158,7 +158,7 @@ class Client {
         socket.emit('initCanvas', initPack);
 
         socket.on('clear', function() {
-            Client.clearCanvas(canvasX, canvasY, canvasDrag, canvasColour, canvasSize);
+            Client.clearCanvas();
         })
 
         socket.on('colour', function(data) {

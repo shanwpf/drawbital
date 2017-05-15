@@ -1,5 +1,4 @@
 var canvas = document.getElementById('drawCanvas');
-var brushSize = document.getElementById('brushSize');
 var ctx = canvas.getContext('2d');
 var curTool = "brush";
 var socket = io();
@@ -12,14 +11,14 @@ socket.on('initCanvas', function (data) {
     updateText(data);
 });
 
-socket.on('updateCanvas', function(data) {
+socket.on('updateCanvas', function (data) {
     updateBrush(data, false);
     updateText(data);
 });
 
 function updateText(data) {
-    for(var i in data.canvasText) {
-        for(var j = 0; j < data.canvasText[i].length; j++) {
+    for (var i in data.canvasText) {
+        for (var j = 0; j < data.canvasText[i].length; j++) {
             ctx.font = data.canvasText[i][j].size + "px sans-serif";
             ctx.fillStyle = data.canvasText[i][j].colour;
             ctx.fillText(data.canvasText[i][j].text, data.canvasText[i][j].x, data.canvasText[i][j].y);
@@ -28,16 +27,16 @@ function updateText(data) {
 }
 
 function updateBrush(data, init) {
-    if(init)
+    if (init)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineJoin = "round";
     for (var i in data.canvasX) {
         for (var j = 1; j < data.canvasX[i].length; j++) {
-            ctx.strokeStyle = data.canvasColour[i][j-1];
-            ctx.lineWidth = data.canvasSize[i][j-1];
+            ctx.strokeStyle = data.canvasColour[i][j - 1];
+            ctx.lineWidth = data.canvasSize[i][j - 1];
             ctx.beginPath();
             var k = j;
-            if(init) 
+            if (init)
                 k--;
             if (data.canvasDrag[i][j - 1] && k) {
                 ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
@@ -52,7 +51,7 @@ function updateBrush(data, init) {
             }
         }
         // Fix drawing of points
-        if(!init && data.canvasX[i].length === 1) {
+        if (!init && data.canvasX[i].length === 1) {
             ctx.strokeStyle = data.canvasColour[i][0];
             ctx.lineWidth = data.canvasSize[i][0];
             ctx.beginPath();
@@ -64,42 +63,42 @@ function updateBrush(data, init) {
     }
 }
 
-document.getElementById('clearBtn').onclick = function() {;
+document.getElementById("clearBtn").onclick = function () {
     socket.emit('clear');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 
-socket.on('clear', function() {
+socket.on('clear', function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-document.getElementById("brushBtn").onclick = function() {
+document.getElementById("brushBtn").onclick = function () {
     changeTool("brush");
 };
-document.getElementById("textBtn").onclick = function() {
+document.getElementById("textBtn").onclick = function () {
     changeTool("text");
 };
 
 function changeTool(tool) {
     curTool = tool;
-    socket.emit('changeTool', {toolName: tool});
-    if(curTool === "text") {
-        canvas.onmousedown = function(e) {
-            var pos = getMousePos(canvas, e);
-            posx = pos.x;
-            posy = pos.y;
-            socket.emit('drawText', {x:posx, y: posy, text: prompt("Enter text:", "")});
-        }
-    }
-    else if(curTool === "brush") {
+    socket.emit('changeTool', { toolName: tool });
+    if (curTool === "text") {
         canvas.onmousedown = function (e) {
             var pos = getMousePos(canvas, e);
             posx = pos.x;
             posy = pos.y;
-            socket.emit('keyPress', {inputId: 'mousedown', x: posx, y: posy, state: true});
+            socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
+        }
+    }
+    else if (curTool === "brush") {
+        canvas.onmousedown = function (e) {
+            var pos = getMousePos(canvas, e);
+            posx = pos.x;
+            posy = pos.y;
+            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
         };
     }
 }
+
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -132,14 +131,10 @@ canvas.onmouseleave = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
-clearBtn.onclick = function () {
-    clear(ctx);
-}
-
 function changeColour(picker) {
     socket.emit('colour', { value: picker.toHEXString() });
 }
 
-brushSize.onchange = function() {
-    socket.emit('size', {value: brushSize.value});
+document.getElementById("brushSize").onchange = function () {
+    socket.emit('size', { value: brushSize.value });
 }
