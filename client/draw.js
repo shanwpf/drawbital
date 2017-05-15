@@ -4,10 +4,6 @@ var brushSize = document.getElementById('brushSize');
 var ctx = canvas.getContext('2d');
 var curColour = "#FFCC00";
 var socket = io();
-var lastX;
-var lastY;
-var lastDrag;
-var paint;
 
 socket.on('initCanvas', function (data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -36,24 +32,12 @@ socket.on('initCanvas', function (data) {
 
 socket.on('updateCanvas', function (data) {
     ctx.lineJoin = "round";
-    var j;
-
-    /*
-    if(lastX != undefined) {
-        for(var i in data.canvasX) {
-            data.canvasX[i].unshift(lastX);
-            data.canvasY[i].unshift(lastY);
-            data.canvasDrag[i].unshift(lastDrag);
-        }
-    }
-    */
-
     for (var i in data.canvasX) {
-        for (j = 1; j < data.canvasX[i].length; j++) {
+        for (var j = 1; j < data.canvasX[i].length; j++) {
             ctx.strokeStyle = data.canvasColour[i][j-1];
             ctx.lineWidth = data.canvasSize[i][j-1];
             ctx.beginPath();
-            if (data.canvasDrag[i][j] && j) {
+            if (data.canvasDrag[i][j - 1] && j) {
                 ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
             }
             else {
@@ -64,6 +48,16 @@ socket.on('updateCanvas', function (data) {
                 ctx.closePath();
                 ctx.stroke();
             }
+        }
+        // Fix drawing of points
+        if(data.canvasX[i].length === 1) {
+            ctx.strokeStyle = data.canvasColour[i][0];
+            ctx.lineWidth = data.canvasSize[i][0];
+            ctx.beginPath();
+            ctx.moveTo(data.canvasX[i][0] - 1, data.canvasY[i][0]);
+            ctx.lineTo(data.canvasX[i][0], data.canvasY[i][0]);
+            ctx.closePath();
+            ctx.stroke();
         }
     }
     /*
