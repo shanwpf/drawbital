@@ -7,7 +7,7 @@ ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 socket.on('initCanvas', function (data) {
-    updateBrush(data, true);
+    updateBrushInit(data);
     updateText(data);
 });
 
@@ -26,9 +26,7 @@ function updateText(data) {
     }
 }
 
-function updateBrush(data, init) {
-    if (init)
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+function updateBrush(data) {
     ctx.lineJoin = "round";
     for (var i in data.canvasX) {
         for (var j = 1; j < data.canvasX[i].length; j++) {
@@ -36,8 +34,6 @@ function updateBrush(data, init) {
             ctx.lineWidth = data.canvasSize[i][j - 1];
             ctx.beginPath();
             var k = j;
-            if (init)
-                k--;
             if (data.canvasDrag[i][j - 1] && k) {
                 ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
             }
@@ -51,7 +47,7 @@ function updateBrush(data, init) {
             }
         }
         // Fix drawing of points
-        if (!init && data.canvasX[i].length === 1) {
+        if (data.canvasX[i].length === 1) {
             ctx.strokeStyle = data.canvasColour[i][0];
             ctx.lineWidth = data.canvasSize[i][0];
             ctx.beginPath();
@@ -61,6 +57,28 @@ function updateBrush(data, init) {
             ctx.stroke();
         }
     }
+}
+
+function updateBrushInit(data) {
+    ctx.lineJoin = "round";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var j = 1; j < data.canvasX.length; j++) {
+            ctx.strokeStyle = data.canvasColour[j - 1];
+            ctx.lineWidth = data.canvasSize[j - 1];
+            ctx.beginPath();
+            var k = j;
+            if (data.canvasDrag[j - 1] && k) {
+                ctx.moveTo(data.canvasX[j - 1], data.canvasY[j - 1]);
+            }
+            else {
+                ctx.moveTo(data.canvasX[j] - 1, data.canvasY[j]);
+            }
+            if (data.canvasX[j] > 0) {
+                ctx.lineTo(data.canvasX[j], data.canvasY[j]);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
 }
 
 document.getElementById("clearBtn").onclick = function () {

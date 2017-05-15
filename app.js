@@ -4,12 +4,12 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
 // canvas contains all drawing data from all clients
-var canvasX = {};
-var canvasY = {};
-var canvasDrag = {};
-var canvasColour = {};
-var canvasSize = {};
-var canvasText = {};
+var canvasX = [];
+var canvasY = [];
+var canvasDrag = [];
+var canvasColour = [];
+var canvasSize = [];
+var canvasText = [];
 // delta contains data to be sent to clients
 var deltaCanvasX = {};
 var deltaCanvasY = {};
@@ -38,10 +38,6 @@ io.sockets.on('connection', function (socket) {
         Client.onDisconnect(socket);
     });
 })
-
-io.sockets.on('clear', function() {
-    clearCanvas(canvasX, canvasY, canvasDrag);
-});
 
 class Client {
     constructor(id) {
@@ -116,12 +112,12 @@ class Client {
 
     static clearCanvas() {
         for(var i in canvasX) {
-            canvasX[i].splice(0, canvasX[i].length);
-            canvasY[i].splice(0, canvasY[i].length);
-            canvasDrag[i].splice(0, canvasDrag[i].length);
-            canvasColour[i].splice(0, canvasColour[i].length);
-            canvasSize[i].splice(0, canvasSize[i].length);
-            canvasText[i].splice(0, canvasText[i].length);
+            canvasX.splice(0, canvasX.length);
+            canvasY.splice(0, canvasY.length);
+            canvasDrag.splice(0, canvasDrag.length);
+            canvasColour.splice(0, canvasColour.length);
+            canvasSize.splice(0, canvasSize.length);
+            canvasText.splice(0, canvasText.length);
         }
         for(var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit('clear');
@@ -131,13 +127,6 @@ class Client {
     // Handle new connections
     static onConnect(socket) {
         var client = new Client(socket.id);
-
-        canvasX[client.id] = [];
-        canvasY[client.id] = [];
-        canvasDrag[client.id] = [];
-        canvasColour[client.id] = [];
-        canvasSize[client.id] = [];
-        canvasText[client.id] = [];
 
         deltaCanvasX[client.id] = [];
         deltaCanvasY[client.id] = [];
@@ -226,11 +215,11 @@ class Brush extends Tool {
     }
 
     addClick(id, x, y, dragging, colour, size) {
-        canvasX[id].push(x);
-        canvasY[id].push(y);
-        canvasDrag[id].push(dragging);
-        canvasColour[id].push(colour);
-        canvasSize[id].push(size);
+        canvasX.push(x);
+        canvasY.push(y);
+        canvasDrag.push(dragging);
+        canvasColour.push(colour);
+        canvasSize.push(size);
 
         deltaCanvasX[id].push(x);
         deltaCanvasY[id].push(y);
@@ -248,7 +237,7 @@ class Text extends Tool {
 
     addText(id, x, y, colour, size, text) {
         if(text) {
-            canvasText[id].push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
+            canvasText.push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
             deltaCanvasText[id].push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
         }
     }
