@@ -2,35 +2,51 @@ var canvas = document.getElementById('drawCanvas');
 var clearBtn = document.getElementById('clearBtn');
 var brushSize = document.getElementById('brushSize');
 var ctx = canvas.getContext('2d');
-var curColour = "#FFCC00";
+var curTool = "text";
 var socket = io();
 
 socket.on('initCanvas', function (data) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineJoin = "round";
 
-    for (var i in data.initX) {
-        for (var j = 1; j < data.initX[i].length; j++) {
-            ctx.strokeStyle = data.initColour[i][j-1];
-            ctx.lineWidth = data.initSize[i][j-1];
+    for (var i in data.canvasX) {
+        for (var j = 1; j < data.canvasX[i].length; j++) {
+            ctx.strokeStyle = data.canvasColour[i][j-1];
+            ctx.lineWidth = data.canvasSize[i][j-1];
 
             ctx.beginPath();
-            if (data.initDrag[i][j - 1] && j - 1) {
-                ctx.moveTo(data.initX[i][j - 1], data.initY[i][j - 1]);
+            if (data.canvasDrag[i][j - 1] && j - 1) {
+                ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
             }
             else {
-                ctx.moveTo(data.initX[i][j] - 1, data.initY[i][j]);
+                ctx.moveTo(data.canvasX[i][j] - 1, data.canvasY[i][j]);
             }
-            if (data.initX[i][j] > 0) {
-                ctx.lineTo(data.initX[i][j], data.initY[i][j]);
+            if (data.canvasX[i][j] > 0) {
+                ctx.lineTo(data.canvasX[i][j], data.canvasY[i][j]);
                 ctx.closePath();
                 ctx.stroke();
             }
         }
     }
+    updateText(data);
 });
 
-socket.on('updateCanvas', function (data) {
+socket.on('updateCanvas', function(data) {
+    updateBrush(data);
+    updateText(data);
+});
+
+function updateText(data) {
+    for(var i in data.canvasText) {
+        for(var j = 0; j < data.canvasText[i].length; j++) {
+            ctx.font = data.canvasText[i][j].size + "px sans-serif";
+            ctx.fillStyle = data.canvasText[i][j].colour;
+            ctx.fillText(data.canvasText[i][j].text, data.canvasText[i][j].x, data.canvasText[i][j].y);
+        }
+    }
+}
+
+function updateBrush(data) {
     ctx.lineJoin = "round";
     for (var i in data.canvasX) {
         for (var j = 1; j < data.canvasX[i].length; j++) {
@@ -60,12 +76,7 @@ socket.on('updateCanvas', function (data) {
             ctx.stroke();
         }
     }
-    /*
-    lastX = data.canvasX[i][j - 1];
-    lastY = data.canvasY[i][j - 1];
-    lastDrag = data.canvasDrag[i][j - 1];
-    */
-});
+}
 
 socket.on('clear', function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -73,6 +84,38 @@ socket.on('clear', function() {
 
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+function addText() {
+    if(curTool === "text") {
+        canvas.onmousedown = function(e) {
+            var pos = getMousePos(canvas, e);
+            posx = pos.x;
+            posy = pos.y;
+            socket.emit('drawText', {x:posx, y: posy, text: prompt("Enter text:", "")});
+        }
+    }
+}
+
+function changeTool(tool) {
+    curTool = tool;
+    socket.emit('changeTool', {toolName: tool});
+    if(curTool === "text") {
+        canvas.onmousedown = function(e) {
+            var pos = getMousePos(canvas, e);
+            posx = pos.x;
+            posy = pos.y;
+            socket.emit('drawText', {x:posx, y: posy, text: prompt("Enter text:", "")});
+        }
+    }
+    else if(curTool === "brush") {
+        canvas.onmousedown = function (e) {
+            var pos = getMousePos(canvas, e);
+            posx = pos.x;
+            posy = pos.y;
+            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+        };
+    }
+}
 
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();

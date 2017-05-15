@@ -14,7 +14,9 @@
                 style="border:2px solid black"
                 width=50>
         Size:
-        <input id="brushSize" type="number" min="1" max="15" step="1" value="5" name="size">
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
+        <button type="brush" id="brushBtn" onclick="changeTool('brush')">Brush</button>
+        <button type="button" id="textBtn" onclick="changeTool('text');addText()">Text</button>
         <canvas id="drawCanvas" width="2000" height="1000" style="border:1px solid black"></canvas>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
         <script src="/client/jscolor.js"></script>

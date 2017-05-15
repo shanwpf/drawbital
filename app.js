@@ -9,12 +9,14 @@ var canvasY = {};
 var canvasDrag = {};
 var canvasColour = {};
 var canvasSize = {};
+var canvasText = {};
 // delta contains data to be sent to clients
 var deltaCanvasX = {};
 var deltaCanvasY = {};
 var deltaCanvasDrag = {};
 var deltaCanvasColour = {};
 var deltaCanvasSize = {};
+var deltaCanvasText = {};
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -50,39 +52,43 @@ class Client {
         this.mouseMove = false;
         this.mouseX = 0;
         this.mouseY = 0;
+        this.dragging = false;
         this.idle = true;
         this.colour = "#000000";
         this.size = 5;
+        this.toolList = {
+            brush: new Brush(),
+            text: new Text()
+        };
+        this.curTool = "brush";
         Client.list[id] = this;
         return this;
     }
 
-    // This function stores client's clicks
-    addClick(x, y, dragging, colour, size) {
-        canvasX[this.id].push(x);
-        canvasY[this.id].push(y);
-        canvasDrag[this.id].push(dragging);
-        canvasColour[this.id].push(colour);
-        canvasSize[this.id].push(size);
-
-        deltaCanvasX[this.id].push(x);
-        deltaCanvasY[this.id].push(y);
-        deltaCanvasDrag[this.id].push(dragging);
-        deltaCanvasColour[this.id].push(colour);
-        deltaCanvasSize[this.id].push(size);
+    useCurTool(text) {
+        if(this.curTool === "brush") {
+            this.toolList.brush.addClick(this.id, this.mouseX, this.mouseY, this.dragging, this.colour, this.size);
+        }
+        else if(this.curTool === "text") {
+            console.log(text);
+            this.toolList.text.addText(this.id, this.mouseX, this.mouseY, this.colour, this.size, text);
+        }
     }
 
     update() {
         if (this.mouseDown)
             this.idle = false;
         if (this.mouseMove && this.mouseDown && !this.idle) {
-            this.addClick(this.mouseX, this.mouseY, true, this.colour, this.size);
+            this.dragging = true;
+            this.useCurTool();
         }
         else if (this.mouseDown && !this.idle) {
-            this.addClick(this.mouseX, this.mouseY, true, this.colour, this.size);
+            this.dragging = true;
+            this.useCurTool();
         }
         else if (!this.idle) {
-            this.addClick(this.mouseX, this.mouseY, false, this.colour, this.size);
+            this.dragging = false;
+            this.useCurTool();
             this.idle = true;
         }
     }
@@ -94,8 +100,9 @@ class Client {
                     deltaCanvasX[i].splice(0, deltaCanvasX[i].length - 2);
                     deltaCanvasY[i].splice(0, deltaCanvasY[i].length - 2);
                     deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 2);
-                    deltaCanvasColour[i].splice(0, deltaCanvasDrag[i].length - 2);
-                    deltaCanvasSize[i].splice(0, deltaCanvasDrag[i].length - 2);
+                    deltaCanvasColour[i].splice(0, deltaCanvasColour[i].length - 2);
+                    deltaCanvasSize[i].splice(0, deltaCanvasSize[i].length - 2);
+                    deltaCanvasText[i].splice(0, deltaCanvasText[i].length - 2);
             }
             else {
                     deltaCanvasX[i] = [];
@@ -103,6 +110,7 @@ class Client {
                     deltaCanvasDrag[i] = [];
                     deltaCanvasColour[i] = [];
                     deltaCanvasSize[i] = [];
+                    deltaCanvasText[i] = [];
             }
         }
     }
@@ -114,6 +122,7 @@ class Client {
             canvasDrag[i].splice(0, canvasDrag[i].length);
             canvasColour[i].splice(0, canvasColour[i].length);
             canvasSize[i].splice(0, canvasSize[i].length);
+            canvasText[i].splice(0, canvasText[i].length);
         }
         for(var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit('clear');
@@ -129,19 +138,23 @@ class Client {
         canvasDrag[client.id] = [];
         canvasColour[client.id] = [];
         canvasSize[client.id] = [];
+        canvasText[client.id] = [];
 
         deltaCanvasX[client.id] = [];
         deltaCanvasY[client.id] = [];
         deltaCanvasDrag[client.id] = [];
+        deltaCanvasColour[client.id] = [];
         deltaCanvasSize[client.id] = [];
+        deltaCanvasText[client.id] = [];
 
         // Send all drawing data to new client to get their canvas up to date with the current drawings
         var initPack = {
-            initX: canvasX,
-            initY: canvasY,
-            initDrag: canvasDrag,
-            initColour: canvasColour,
-            initSize: canvasSize
+            canvasX: canvasX,
+            canvasY: canvasY,
+            canvasDrag: canvasDrag,
+            canvasColour: canvasColour,
+            canvasSize: canvasSize,
+            canvasText: canvasText
         }
         socket.emit('initCanvas', initPack);
 
@@ -155,7 +168,15 @@ class Client {
 
         socket.on('size', function(data) {
             client.size = data.value;
-            console.log("size changed");
+        })
+
+        socket.on('changeTool', function(data) {
+            client.curTool = data.toolName;
+            console.log("Tool changed to " + data.toolName);
+        })
+
+        socket.on('drawText', function(data) {
+            client.useCurTool(data.text);
         })
 
         socket.on('keyPress', function (data) {
@@ -195,6 +216,48 @@ class Client {
 
 Client.list = {};
 
+class Tool {
+    constructor() {
+        this.type;
+        return this;
+    }
+}
+
+class Brush extends Tool {
+    constructor() {
+        super();
+        this.type = "brush";
+    }
+
+    addClick(id, x, y, dragging, colour, size) {
+        canvasX[id].push(x);
+        canvasY[id].push(y);
+        canvasDrag[id].push(dragging);
+        canvasColour[id].push(colour);
+        canvasSize[id].push(size);
+
+        deltaCanvasX[id].push(x);
+        deltaCanvasY[id].push(y);
+        deltaCanvasDrag[id].push(dragging);
+        deltaCanvasColour[id].push(colour);
+        deltaCanvasSize[id].push(size);
+    }
+}
+
+class Text extends Tool {
+    constructor() {
+        super();
+        this.type = "text";
+    }
+
+    addText(id, x, y, colour, size, text) {
+        if(text) {
+            canvasText[id].push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
+            deltaCanvasText[id].push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
+        }
+    }
+}
+
 setInterval(function () {
     Client.update();
     var pack = {
@@ -202,7 +265,8 @@ setInterval(function () {
         canvasY: deltaCanvasY,
         canvasDrag: deltaCanvasDrag,
         canvasColour: deltaCanvasColour,
-        canvasSize: deltaCanvasSize
+        canvasSize: deltaCanvasSize,
+        canvasText: deltaCanvasText
     };
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('updateCanvas', pack);
