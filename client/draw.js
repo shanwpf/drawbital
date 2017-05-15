@@ -53,7 +53,7 @@ socket.on('updateCanvas', function (data) {
             ctx.strokeStyle = data.canvasColour[i][j-1];
             ctx.lineWidth = data.canvasSize[i][j-1];
             ctx.beginPath();
-            if (data.canvasDrag[i][j - 1] && j - 1) {
+            if (data.canvasDrag[i][j] && j) {
                 ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
             }
             else {

@@ -96,6 +96,9 @@ class Client {
     static clearDelta() {
         for (var i in deltaCanvasDrag) {
             if (deltaCanvasDrag[i][deltaCanvasDrag[i].length - 1]) {
+                    deltaCanvasX[i].splice(0, deltaCanvasX[i].length - 2);
+                    deltaCanvasY[i].splice(0, deltaCanvasY[i].length - 2);
+                    deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 2);
             }
             else {
                     /*
@@ -244,4 +247,4 @@ setInterval(function () {
             deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 1);
     }
     */
-}, 1000/30);
+}, 1000/60);
