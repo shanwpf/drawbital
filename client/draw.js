@@ -1,38 +1,19 @@
 var canvas = document.getElementById('drawCanvas');
-var clearBtn = document.getElementById('clearBtn');
 var brushSize = document.getElementById('brushSize');
 var ctx = canvas.getContext('2d');
-var curTool = "text";
+var curTool = "brush";
 var socket = io();
 
+ctx.fillStyle = "black";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 socket.on('initCanvas', function (data) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineJoin = "round";
-
-    for (var i in data.canvasX) {
-        for (var j = 1; j < data.canvasX[i].length; j++) {
-            ctx.strokeStyle = data.canvasColour[i][j-1];
-            ctx.lineWidth = data.canvasSize[i][j-1];
-
-            ctx.beginPath();
-            if (data.canvasDrag[i][j - 1] && j - 1) {
-                ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
-            }
-            else {
-                ctx.moveTo(data.canvasX[i][j] - 1, data.canvasY[i][j]);
-            }
-            if (data.canvasX[i][j] > 0) {
-                ctx.lineTo(data.canvasX[i][j], data.canvasY[i][j]);
-                ctx.closePath();
-                ctx.stroke();
-            }
-        }
-    }
+    updateBrush(data, true);
     updateText(data);
 });
 
 socket.on('updateCanvas', function(data) {
-    updateBrush(data);
+    updateBrush(data, false);
     updateText(data);
 });
 
@@ -46,14 +27,19 @@ function updateText(data) {
     }
 }
 
-function updateBrush(data) {
+function updateBrush(data, init) {
+    if(init)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.lineJoin = "round";
     for (var i in data.canvasX) {
         for (var j = 1; j < data.canvasX[i].length; j++) {
             ctx.strokeStyle = data.canvasColour[i][j-1];
             ctx.lineWidth = data.canvasSize[i][j-1];
             ctx.beginPath();
-            if (data.canvasDrag[i][j - 1] && j) {
+            var k = j;
+            if(init) 
+                k--;
+            if (data.canvasDrag[i][j - 1] && k) {
                 ctx.moveTo(data.canvasX[i][j - 1], data.canvasY[i][j - 1]);
             }
             else {
@@ -66,7 +52,7 @@ function updateBrush(data) {
             }
         }
         // Fix drawing of points
-        if(data.canvasX[i].length === 1) {
+        if(!init && data.canvasX[i].length === 1) {
             ctx.strokeStyle = data.canvasColour[i][0];
             ctx.lineWidth = data.canvasSize[i][0];
             ctx.beginPath();
@@ -78,23 +64,21 @@ function updateBrush(data) {
     }
 }
 
+document.getElementById('clearBtn').onclick = function() {;
+    socket.emit('clear');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
 socket.on('clear', function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-function addText() {
-    if(curTool === "text") {
-        canvas.onmousedown = function(e) {
-            var pos = getMousePos(canvas, e);
-            posx = pos.x;
-            posy = pos.y;
-            socket.emit('drawText', {x:posx, y: posy, text: prompt("Enter text:", "")});
-        }
-    }
-}
+document.getElementById("brushBtn").onclick = function() {
+    changeTool("brush");
+};
+document.getElementById("textBtn").onclick = function() {
+    changeTool("text");
+};
 
 function changeTool(tool) {
     curTool = tool;
@@ -112,11 +96,10 @@ function changeTool(tool) {
             var pos = getMousePos(canvas, e);
             posx = pos.x;
             posy = pos.y;
-            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+            socket.emit('keyPress', {inputId: 'mousedown', x: posx, y: posy, state: true});
         };
     }
 }
-
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -124,12 +107,13 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
+
+// Unnecessary
 canvas.onmousedown = function (e) {
     var pos = getMousePos(canvas, e);
     posx = pos.x;
     posy = pos.y;
     socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
-    //socket.emit('keyPress', {inputId:'mouseup', state:false});
 };
 
 canvas.onmousemove = function (e) {
@@ -150,11 +134,6 @@ canvas.onmouseleave = function (e) {
 
 clearBtn.onclick = function () {
     clear(ctx);
-}
-
-function clear(ctx) {
-    socket.emit('clear');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function changeColour(picker) {

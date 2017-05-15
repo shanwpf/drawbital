@@ -70,7 +70,6 @@ class Client {
             this.toolList.brush.addClick(this.id, this.mouseX, this.mouseY, this.dragging, this.colour, this.size);
         }
         else if(this.curTool === "text") {
-            console.log(text);
             this.toolList.text.addText(this.id, this.mouseX, this.mouseY, this.colour, this.size, text);
         }
     }
@@ -172,7 +171,6 @@ class Client {
 
         socket.on('changeTool', function(data) {
             client.curTool = data.toolName;
-            console.log("Tool changed to " + data.toolName);
         })
 
         socket.on('drawText', function(data) {
@@ -182,7 +180,6 @@ class Client {
         socket.on('keyPress', function (data) {
             if (data.inputId === 'mousedown') {
                 client.mouseDown = data.state;
-                console.log("mousedown = " + data.state);
             }
             if (data.inputId === 'mousemove') {
                 if (client.mouseDown)
@@ -201,7 +198,6 @@ class Client {
     }
 
     static onDisconnect(socket) {
-        console.log("socket disconnected");
         delete Client.list[socket.id];
     }
 
