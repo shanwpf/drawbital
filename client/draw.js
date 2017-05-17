@@ -7,14 +7,50 @@ ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 socket.on('initSurface', function (data) {
-    updateBrushInit(data);
-    updateText(data);
+    initBrush(data);
+    //updateText(data);
 });
 
 socket.on('updateSurface', function (data) {
     updateBrush(data, false);
     updateText(data);
 });
+
+function initBrush(data) {
+    var points;
+    ctx.lineJoin = "round";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < data.actionList.length; i++) {
+        points = data.actionList[i].points;
+        if (data.actionList[i].tool === "text") {
+            ctx.font = data.actionList[i].size + "px sans-serif";
+            ctx.fillStyle = data.actionList[i].colour;
+            ctx.fillText(data.actionList[i].text, points[0].x, points[0].y);
+        }
+        else {
+            ctx.strokeStyle = data.actionList[i].colour;
+            ctx.lineWidth = data.actionList[i].size;
+            for (var j = 0; j < points.length; j++) {
+                ctx.beginPath();
+                if(j === 0) {
+                    ctx.moveTo(points[j].x, points[j].y);
+                    ctx.lineTo(points[j].x - 0.01, points[j].y);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+                if (j + 1 < points.length) {
+                    ctx.moveTo(points[j + 1].x, points[j + 1].y);
+                }
+                else {
+                    ctx.moveTo(points[j].x - 0.01, points[j].y);
+                }
+                ctx.lineTo(points[j].x, points[j].y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+    }
+}
 
 function updateText(data) {
     for (var i in data.surfaceText) {
@@ -33,11 +69,11 @@ function updateBrush(data) {
             ctx.strokeStyle = data.surfaceColour[i][j - 1];
             ctx.lineWidth = data.surfaceSize[i][j - 1];
             ctx.beginPath();
-            if (data.surfaceDrag[i][j - 1] && j) {
+            if (data.surfaceDrag[i][j - 1]) {
                 ctx.moveTo(data.surfaceX[i][j - 1], data.surfaceY[i][j - 1]);
             }
             else {
-                ctx.moveTo(data.surfaceX[i][j] - 1, data.surfaceY[i][j]);
+                ctx.moveTo(data.surfaceX[i][j], data.surfaceY[i][j]);
             }
             if (data.surfaceX[i][j] > 0) {
                 ctx.lineTo(data.surfaceX[i][j], data.surfaceY[i][j]);
@@ -56,27 +92,6 @@ function updateBrush(data) {
             ctx.stroke();
         }
     }
-}
-
-function updateBrushInit(data) {
-    ctx.lineJoin = "round";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (var j = 1; j < data.surfaceX.length; j++) {
-            ctx.strokeStyle = data.surfaceColour[j];
-            ctx.lineWidth = data.surfaceSize[j];
-            ctx.beginPath();
-            if (data.surfaceDrag[j - 1] && j) {
-                ctx.moveTo(data.surfaceX[j - 1], data.surfaceY[j - 1]);
-            }
-            else {
-                ctx.moveTo(data.surfaceX[j] - 1, data.surfaceY[j]);
-            }
-            if (data.surfaceX[j] > 0) {
-                ctx.lineTo(data.surfaceX[j], data.surfaceY[j]);
-                ctx.closePath();
-                ctx.stroke();
-            }
-        }
 }
 
 document.getElementById("clearBtn").onclick = function () {

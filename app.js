@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
-// canvas contains all drawing data from all clients
+var MIN_FONT_SIZE = 15;
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -21,6 +21,7 @@ io.sockets.on('connection', function (socket) {
     Client.onConnect(socket);
 
     socket.on('disconnect', function () {
+        console.log('socket disconnected');
         delete SOCKET_LIST[socket.id];
         Client.onDisconnect(socket);
     });
@@ -52,18 +53,13 @@ Room.list = []
 class Surface {
     constructor(room) {
         this.room = room;
-        this.surfaceX = [];
-        this.surfaceY = [];
-        this.surfaceDrag = [];
-        this.surfaceColour = [];
-        this.surfaceSize = [];
-        this.surfaceText = [];
         this.deltaSurfaceX = {};
         this.deltaSurfaceY = {};
         this.deltaSurfaceDrag = {};
         this.deltaSurfaceColour = {};
         this.deltaSurfaceSize = {};
         this.deltaSurfaceText = {};
+        this.actionList = [];
     }
 
     onClientJoin(client) {
@@ -98,12 +94,7 @@ class Surface {
 
     getCurData() {
         var pack = {
-            surfaceX: this.surfaceX,
-            surfaceY: this.surfaceY,
-            surfaceDrag: this.surfaceDrag,
-            surfaceColour: this.surfaceColour,
-            surfaceSize: this.surfaceSize,
-            surfaceText: this.surfaceText
+            actionList: this.actionList
         }
         return pack;
     }
@@ -130,12 +121,7 @@ class Surface {
     }
 
     clearSurface() {
-        this.surfaceX.splice(0, this.surfaceX.length);
-        this.surfaceY.splice(0, this.surfaceY.length);
-        this.surfaceDrag.splice(0, this.surfaceDrag.length);
-        this.surfaceColour.splice(0, this.surfaceColour.length);
-        this.surfaceSize.splice(0, this.surfaceSize.length);
-        this.surfaceText.splice(0, this.surfaceText.length);
+        this.actionList.splice(0, this.actionList.length);
         for (var i in this.room.clientList) {
             SOCKET_LIST[i].emit('clear');
         }
@@ -159,8 +145,8 @@ class Client {
         this.size = 5;
         this.room = defaultRoom;
         this.toolList = {
-            brush: new Brush(this.room.surface),
-            text: new Text(this.room.surface)
+            brush: new Brush(this.room.surface, this),
+            text: new Text(this.room.surface, this)
         };
         this.curTool = "brush";
         Client.list[id] = this;
@@ -169,16 +155,17 @@ class Client {
 
     useCurTool(text) {
         if (this.curTool === "brush") {
-            this.toolList.brush.addClick(this.id, this.mouseX, this.mouseY, this.dragging, this.colour, this.size);
+            this.toolList.brush.use();
         }
         else if (this.curTool === "text") {
-            this.toolList.text.addText(this.id, this.mouseX, this.mouseY, this.colour, this.size, text);
+            this.toolList.text.use(text);
         }
     }
 
     update() {
-        if (this.mouseDown)
+        if (this.mouseDown) {
             this.idle = false;
+        }
         if (this.mouseMove && this.mouseDown && !this.idle) {
             this.dragging = true;
             this.useCurTool();
@@ -189,8 +176,8 @@ class Client {
         }
         else if (!this.idle) {
             this.dragging = false;
-            this.useCurTool();
             this.idle = true;
+            this.useCurTool();
         }
     }
 
@@ -257,45 +244,78 @@ class Client {
 
 Client.list = {};
 
+class Point {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class Action {
+    constructor(id, points, tool, colour, size, text) {
+        this.id = id;
+        this.points = points;
+        this.tool = tool;
+        this.colour = colour;
+        this.size = size;
+        this.text = text;
+    }
+}
+
 class Tool {
-    constructor(surface) {
+    constructor(surface, client) {
         this.surface = surface;
+        this.client = client;
         this.type;
         return this;
     }
 }
 
 class Brush extends Tool {
-    constructor(surface) {
-        super(surface);
+    constructor(surface, client) {
+        super(surface, client);
         this.type = "brush";
+        this.points = [];
     }
 
-    addClick(id, x, y, dragging, colour, size) {
-        this.surface.surfaceX.push(x);
-        this.surface.surfaceY.push(y);
-        this.surface.surfaceDrag.push(dragging);
-        this.surface.surfaceColour.push(colour);
-        this.surface.surfaceSize.push(size);
+    use() {
+        this.addClick();
+        if(this.client.idle) {
+            var action = new Action(this.client.id, this.points, "brush", this.client.colour,
+                                    this.client.size);
+            this.points = [];
+            this.surface.actionList.push(action);
+        }
+    }
 
-        this.surface.deltaSurfaceX[id].push(x);
-        this.surface.deltaSurfaceY[id].push(y);
-        this.surface.deltaSurfaceDrag[id].push(dragging);
-        this.surface.deltaSurfaceColour[id].push(colour);
-        this.surface.deltaSurfaceSize[id].push(size);
+    addClick() {
+        var id = this.client.id;
+        this.points.push(new Point(this.client.mouseX, this.client.mouseY));
+        this.surface.deltaSurfaceX[id].push(this.client.mouseX);
+        this.surface.deltaSurfaceY[id].push(this.client.mouseY);
+        this.surface.deltaSurfaceDrag[id].push(this.client.dragging);
+        this.surface.deltaSurfaceColour[id].push(this.client.colour);
+        this.surface.deltaSurfaceSize[id].push(this.client.size);
     }
 }
 
 class Text extends Tool {
-    constructor(surface) {
-        super(surface);
+    constructor(surface, client) {
+        super(surface, client);
         this.type = "text";
     }
 
-    addText(id, x, y, colour, size, text) {
+    use(text) {
         if (text) {
-            this.surface.surfaceText.push({ x: x, y: y, colour: colour, size: Math.max(7, size), text: text });
-            this.surface.deltaSurfaceText[id].push({ x: x, y: y, colour: colour, size: Math.max(7, size), text: text });
+            this.surface.actionList.push(new Action(this.client.id, new Array(new Point(this.client.mouseX, this.client.mouseY)), "text",
+                                         this.client.colour, Math.max(MIN_FONT_SIZE, this.client.size), text));
+            this.surface.deltaSurfaceText[this.client.id].push({ 
+                x: this.client.mouseX,
+                y: this.client.mouseY, 
+                colour: this.client.colour, 
+                size: Math.max(MIN_FONT_SIZE, this.client.size), 
+                text: text 
+            });
         }
     }
 }
