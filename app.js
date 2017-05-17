@@ -197,12 +197,12 @@ class Client {
     // Handle new connections
     static onConnect(socket) {
         var client = new Client(socket.id);
+
+        // PLACEHOLDER: Replace when rooms are implemented properly
         defaultRoom.addClient(client);
 
-        // Send all canvas data to new client to get their canvas up to date with the server's canvas
-
         socket.on('clear', function () {
-            client.room.surface.clearCanvas();
+            client.room.surface.clearSurface();
         })
 
         socket.on('colour', function (data) {
