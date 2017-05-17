@@ -4,19 +4,6 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
 // canvas contains all drawing data from all clients
-var canvasX = [];
-var canvasY = [];
-var canvasDrag = [];
-var canvasColour = [];
-var canvasSize = [];
-var canvasText = [];
-// delta contains data to be sent to clients
-var deltaCanvasX = {};
-var deltaCanvasY = {};
-var deltaCanvasDrag = {};
-var deltaCanvasColour = {};
-var deltaCanvasSize = {};
-var deltaCanvasText = {};
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -39,6 +26,124 @@ io.sockets.on('connection', function (socket) {
     });
 })
 
+class Room {
+    constructor(name) {
+        this.name = name;
+        this.clientList = {};
+        this.surface = new Surface(this);
+        Room.list.push(this);
+        return this;
+    }
+
+    addClient(client) {
+        this.clientList[client.id] = client;
+        this.surface.onClientJoin(client);
+        SOCKET_LIST[client.id].emit('initSurface', this.surface.getCurData());
+    }
+
+    removeClient(client) {
+        delete this.clientList[client.id];
+        this.surface.onClientLeave(client);
+    }
+}
+
+Room.list = []
+
+class Surface {
+    constructor(room) {
+        this.room = room;
+        this.surfaceX = [];
+        this.surfaceY = [];
+        this.surfaceDrag = [];
+        this.surfaceColour = [];
+        this.surfaceSize = [];
+        this.surfaceText = [];
+        this.deltaSurfaceX = {};
+        this.deltaSurfaceY = {};
+        this.deltaSurfaceDrag = {};
+        this.deltaSurfaceColour = {};
+        this.deltaSurfaceSize = {};
+        this.deltaSurfaceText = {};
+    }
+
+    onClientJoin(client) {
+        this.deltaSurfaceX[client.id] = [];
+        this.deltaSurfaceY[client.id] = [];
+        this.deltaSurfaceDrag[client.id] = [];
+        this.deltaSurfaceColour[client.id] = [];
+        this.deltaSurfaceSize[client.id] = [];
+        this.deltaSurfaceText[client.id] = [];
+    }
+
+    onClientLeave(client) {
+        delete this.deltaSurfaceX[client.id];
+        delete this.deltaSurfaceY[client.id];
+        delete this.deltaSurfaceDrag[client.id];
+        delete this.deltaSurfaceColour[client.id];
+        delete this.deltaSurfaceSize[client.id];
+        delete this.deltaSurfaceText[client.id];
+    }
+
+    getDeltaData() {
+        var pack = {
+            surfaceX: this.deltaSurfaceX,
+            surfaceY: this.deltaSurfaceY,
+            surfaceDrag: this.deltaSurfaceDrag,
+            surfaceColour: this.deltaSurfaceColour,
+            surfaceSize: this.deltaSurfaceSize,
+            surfaceText: this.deltaSurfaceText
+        }
+        return pack;
+    }
+
+    getCurData() {
+        var pack = {
+            surfaceX: this.surfaceX,
+            surfaceY: this.surfaceY,
+            surfaceDrag: this.surfaceDrag,
+            surfaceColour: this.surfaceColour,
+            surfaceSize: this.surfaceSize,
+            surfaceText: this.surfaceText
+        }
+        return pack;
+    }
+
+    clearDelta() {
+        for (var i in this.deltaSurfaceDrag) {
+            if (this.deltaSurfaceDrag[i][this.deltaSurfaceDrag[i].length - 1]) {
+                this.deltaSurfaceX[i].splice(0, this.deltaSurfaceX[i].length - 2);
+                this.deltaSurfaceY[i].splice(0, this.deltaSurfaceY[i].length - 2);
+                this.deltaSurfaceDrag[i].splice(0, this.deltaSurfaceDrag[i].length - 2);
+                this.deltaSurfaceColour[i].splice(0, this.deltaSurfaceColour[i].length - 2);
+                this.deltaSurfaceSize[i].splice(0, this.deltaSurfaceSize[i].length - 2);
+                this.deltaSurfaceText[i].splice(0, this.deltaSurfaceText[i].length - 2);
+            }
+            else {
+                this.deltaSurfaceX[i] = [];
+                this.deltaSurfaceY[i] = [];
+                this.deltaSurfaceDrag[i] = [];
+                this.deltaSurfaceColour[i] = [];
+                this.deltaSurfaceSize[i] = [];
+                this.deltaSurfaceText[i] = [];
+            }
+        }
+    }
+
+    clearSurface() {
+        this.surfaceX.splice(0, this.surfaceX.length);
+        this.surfaceY.splice(0, this.surfaceY.length);
+        this.surfaceDrag.splice(0, this.surfaceDrag.length);
+        this.surfaceColour.splice(0, this.surfaceColour.length);
+        this.surfaceSize.splice(0, this.surfaceSize.length);
+        this.surfaceText.splice(0, this.surfaceText.length);
+        for (var i in this.room.clientList) {
+            SOCKET_LIST[i].emit('clear');
+        }
+    }
+}
+
+var defaultRoom = new Room("default");
+
 class Client {
     constructor(id) {
         this.id = id;
@@ -52,9 +157,10 @@ class Client {
         this.idle = true;
         this.colour = "#000000";
         this.size = 5;
+        this.room = defaultRoom;
         this.toolList = {
-            brush: new Brush(),
-            text: new Text()
+            brush: new Brush(this.room.surface),
+            text: new Text(this.room.surface)
         };
         this.curTool = "brush";
         Client.list[id] = this;
@@ -62,10 +168,10 @@ class Client {
     }
 
     useCurTool(text) {
-        if(this.curTool === "brush") {
+        if (this.curTool === "brush") {
             this.toolList.brush.addClick(this.id, this.mouseX, this.mouseY, this.dragging, this.colour, this.size);
         }
-        else if(this.curTool === "text") {
+        else if (this.curTool === "text") {
             this.toolList.text.addText(this.id, this.mouseX, this.mouseY, this.colour, this.size, text);
         }
     }
@@ -88,81 +194,30 @@ class Client {
         }
     }
 
-    // This function clears the delta after it has been sent to clients for efficiency
-    static clearDelta() {
-        for (var i in deltaCanvasDrag) {
-            if (deltaCanvasDrag[i][deltaCanvasDrag[i].length - 1]) {
-                    deltaCanvasX[i].splice(0, deltaCanvasX[i].length - 2);
-                    deltaCanvasY[i].splice(0, deltaCanvasY[i].length - 2);
-                    deltaCanvasDrag[i].splice(0, deltaCanvasDrag[i].length - 2);
-                    deltaCanvasColour[i].splice(0, deltaCanvasColour[i].length - 2);
-                    deltaCanvasSize[i].splice(0, deltaCanvasSize[i].length - 2);
-                    deltaCanvasText[i].splice(0, deltaCanvasText[i].length - 2);
-            }
-            else {
-                    deltaCanvasX[i] = [];
-                    deltaCanvasY[i] = [];
-                    deltaCanvasDrag[i] = [];
-                    deltaCanvasColour[i] = [];
-                    deltaCanvasSize[i] = [];
-                    deltaCanvasText[i] = [];
-            }
-        }
-    }
-
-    static clearCanvas() {
-        for(var i in canvasX) {
-            canvasX.splice(0, canvasX.length);
-            canvasY.splice(0, canvasY.length);
-            canvasDrag.splice(0, canvasDrag.length);
-            canvasColour.splice(0, canvasColour.length);
-            canvasSize.splice(0, canvasSize.length);
-            canvasText.splice(0, canvasText.length);
-        }
-        for(var i in SOCKET_LIST) {
-            SOCKET_LIST[i].emit('clear');
-        }
-    }
-
     // Handle new connections
     static onConnect(socket) {
         var client = new Client(socket.id);
-
-        deltaCanvasX[client.id] = [];
-        deltaCanvasY[client.id] = [];
-        deltaCanvasDrag[client.id] = [];
-        deltaCanvasColour[client.id] = [];
-        deltaCanvasSize[client.id] = [];
-        deltaCanvasText[client.id] = [];
+        defaultRoom.addClient(client);
 
         // Send all canvas data to new client to get their canvas up to date with the server's canvas
-        var initPack = {
-            canvasX: canvasX,
-            canvasY: canvasY,
-            canvasDrag: canvasDrag,
-            canvasColour: canvasColour,
-            canvasSize: canvasSize,
-            canvasText: canvasText
-        }
-        socket.emit('initCanvas', initPack);
 
-        socket.on('clear', function() {
-            Client.clearCanvas();
+        socket.on('clear', function () {
+            client.room.surface.clearCanvas();
         })
 
-        socket.on('colour', function(data) {
+        socket.on('colour', function (data) {
             client.colour = data.value;
         })
 
-        socket.on('size', function(data) {
+        socket.on('size', function (data) {
             client.size = data.value;
         })
 
-        socket.on('changeTool', function(data) {
+        socket.on('changeTool', function (data) {
             client.curTool = data.toolName;
         })
 
-        socket.on('drawText', function(data) {
+        socket.on('drawText', function (data) {
             client.useCurTool(data.text);
         })
 
@@ -187,11 +242,12 @@ class Client {
     }
 
     static onDisconnect(socket) {
+        var client = Client.list[socket.id];
+        client.room.removeClient(client);
         delete Client.list[socket.id];
     }
 
     static update() {
-        var pack = [];
         for (var i in Client.list) {
             var client = Client.list[i];
             client.update();
@@ -202,59 +258,56 @@ class Client {
 Client.list = {};
 
 class Tool {
-    constructor() {
+    constructor(surface) {
+        this.surface = surface;
         this.type;
         return this;
     }
 }
 
 class Brush extends Tool {
-    constructor() {
-        super();
+    constructor(surface) {
+        super(surface);
         this.type = "brush";
     }
 
     addClick(id, x, y, dragging, colour, size) {
-        canvasX.push(x);
-        canvasY.push(y);
-        canvasDrag.push(dragging);
-        canvasColour.push(colour);
-        canvasSize.push(size);
+        this.surface.surfaceX.push(x);
+        this.surface.surfaceY.push(y);
+        this.surface.surfaceDrag.push(dragging);
+        this.surface.surfaceColour.push(colour);
+        this.surface.surfaceSize.push(size);
 
-        deltaCanvasX[id].push(x);
-        deltaCanvasY[id].push(y);
-        deltaCanvasDrag[id].push(dragging);
-        deltaCanvasColour[id].push(colour);
-        deltaCanvasSize[id].push(size);
+        this.surface.deltaSurfaceX[id].push(x);
+        this.surface.deltaSurfaceY[id].push(y);
+        this.surface.deltaSurfaceDrag[id].push(dragging);
+        this.surface.deltaSurfaceColour[id].push(colour);
+        this.surface.deltaSurfaceSize[id].push(size);
     }
 }
 
 class Text extends Tool {
-    constructor() {
-        super();
+    constructor(surface) {
+        super(surface);
         this.type = "text";
     }
 
     addText(id, x, y, colour, size, text) {
-        if(text) {
-            canvasText.push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
-            deltaCanvasText[id].push({x: x, y: y, colour: colour, size: Math.max(7, size), text: text});
+        if (text) {
+            this.surface.surfaceText.push({ x: x, y: y, colour: colour, size: Math.max(7, size), text: text });
+            this.surface.deltaSurfaceText[id].push({ x: x, y: y, colour: colour, size: Math.max(7, size), text: text });
         }
     }
 }
 
 setInterval(function () {
     Client.update();
-    var pack = {
-        canvasX: deltaCanvasX,
-        canvasY: deltaCanvasY,
-        canvasDrag: deltaCanvasDrag,
-        canvasColour: deltaCanvasColour,
-        canvasSize: deltaCanvasSize,
-        canvasText: deltaCanvasText
-    };
-    for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('updateCanvas', pack);
+    for (var i = 0; i < Room.list.length; i++) {
+        var room = Room.list[i];
+        var pack = room.surface.getDeltaData();
+        for (var j in room.clientList) {
+            SOCKET_LIST[j].emit('updateSurface', pack);
+        }
+        room.surface.clearDelta();
     }
-    Client.clearDelta();
 }, 1000/60);
