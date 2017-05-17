@@ -7,16 +7,15 @@ ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 socket.on('initSurface', function (data) {
-    initBrush(data);
-    //updateText(data);
+    initSurface(data);
 });
 
 socket.on('updateSurface', function (data) {
-    updateBrush(data, false);
+    updateBrush(data);
     updateText(data);
 });
 
-function initBrush(data) {
+function initSurface(data) {
     var points;
     ctx.lineJoin = "round";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
