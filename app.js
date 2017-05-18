@@ -60,6 +60,8 @@ class Surface {
         this.deltaSurfaceSize = {};
         this.deltaSurfaceText = {};
         this.actionList = [];
+        this.actionMap = {}
+        this.deletedActionMap = {}
     }
 
     onClientJoin(client) {
@@ -69,6 +71,8 @@ class Surface {
         this.deltaSurfaceColour[client.id] = [];
         this.deltaSurfaceSize[client.id] = [];
         this.deltaSurfaceText[client.id] = [];
+        this.actionMap[client.id] = [];
+        this.deletedActionMap[client.id] = [];
     }
 
     onClientLeave(client) {
@@ -78,6 +82,32 @@ class Surface {
         delete this.deltaSurfaceColour[client.id];
         delete this.deltaSurfaceSize[client.id];
         delete this.deltaSurfaceText[client.id];
+        delete this.actionMap[client.id];
+        delete this.deletedActionMap[client.id];
+    }
+
+    undo(id) {
+        if(this.actionMap[id].length > 0) {
+            var idx = this.actionMap[id].pop();
+            this.actionList[idx].deleted = true;
+            this.deletedActionMap[id].push(idx);
+            this.refresh();
+        }
+    }
+
+    redo(id) {
+        if(this.deletedActionMap[id].length > 0) {
+            var idx = this.deletedActionMap[id].pop();
+            this.actionList[idx].deleted = false;
+            this.actionMap[id].push(idx);
+            this.refresh();
+        }
+    }
+
+    refresh() {
+        for(var i in this.room.clientList) {
+            SOCKET_LIST[i].emit('initSurface', this.getCurData());
+        } 
     }
 
     getDeltaData() {
@@ -188,6 +218,14 @@ class Client {
         // PLACEHOLDER: Replace when rooms are implemented properly
         defaultRoom.addClient(client);
 
+        socket.on('undo', function() {
+            client.room.surface.undo(client.id);
+            console.log("undo");
+        })
+        socket.on('redo', function() {
+            client.room.surface.redo(client.id);
+            console.log("redo");
+        })
         socket.on('clear', function () {
             client.room.surface.clearSurface();
         })
@@ -259,6 +297,7 @@ class Action {
         this.colour = colour;
         this.size = size;
         this.text = text;
+        this.deleted = false;
     }
 }
 
@@ -285,6 +324,7 @@ class Brush extends Tool {
                                     this.client.size);
             this.points = [];
             this.surface.actionList.push(action);
+            this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
         }
     }
 
@@ -316,6 +356,7 @@ class Text extends Tool {
                 size: Math.max(MIN_FONT_SIZE, this.client.size), 
                 text: text 
             });
+            this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
         }
     }
 }

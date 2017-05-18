@@ -20,32 +20,34 @@ function initSurface(data) {
     ctx.lineJoin = "round";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
-        points = data.actionList[i].points;
-        if (data.actionList[i].tool === "text") {
-            ctx.font = data.actionList[i].size + "px sans-serif";
-            ctx.fillStyle = data.actionList[i].colour;
-            ctx.fillText(data.actionList[i].text, points[0].x, points[0].y);
-        }
-        else {
-            ctx.strokeStyle = data.actionList[i].colour;
-            ctx.lineWidth = data.actionList[i].size;
-            for (var j = 0; j < points.length; j++) {
-                ctx.beginPath();
-                if(j === 0) {
-                    ctx.moveTo(points[j].x, points[j].y);
-                    ctx.lineTo(points[j].x - 0.01, points[j].y);
+        if (!data.actionList[i].deleted) {
+            points = data.actionList[i].points;
+            if (data.actionList[i].tool === "text") {
+                ctx.font = data.actionList[i].size + "px sans-serif";
+                ctx.fillStyle = data.actionList[i].colour;
+                ctx.fillText(data.actionList[i].text, points[0].x, points[0].y);
+            }
+            else {
+                ctx.strokeStyle = data.actionList[i].colour;
+                ctx.lineWidth = data.actionList[i].size;
+                for (var j = 0; j < points.length; j++) {
+                    ctx.beginPath();
+                    if (j === 0) {
+                        ctx.moveTo(points[j].x, points[j].y);
+                        ctx.lineTo(points[j].x - 0.01, points[j].y);
+                        ctx.closePath();
+                        ctx.stroke();
+                    }
+                    if (j + 1 < points.length) {
+                        ctx.moveTo(points[j + 1].x, points[j + 1].y);
+                    }
+                    else {
+                        ctx.moveTo(points[j].x - 0.01, points[j].y);
+                    }
+                    ctx.lineTo(points[j].x, points[j].y);
                     ctx.closePath();
                     ctx.stroke();
                 }
-                if (j + 1 < points.length) {
-                    ctx.moveTo(points[j + 1].x, points[j + 1].y);
-                }
-                else {
-                    ctx.moveTo(points[j].x - 0.01, points[j].y);
-                }
-                ctx.lineTo(points[j].x, points[j].y);
-                ctx.closePath();
-                ctx.stroke();
             }
         }
     }
@@ -106,6 +108,12 @@ document.getElementById("brushBtn").onclick = function () {
 };
 document.getElementById("textBtn").onclick = function () {
     changeTool("text");
+};
+document.getElementById("undoBtn").onclick = function () {
+    socket.emit('undo');
+};
+document.getElementById("redoBtn").onclick = function () {
+    socket.emit('redo');
 };
 
 function changeTool(tool) {

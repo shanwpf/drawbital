@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title></title>
+        <title>Drawbital</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="css/style.css" rel="stylesheet">
@@ -16,6 +16,8 @@
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
         <input type="button" id="brushBtn" value="Brush">
         <input type="button" id="textBtn" value="Text">
+        <input type="button" id="undoBtn" value="Undo">
+        <input type="button" id="redoBtn" value="Redo">
         <canvas id="drawCanvas" width="2000" height="1000" style="border:1px solid black"></canvas>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
         <script src="/client/jscolor.js"></script>
