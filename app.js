@@ -88,7 +88,7 @@ class Surface {
     }
 
     undo(id) {
-        if(this.actionMap[id].length > 0) {
+        if (this.actionMap[id].length > 0) {
             var idx = this.actionMap[id].pop();
             this.actionList[idx].deleted = true;
             this.deletedActionMap[id].push(idx);
@@ -97,7 +97,7 @@ class Surface {
     }
 
     redo(id) {
-        if(this.deletedActionMap[id].length > 0) {
+        if (this.deletedActionMap[id].length > 0) {
             var idx = this.deletedActionMap[id].pop();
             this.actionList[idx].deleted = false;
             this.actionMap[id].push(idx);
@@ -106,9 +106,9 @@ class Surface {
     }
 
     refresh() {
-        for(var i in this.room.clientList) {
+        for (var i in this.room.clientList) {
             SOCKET_LIST[i].emit('initSurface', this.getCurData());
-        } 
+        }
     }
 
     getDeltaData() {
@@ -153,7 +153,7 @@ class Surface {
 
     clearSurface() {
         this.actionList = [];
-        for(var i in this.actionMap) {
+        for (var i in this.actionMap) {
             this.actionMap[i] = [];
             this.deletedActionMap[i] = [];
         }
@@ -223,10 +223,10 @@ class Client {
         // PLACEHOLDER: Replace when rooms are implemented properly
         defaultRoom.addClient(client);
 
-        socket.on('undo', function() {
+        socket.on('undo', function () {
             client.room.surface.undo(client.id);
         })
-        socket.on('redo', function() {
+        socket.on('redo', function () {
             client.room.surface.redo(client.id);
         })
         socket.on('clear', function () {
@@ -317,9 +317,9 @@ class Brush extends Tool {
 
     use() {
         this.addClick();
-        if(this.client.idle) {
+        if (this.client.idle) {
             var action = new Action(this.client.id, this.points, "brush", this.client.colour,
-                                    this.client.size);
+                this.client.size);
             this.points = [];
             this.surface.actionList.push(action);
             this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
@@ -346,13 +346,13 @@ class Text extends Tool {
     use(text) {
         if (text) {
             this.surface.actionList.push(new Action(this.client.id, new Array(new Point(this.client.mouseX, this.client.mouseY)), "text",
-                                         this.client.colour, Math.max(MIN_FONT_SIZE, this.client.size), text));
-            this.surface.deltaSurfaceText[this.client.id].push({ 
+                this.client.colour, Math.max(MIN_FONT_SIZE, this.client.size), text));
+            this.surface.deltaSurfaceText[this.client.id].push({
                 x: this.client.mouseX,
-                y: this.client.mouseY, 
-                colour: this.client.colour, 
-                size: Math.max(MIN_FONT_SIZE, this.client.size), 
-                text: text 
+                y: this.client.mouseY,
+                colour: this.client.colour,
+                size: Math.max(MIN_FONT_SIZE, this.client.size),
+                text: text
             });
             this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
         }
