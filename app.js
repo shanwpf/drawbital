@@ -220,32 +220,25 @@ class Client {
 
         socket.on('undo', function() {
             client.room.surface.undo(client.id);
-            console.log("undo");
         })
         socket.on('redo', function() {
             client.room.surface.redo(client.id);
-            console.log("redo");
         })
         socket.on('clear', function () {
             client.room.surface.clearSurface();
         })
-
         socket.on('colour', function (data) {
             client.colour = data.value;
         })
-
         socket.on('size', function (data) {
             client.size = data.value;
         })
-
         socket.on('changeTool', function (data) {
             client.curTool = data.toolName;
         })
-
         socket.on('drawText', function (data) {
             client.useCurTool(data.text);
         })
-
         socket.on('keyPress', function (data) {
             if (data.inputId === 'mousedown') {
                 client.mouseDown = data.state;
