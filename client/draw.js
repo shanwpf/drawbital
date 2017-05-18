@@ -1,6 +1,11 @@
 var canvas = document.getElementById('drawCanvas');
+var overlay = document.getElementById('overlay');
+var cursorLayer = document.getElementById('cursorLayer');
+var cursorCtx = cursorLayer.getContext('2d');
 var ctx = canvas.getContext('2d');
+var curColour = "#000000"
 var curTool = "brush";
+var curSize = 5;
 var socket = io();
 
 ctx.fillStyle = "black";
@@ -120,16 +125,16 @@ function changeTool(tool) {
     curTool = tool;
     socket.emit('changeTool', { toolName: tool });
     if (curTool === "text") {
-        canvas.onmousedown = function (e) {
-            var pos = getMousePos(canvas, e);
+        overlay.onmousedown = function (e) {
+            var pos = getMousePos(overlay, e);
             posx = pos.x;
             posy = pos.y;
             socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
         }
     }
     else if (curTool === "brush") {
-        canvas.onmousedown = function (e) {
-            var pos = getMousePos(canvas, e);
+        overlay.onmousedown = function (e) {
+            var pos = getMousePos(overlay, e);
             posx = pos.x;
             posy = pos.y;
             socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
@@ -138,7 +143,7 @@ function changeTool(tool) {
 }
 
 function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
+    var rect = overlay.getBoundingClientRect();
     return {
         x: evt.clientX - rect.left,
         y: evt.clientY - rect.top
@@ -146,33 +151,54 @@ function getMousePos(canvas, evt) {
 }
 
 // Unnecessary
-canvas.onmousedown = function (e) {
-    var pos = getMousePos(canvas, e);
+overlay.onmousedown = function (e) {
+    var pos = getMousePos(overlay, e);
     posx = pos.x;
     posy = pos.y;
     socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
 };
 
-canvas.onmousemove = function (e) {
-    var pos = getMousePos(canvas, e);
+overlay.onmousemove = function (e) {
+    var pos = getMousePos(overlay, e);
     posx = pos.x;
     posy = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
+    if(curTool == "brush") {
+        var r = curSize / 2;
+        cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
+        cursorCtx.fillStyle = curColour;
+        cursorCtx.lineWidth = 1;
+        cursorCtx.beginPath();
+        cursorCtx.arc(posx, posy, r, 0, Math.PI * 2, true);
+        cursorCtx.closePath();
+        cursorCtx.fill();
+    }
+    else {
+        cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 };
 
-canvas.onmouseup = function (e) {
+overlay.onmouseup = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
-    //socket.emit('keyPress', {inputId:'mouseup', state:true});
 };
 
-canvas.onmouseleave = function (e) {
+overlay.onmouseleave = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
 function changeColour(picker) {
+    curColour = picker.toHEXString();
     socket.emit('colour', { value: picker.toHEXString() });
 }
 
 document.getElementById("brushSize").onchange = function () {
+    curSize = brushSize.value;
     socket.emit('size', { value: brushSize.value });
 }
+
+/*
+function repeatOften() {
+    requestAnimationFrame(repeatOften);
+}
+requestAnimationFrame(repeatOften);
+*/

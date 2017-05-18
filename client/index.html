@@ -18,7 +18,11 @@
         <input type="button" id="textBtn" value="Text">
         <input type="button" id="undoBtn" value="Undo">
         <input type="button" id="redoBtn" value="Redo">
-        <canvas id="drawCanvas" width="2000" height="1000" style="border:1px solid black"></canvas>
+        <div style="position: relative;">
+            <canvas id="overlay" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+            <canvas id="cursorLayer" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+            <canvas id="drawCanvas" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+        </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
         <script src="/client/jscolor.js"></script>
         <script src="/client/draw.js"></script>

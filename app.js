@@ -13,9 +13,8 @@ app.get('/', function (req, res) {
 app.use('/client', express.static(__dirname + '/client'));
 
 // Start server
-server.listen(process.env.PORT || 8080);
+server.listen(process.env.PORT || 2000);
 console.log("Server started");
-
 
 io.sockets.on('connection', function (socket) {
     console.log('socket connection');
