@@ -1,30 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Drawbital</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-        <input type="button" id="clearBtn" value="Clear">
-        Colour:
-        <input class="jscolor {onFineChange:'changeColour(this)'}" value="000000"
-                style="border:2px solid black"
-                width=50>
-        Size:
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
-        <input type="button" id="brushBtn" value="Brush">
-        <input type="button" id="textBtn" value="Text">
-        <input type="button" id="undoBtn" value="Undo">
-        <input type="button" id="redoBtn" value="Redo">
-        <div style="position: relative;">
-            <canvas id="overlay" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
-            <canvas id="cursorLayer" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
-            <canvas id="drawCanvas" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
-        </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
-        <script src="/client/jscolor.js"></script>
-        <script src="/client/draw.js"></script>
-    </body>
+
+<head>
+    <title>Drawbital</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel='stylesheet' href='/client/spectrum.css' />
+</head>
+
+<body>
+    <input type="button" id="clearBtn" value="Clear"> Colour:
+    <input type='text' id='full'/>
+    <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
+    <input type="button" id="brushBtn" value="Brush">
+    <input type="button" id="textBtn" value="Text">
+    <input type="button" id="undoBtn" value="Undo">
+    <input type="button" id="redoBtn" value="Redo">
+    <div style="position: relative;">
+        <canvas id="overlay" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+        <canvas id="cursorLayer" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+        <canvas id="surface" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/16.7.3/jcanvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
+    <script src="/client/jscolor.js"></script>
+    <script src="/client/draw.js"></script>
+    <script src='/client/spectrum.js'></script>
+</body>
 </html>
