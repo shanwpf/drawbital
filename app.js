@@ -4,6 +4,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
+
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -151,7 +152,11 @@ class Surface {
     }
 
     clearSurface() {
-        this.actionList.splice(0, this.actionList.length);
+        this.actionList = [];
+        for(var i in this.actionMap) {
+            this.actionMap[i] = [];
+            this.deletedActionMap[i] = [];
+        }
         for (var i in this.room.clientList) {
             SOCKET_LIST[i].emit('clear');
         }
