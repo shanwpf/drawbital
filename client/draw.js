@@ -1,4 +1,4 @@
-var canvas = document.getElementById('drawCanvas');
+var canvas = document.getElementById('surface');
 var overlay = document.getElementById('overlay');
 var cursorLayer = document.getElementById('cursorLayer');
 var cursorCtx = cursorLayer.getContext('2d');
@@ -10,6 +10,25 @@ var socket = io();
 
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+$(document).ready(function() {
+    $('#full').spectrum({
+    color: '#ECC',
+    showInput: true,
+    className: 'full-spectrum',
+    showInitial: true,
+    showPalette: true,
+    showSelectionPalette: true,
+    maxSelectionSize: 10,
+    preferredFormat: 'hex',
+    localStorageKey: 'spectrum.drawbital',
+    showAlpha: true,
+    move: function(colour) {
+        curColour = colour.toRgbString();
+        socket.emit('colour', { value: colour.toRgbString() });
+    }
+    });
+});
 
 socket.on('initSurface', function (data) {
     initSurface(data);
@@ -70,13 +89,14 @@ function updateText(data) {
 
 function updateBrush(data) {
     ctx.lineJoin = "round";
+    
     for (var i in data.surfaceX) {
         for (var j = 1; j < data.surfaceX[i].length; j++) {
             ctx.strokeStyle = data.surfaceColour[i][j - 1];
             ctx.lineWidth = data.surfaceSize[i][j - 1];
             ctx.beginPath();
             if (data.surfaceDrag[i][j - 1]) {
-                ctx.moveTo(data.surfaceX[i][j - 1], data.surfaceY[i][j - 1]);
+                ctx.moveTo(data.surfaceX[i][j - 1] - 0.01, data.surfaceY[i][j - 1]);
             }
             else {
                 ctx.moveTo(data.surfaceX[i][j], data.surfaceY[i][j]);
@@ -86,16 +106,6 @@ function updateBrush(data) {
                 ctx.closePath();
                 ctx.stroke();
             }
-        }
-        // Fix drawing of points
-        if (data.surfaceX[i].length === 1) {
-            ctx.strokeStyle = data.surfaceColour[i][0];
-            ctx.lineWidth = data.surfaceSize[i][0];
-            ctx.beginPath();
-            ctx.moveTo(data.surfaceX[i][0] - 1, data.surfaceY[i][0]);
-            ctx.lineTo(data.surfaceX[i][0], data.surfaceY[i][0]);
-            ctx.closePath();
-            ctx.stroke();
         }
     }
 }
@@ -186,19 +196,8 @@ overlay.onmouseleave = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
-function changeColour(picker) {
-    curColour = picker.toHEXString();
-    socket.emit('colour', { value: picker.toHEXString() });
-}
 
 document.getElementById("brushSize").onchange = function () {
     curSize = brushSize.value;
     socket.emit('size', { value: brushSize.value });
 }
-
-/*
-function repeatOften() {
-    requestAnimationFrame(repeatOften);
-}
-requestAnimationFrame(repeatOften);
-*/

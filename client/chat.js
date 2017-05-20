@@ -13,7 +13,7 @@ socket.on('addToChat',function(data){
 
         // auto scrolling to the most recent
         if(auto)
-        chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
+                chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
 });
 
 socket.on('evalAnswer',function(data){
