@@ -4,6 +4,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
+var DEBUG = true;
 
 // Send html file to client using Express
 app.use(express.static('public'));
@@ -20,6 +21,7 @@ io.sockets.on('connection', function (socket) {
     console.log('socket connection');
     SOCKET_LIST[socket.id] = socket;
     Client.onConnect(socket);
+ 
 
     socket.on('disconnect', function () {
         console.log('socket disconnected');
@@ -27,6 +29,9 @@ io.sockets.on('connection', function (socket) {
         Client.onDisconnect(socket);
     });
 })
+
+
+
 
 class Room {
     constructor(name) {
@@ -167,6 +172,7 @@ var defaultRoom = new Room("default");
 
 class Client {
     constructor(id) {
+        this.name = "default";
         this.id = id;
         this.paint = false;
         this.mouseDown = false;
@@ -185,6 +191,7 @@ class Client {
         };
         this.curTool = "brush";
         Client.list[id] = this;
+        emitConnection(this.name);
         return this;
     }
 
@@ -261,19 +268,42 @@ class Client {
             }
             client.mouseX = data.x;
             client.mouseY = data.y;
+            
+        });
+
+        // on socket to handle chat
+        socket.on('Apply',function(data){
+            if(client.name != data.username){
+                emitToChat(client.name + " now named: " + data.username);
+                client.name = data.username;
+            }
+        });
+        
+        socket.on('sendMsgToServer',function(data){
+            for(var i in SOCKET_LIST){
+                SOCKET_LIST[i].emit('addToChat',  client.name + ': ' + data);
+            }
+        });
+
+        socket.on('evalServer',function(data){
+            if(!DEBUG)
+                return;
+            //debugg purpose
+            var res = eval(data);
+            socket.emit('evalAnswer',res);     
         });
     }
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];
+        emitDisconnect(client.name);
         client.room.removeClient(client);
         delete Client.list[socket.id];
     }
 
-    static update() {
+    static update(ClientArr) {
         for (var i in Client.list) {
-            var client = Client.list[i];
-            client.update();
+             Client.list[i].update();
         }
     }
 }
@@ -358,6 +388,31 @@ class Text extends Tool {
         }
     }
 }
+
+
+
+// functions for chat
+function emitConnection(name)
+{
+    for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('addToChat',  name + ': ' + "has connected");
+    }
+}
+function emitDisconnect(name)
+{
+    for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('addToChat',   name + " has Disconnected");
+    }
+}
+
+function emitToChat(string)
+{
+    for(var i in SOCKET_LIST){
+    SOCKET_LIST[i].emit('addToChat', string);
+    }
+}
+
+
 
 setInterval(function () {
     Client.update();

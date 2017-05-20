@@ -6,7 +6,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="css/style.css" rel="stylesheet">
     </head>
+    
     <body>
+        <div id="signDiv">
+        Username: <input id="signDiv-username" type="text"></input>
+        <button id="signDiv-Apply">Apply</button>
+        </div>
+        
         <input type="button" id="clearBtn" value="Clear">
         Colour:
         <input class="jscolor {onFineChange:'changeColour(this)'}" value="000000"
@@ -22,9 +28,24 @@
             <canvas id="overlay" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
             <canvas id="cursorLayer" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
             <canvas id="drawCanvas" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
+            <canvas id="ctx" width="2000" height="1000" style="border:1px solid #000000"></canvas>
         </div>
+
+
+        <div id="gameDiv" style="position: relative;">
+            Chat Box:
+            <div id="chat-text" style="width:600px;height:150px;overflow-y:scroll">               
+                <div>Hello!</div>
+            </div>
+        
+            <form id="chat-form">
+                <input id="chat-input" type="text" style="width:500px"></input>
+            </form>
+        </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
         <script src="/client/jscolor.js"></script>
         <script src="/client/draw.js"></script>
+        <script src="/client/chat.js"></script>
     </body>
 </html>
