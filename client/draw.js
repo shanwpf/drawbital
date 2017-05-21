@@ -1,15 +1,14 @@
-var canvas = document.getElementById('surface');
+var canvas = document.getElementById('publicSurface');
+var serverCanvas = document.getElementById('serverSurface');
 var overlay = document.getElementById('overlay');
 var cursorLayer = document.getElementById('cursorLayer');
 var cursorCtx = cursorLayer.getContext('2d');
+var serverCtx = serverSurface.getContext('2d');
 var ctx = canvas.getContext('2d');
 var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
-
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 $(document).ready(function() {
     $('#full').spectrum({
@@ -41,36 +40,36 @@ socket.on('updateSurface', function (data) {
 
 function initSurface(data) {
     var points;
-    ctx.lineJoin = "round";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    serverCtx.lineJoin = "round";
+    serverCtx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
         if (!data.actionList[i].deleted) {
             points = data.actionList[i].points;
             if (data.actionList[i].tool === "text") {
-                ctx.font = data.actionList[i].size + "px sans-serif";
-                ctx.fillStyle = data.actionList[i].colour;
-                ctx.fillText(data.actionList[i].text, points[0].x, points[0].y);
+                serverCtx.font = data.actionList[i].size + "px sans-serif";
+                serverCtx.fillStyle = data.actionList[i].colour;
+                serverCtx.fillText(data.actionList[i].text, points[0].x, points[0].y);
             }
             else {
-                ctx.strokeStyle = data.actionList[i].colour;
-                ctx.lineWidth = data.actionList[i].size;
+                serverCtx.strokeStyle = data.actionList[i].colour;
+                serverCtx.lineWidth = data.actionList[i].size;
                 for (var j = 0; j < points.length; j++) {
-                    ctx.beginPath();
+                    serverCtx.beginPath();
                     if (j === 0) {
-                        ctx.moveTo(points[j].x, points[j].y);
-                        ctx.lineTo(points[j].x - 0.01, points[j].y);
-                        ctx.closePath();
-                        ctx.stroke();
+                        serverCtx.moveTo(points[j].x, points[j].y);
+                        serverCtx.lineTo(points[j].x - 0.01, points[j].y);
+                        serverCtx.closePath();
+                        serverCtx.stroke();
                     }
                     if (j + 1 < points.length) {
-                        ctx.moveTo(points[j + 1].x, points[j + 1].y);
+                        serverCtx.moveTo(points[j + 1].x, points[j + 1].y);
                     }
                     else {
-                        ctx.moveTo(points[j].x - 0.01, points[j].y);
+                        serverCtx.moveTo(points[j].x - 0.01, points[j].y);
                     }
-                    ctx.lineTo(points[j].x, points[j].y);
-                    ctx.closePath();
-                    ctx.stroke();
+                    serverCtx.lineTo(points[j].x, points[j].y);
+                    serverCtx.closePath();
+                    serverCtx.stroke();
                 }
             }
         }
@@ -80,9 +79,9 @@ function initSurface(data) {
 function updateText(data) {
     for (var i in data.surfaceText) {
         for (var j = 0; j < data.surfaceText[i].length; j++) {
-            ctx.font = data.surfaceText[i][j].size + "px sans-serif";
-            ctx.fillStyle = data.surfaceText[i][j].colour;
-            ctx.fillText(data.surfaceText[i][j].text, data.surfaceText[i][j].x, data.surfaceText[i][j].y);
+            serverCtx.font = data.surfaceText[i][j].size + "px sans-serif";
+            serverCtx.fillStyle = data.surfaceText[i][j].colour;
+            serverCtx.fillText(data.surfaceText[i][j].text, data.surfaceText[i][j].x, data.surfaceText[i][j].y);
         }
     }
 }
@@ -161,12 +160,13 @@ function getMousePos(canvas, evt) {
 }
 
 // Unnecessary
+var mousedown = false;
 overlay.onmousedown = function (e) {
-    var pos = getMousePos(overlay, e);
-    posx = pos.x;
-    posy = pos.y;
-    socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
-};
+        var pos = getMousePos(overlay, e);
+        posx = pos.x;
+        posy = pos.y;
+        socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+}
 
 overlay.onmousemove = function (e) {
     var pos = getMousePos(overlay, e);
@@ -189,6 +189,7 @@ overlay.onmousemove = function (e) {
 };
 
 overlay.onmouseup = function (e) {
+    mousedown = false;
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 

@@ -30,9 +30,6 @@ io.sockets.on('connection', function (socket) {
     });
 })
 
-
-
-
 class Room {
     constructor(name) {
         this.name = name;
