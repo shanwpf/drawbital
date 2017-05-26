@@ -6,6 +6,32 @@ var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var DEBUG = true;
 
+var USERS = {
+    //username:password
+    "bob":"asd",
+    "bob2":"bob",
+    "bob3":"ttt",  
+}
+ 
+//cb stands for callback
+var isValidPassword = function(data,cb){
+    setTimeout(function(){
+        cb(USERS[data.username] === data.password);
+    },10);
+}
+var isUsernameTaken = function(data,cb){
+    setTimeout(function(){
+        cb(USERS[data.username]);
+    },10);
+}
+var addUser = function(data,cb){
+    setTimeout(function(){
+        USERS[data.username] = data.password;
+        cb();
+    },10);
+}
+
+
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -18,14 +44,40 @@ server.listen(process.env.PORT || 2000);
 console.log("Server started");
 
 io.sockets.on('connection', function (socket) {
+    var loggedIn = false;
     console.log('socket connection');
     SOCKET_LIST[socket.id] = socket;
-    Client.onConnect(socket);
+
+    socket.on('signIn', function(data){
+        isValidPassword(data,function(res){
+            if(res){
+               loggedIn = true;
+               Client.onConnect(socket);
+               socket.emit('signInResponse',{success:true});
+            } else {
+                socket.emit('signInResponse',{success:false});         
+            }
+        });
+    });
+
+    socket.on('signUp', function(data){
+        isUsernameTaken(data,function(res){
+            if(res){
+                socket.emit('signUpResponse',{success:false});     
+            } else {
+                addUser(data,function(){
+                    socket.emit('signUpResponse',{success:true});                  
+                });
+            }
+        });    
+    });
+   
  
 
     socket.on('disconnect', function () {
         console.log('socket disconnected');
         delete SOCKET_LIST[socket.id];
+        if(loggedIn)
         Client.onDisconnect(socket);
     });
 })
