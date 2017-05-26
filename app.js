@@ -52,7 +52,7 @@ io.sockets.on('connection', function (socket) {
         isValidPassword(data,function(res){
             if(res){
                loggedIn = true;
-               Client.onConnect(socket);
+               Client.onConnect(socket,data.username);
                socket.emit('signInResponse',{success:true});
             } else {
                 socket.emit('signInResponse',{success:false});         
@@ -240,7 +240,6 @@ class Client {
         };
         this.curTool = "brush";
         Client.list[id] = this;
-        emitConnection(this.name);
         return this;
     }
 
@@ -273,9 +272,10 @@ class Client {
     }
 
     // Handle new connections
-    static onConnect(socket) {
+    static onConnect(socket, username) {
         var client = new Client(socket.id);
-
+        client.name = username;
+        emitConnection(client.name);
         // PLACEHOLDER: Replace when rooms are implemented properly
         defaultRoom.addClient(client);
 
