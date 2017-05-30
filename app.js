@@ -4,7 +4,9 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
+var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
+var timeThen = 0;
 
 var USERS = {
     //username:password
@@ -111,6 +113,7 @@ class Surface {
         this.actionMap = {}
         this.deletedActionMap = {}
         this.publicPathMap = {};
+        this.permanentActionList = [];
     }
 
     onClientJoin(client) {
@@ -127,6 +130,20 @@ class Surface {
         delete this.actionMap[client.id];
         delete this.deletedActionMap[client.id];
         delete this.publicPathMap[client.id];
+    }
+
+    makePermanent() {
+        for(var i = 0; i < this.actionList.length; i++) {
+            if(!this.actionList[i].deleted) {
+                this.permanentActionList.push(this.actionList[i]);
+            }
+        }
+        this.actionList.splice(0);
+        for(var i in this.actionMap) {
+            this.actionMap[i] = [];
+            this.deletedActionMap[i] = [];
+        }
+        this.refresh(true);
     }
 
     copyPathToServer(client) {
@@ -159,9 +176,17 @@ class Surface {
         }
     }
 
-    refresh() {
-        for (var i in this.room.clientList) {
-            SOCKET_LIST[i].emit('initSurface', this.getCurData());
+    refresh(refreshPerm) {
+        if(refreshPerm) {
+            for (var i in this.room.clientList) {
+                SOCKET_LIST[i].emit('updatePerm', this.getPermData());
+                SOCKET_LIST[i].emit('initSurface', this.getCurData());
+            }
+        }
+        else {
+            for (var i in this.room.clientList) {
+                SOCKET_LIST[i].emit('initSurface', this.getCurData());
+            }
         }
     }
 
@@ -170,6 +195,13 @@ class Surface {
             clientColours: this.clientColours,
             clientSizes: this.clientSizes,
             publicPathMap: this.publicPathMap
+        }
+        return pack;
+    }
+
+    getPermData() {
+        var pack = {
+            actionList: this.permanentActionList
         }
         return pack;
     }
@@ -416,7 +448,7 @@ function emitToChat(string)
 
 setInterval(function () {
     Client.update();
-})
+}, 15);
 
 setInterval(function () {
     for (var i = 0; i < Room.list.length; i++) {
@@ -425,5 +457,11 @@ setInterval(function () {
         for (var j in room.clientList) {
             SOCKET_LIST[j].emit('updateSurface', pack);
         }
+    }
+    if(Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
+        for(var i = 0; i < Room.list.length; i++) {
+            Room.list[i].surface.makePermanent();
+        }
+        timeThen = Date.now();
     }
 }, 45);

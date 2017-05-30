@@ -17,13 +17,13 @@ socket.on('signInResponse',function(data){
             signInDiv.style.display = 'none';
             displayDiv.style.display = 'inline-block';
         } else
-            alert("Sign in unsuccessul.");
+            alert("Sign in unsuccessful.");
 });
 
 
 socket.on('signUpResponse',function(data){
         if(data.success){
-            alert("Sign up successul.");
+            alert("Sign up successful.");
         } else
-            alert("Sign up unsuccessul.");
+            alert("Sign up unsuccessful.");
 });

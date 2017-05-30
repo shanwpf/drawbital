@@ -2,7 +2,9 @@ var canvas = document.getElementById('publicSurface');
 var serverCanvas = document.getElementById('serverSurface');
 var overlay = document.getElementById('overlay');
 var cursorLayer = document.getElementById('cursorLayer');
+var permCanvas = document.getElementById('permanentSurface');
 var cursorCtx = cursorLayer.getContext('2d');
+var permCtx = permCanvas.getContext('2d');
 var serverCtx = serverSurface.getContext('2d');
 var ctx = canvas.getContext('2d');
 var curColour = "#000000"
@@ -38,11 +40,43 @@ socket.on('updateSurface', function (data) {
     onServerUpdateReceived(data);
 });
 
+socket.on('updatePerm', function (data) {
+    updatePerm(data);
+})
+
 function onServerUpdateReceived(data) {
     var timeElapsed = Date.now() - lastUpdateTime;
     if(timeElapsed >= 1000/60) {
         updateBrush(data);
         lastUpdateTime = Date.now();
+    }
+}
+
+function updatePerm(data) {
+    var points;
+    permCtx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < data.actionList.length; i++) {
+        if (!data.actionList[i].deleted) {
+            points = data.actionList[i].points;
+            if (data.actionList[i].tool === "text") {
+                permCtx.font = data.actionList[i].size + "px sans-serif";
+                permCtx.fillStyle = data.actionList[i].colour;
+                permCtx.fillText(data.actionList[i].text, points[0][0], points[0][1]);
+            }
+            else {
+                permCtx.lineJoin = "round";
+                permCtx.lineCap = "round";
+                permCtx.strokeStyle = data.actionList[i].colour;
+                permCtx.lineWidth = data.actionList[i].size;
+                permCtx.beginPath();
+                permCtx.moveTo(points[0][0], points[0][1] - 0.01);
+                for(var j = 1; j < points.length; j++) {
+                    if(points[j][0] > 0)
+                    permCtx.lineTo(points[j][0], points[j][1]);
+                }
+                permCtx.stroke();
+            }
+        }
     }
 }
 
