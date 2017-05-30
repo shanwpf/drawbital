@@ -215,6 +215,7 @@ class Surface {
 
     clearSurface() {
         this.actionList = [];
+        this.permanentActionList = [];
         for (var i in this.actionMap) {
             this.actionMap[i] = [];
             this.deletedActionMap[i] = [];

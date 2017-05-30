@@ -143,6 +143,7 @@ document.getElementById("clearBtn").onclick = function () {
 
 socket.on('clear', function () {
     serverCtx.clearRect(0, 0, canvas.width, canvas.height);
+    permCtx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
 document.getElementById("brushBtn").onclick = function () {
