@@ -31,7 +31,6 @@ var addUser = function(data,cb){
     },10);
 }
 
-
 // Send html file to client using Express
 app.use(express.static('public'));
 app.get('/', function (req, res) {
@@ -71,8 +70,6 @@ io.sockets.on('connection', function (socket) {
             }
         });    
     });
-   
- 
 
     socket.on('disconnect', function () {
         console.log('socket disconnected');
@@ -108,37 +105,40 @@ Room.list = []
 class Surface {
     constructor(room) {
         this.room = room;
-        this.deltaSurfaceX = {};
-        this.deltaSurfaceY = {};
-        this.deltaSurfaceDrag = {};
-        this.deltaSurfaceColour = {};
-        this.deltaSurfaceSize = {};
-        this.deltaSurfaceText = {};
+        this.clientColours = {};
+        this.clientSizes = {};
         this.actionList = [];
         this.actionMap = {}
         this.deletedActionMap = {}
+        this.publicPathMap = {};
     }
 
     onClientJoin(client) {
-        this.deltaSurfaceX[client.id] = [];
-        this.deltaSurfaceY[client.id] = [];
-        this.deltaSurfaceDrag[client.id] = [];
-        this.deltaSurfaceColour[client.id] = [];
-        this.deltaSurfaceSize[client.id] = [];
-        this.deltaSurfaceText[client.id] = [];
+        this.clientColours[client.id] = [];
+        this.clientSizes[client.id] = [];
         this.actionMap[client.id] = [];
         this.deletedActionMap[client.id] = [];
+        this.publicPathMap[client.id] = [];
     }
 
     onClientLeave(client) {
-        delete this.deltaSurfaceX[client.id];
-        delete this.deltaSurfaceY[client.id];
-        delete this.deltaSurfaceDrag[client.id];
-        delete this.deltaSurfaceColour[client.id];
-        delete this.deltaSurfaceSize[client.id];
-        delete this.deltaSurfaceText[client.id];
+        delete this.clientColours[client.id];
+        delete this.clientSizes[client.id];
         delete this.actionMap[client.id];
         delete this.deletedActionMap[client.id];
+        delete this.publicPathMap[client.id];
+    }
+
+    copyPathToServer(client) {
+        this.addAction(client.id, this.publicPathMap[client.id], client.curTool, client.colour, client.size);
+        this.publicPathMap[client.id] = [];
+        this.refresh();
+    }
+
+    addAction(id, path, tool, colour, size, text) {
+        var action = new Action(id, path, tool, colour, size, text);
+        this.actionList.push(action);
+        this.actionMap[id].push(this.actionList.length - 1);
     }
 
     undo(id) {
@@ -167,12 +167,9 @@ class Surface {
 
     getDeltaData() {
         var pack = {
-            surfaceX: this.deltaSurfaceX,
-            surfaceY: this.deltaSurfaceY,
-            surfaceDrag: this.deltaSurfaceDrag,
-            surfaceColour: this.deltaSurfaceColour,
-            surfaceSize: this.deltaSurfaceSize,
-            surfaceText: this.deltaSurfaceText
+            clientColours: this.clientColours,
+            clientSizes: this.clientSizes,
+            publicPathMap: this.publicPathMap
         }
         return pack;
     }
@@ -182,27 +179,6 @@ class Surface {
             actionList: this.actionList
         }
         return pack;
-    }
-
-    clearDelta() {
-        for (var i in this.deltaSurfaceDrag) {
-            if (this.deltaSurfaceDrag[i][this.deltaSurfaceDrag[i].length - 1]) {
-                this.deltaSurfaceX[i].splice(0, this.deltaSurfaceX[i].length - 2);
-                this.deltaSurfaceY[i].splice(0, this.deltaSurfaceY[i].length - 2);
-                this.deltaSurfaceDrag[i].splice(0, this.deltaSurfaceDrag[i].length - 2);
-                this.deltaSurfaceColour[i].splice(0, this.deltaSurfaceColour[i].length - 2);
-                this.deltaSurfaceSize[i].splice(0, this.deltaSurfaceSize[i].length - 2);
-                this.deltaSurfaceText[i].splice(0, this.deltaSurfaceText[i].length - 2);
-            }
-            else {
-                this.deltaSurfaceX[i] = [];
-                this.deltaSurfaceY[i] = [];
-                this.deltaSurfaceDrag[i] = [];
-                this.deltaSurfaceColour[i] = [];
-                this.deltaSurfaceSize[i] = [];
-                this.deltaSurfaceText[i] = [];
-            }
-        }
     }
 
     clearSurface() {
@@ -359,13 +335,6 @@ class Client {
 
 Client.list = {};
 
-class Point {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
 class Action {
     constructor(id, points, tool, colour, size, text) {
         this.id = id;
@@ -397,22 +366,15 @@ class Brush extends Tool {
     use() {
         this.addClick();
         if (this.client.idle) {
-            var action = new Action(this.client.id, this.points, "brush", this.client.colour,
-                this.client.size);
-            this.points = [];
-            this.surface.actionList.push(action);
-            this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
+            this.surface.copyPathToServer(this.client);
         }
     }
 
     addClick() {
         var id = this.client.id;
-        this.points.push(new Point(this.client.mouseX, this.client.mouseY));
-        this.surface.deltaSurfaceX[id].push(this.client.mouseX);
-        this.surface.deltaSurfaceY[id].push(this.client.mouseY);
-        this.surface.deltaSurfaceDrag[id].push(this.client.dragging);
-        this.surface.deltaSurfaceColour[id].push(this.client.colour);
-        this.surface.deltaSurfaceSize[id].push(this.client.size);
+        this.surface.clientColours[id] = this.client.colour;
+        this.surface.clientSizes[id] = this.client.size;
+        this.surface.publicPathMap[id].push([this.client.mouseX, this.client.mouseY]);
     }
 }
 
@@ -424,21 +386,12 @@ class Text extends Tool {
 
     use(text) {
         if (text) {
-            this.surface.actionList.push(new Action(this.client.id, new Array(new Point(this.client.mouseX, this.client.mouseY)), "text",
-                this.client.colour, Math.max(MIN_FONT_SIZE, this.client.size), text));
-            this.surface.deltaSurfaceText[this.client.id].push({
-                x: this.client.mouseX,
-                y: this.client.mouseY,
-                colour: this.client.colour,
-                size: Math.max(MIN_FONT_SIZE, this.client.size),
-                text: text
-            });
-            this.surface.actionMap[this.client.id].push(this.surface.actionList.length - 1);
+            this.surface.addAction(this.client.id, [[this.client.mouseX, this.client.mouseY]], "text", this.client.colour,
+                                    Math.max(MIN_FONT_SIZE, this.client.size), text);
+            this.surface.refresh();
         }
     }
 }
-
-
 
 // functions for chat
 function emitConnection(name)
@@ -461,16 +414,16 @@ function emitToChat(string)
     }
 }
 
-
-
 setInterval(function () {
     Client.update();
+})
+
+setInterval(function () {
     for (var i = 0; i < Room.list.length; i++) {
         var room = Room.list[i];
         var pack = room.surface.getDeltaData();
         for (var j in room.clientList) {
             SOCKET_LIST[j].emit('updateSurface', pack);
         }
-        room.surface.clearDelta();
     }
-}, 1000/60);
+}, 45);

@@ -9,6 +9,7 @@ var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
+var lastUpdateTime = 0;
 
 $(document).ready(function() {
     $('#full').spectrum({
@@ -34,13 +35,19 @@ socket.on('initSurface', function (data) {
 });
 
 socket.on('updateSurface', function (data) {
-    updateBrush(data);
-    updateText(data);
+    onServerUpdateReceived(data);
 });
+
+function onServerUpdateReceived(data) {
+    var timeElapsed = Date.now() - lastUpdateTime;
+    if(timeElapsed >= 1000/60) {
+        updateBrush(data);
+        lastUpdateTime = Date.now();
+    }
+}
 
 function initSurface(data) {
     var points;
-    serverCtx.lineJoin = "round";
     serverCtx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
         if (!data.actionList[i].deleted) {
@@ -48,29 +55,20 @@ function initSurface(data) {
             if (data.actionList[i].tool === "text") {
                 serverCtx.font = data.actionList[i].size + "px sans-serif";
                 serverCtx.fillStyle = data.actionList[i].colour;
-                serverCtx.fillText(data.actionList[i].text, points[0].x, points[0].y);
+                serverCtx.fillText(data.actionList[i].text, points[0][0], points[0][1]);
             }
             else {
+                serverCtx.lineJoin = "round";
+                serverCtx.lineCap = "round";
                 serverCtx.strokeStyle = data.actionList[i].colour;
                 serverCtx.lineWidth = data.actionList[i].size;
-                for (var j = 0; j < points.length; j++) {
-                    serverCtx.beginPath();
-                    if (j === 0) {
-                        serverCtx.moveTo(points[j].x, points[j].y);
-                        serverCtx.lineTo(points[j].x - 0.01, points[j].y);
-                        serverCtx.closePath();
-                        serverCtx.stroke();
-                    }
-                    if (j + 1 < points.length) {
-                        serverCtx.moveTo(points[j + 1].x, points[j + 1].y);
-                    }
-                    else {
-                        serverCtx.moveTo(points[j].x - 0.01, points[j].y);
-                    }
-                    serverCtx.lineTo(points[j].x, points[j].y);
-                    serverCtx.closePath();
-                    serverCtx.stroke();
+                serverCtx.beginPath();
+                serverCtx.moveTo(points[0][0], points[0][1] - 0.01);
+                for(var j = 1; j < points.length; j++) {
+                    if(points[j][0] > 0)
+                    serverCtx.lineTo(points[j][0], points[j][1]);
                 }
+                serverCtx.stroke();
             }
         }
     }
@@ -88,23 +86,19 @@ function updateText(data) {
 
 function updateBrush(data) {
     ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    for (var i in data.surfaceX) {
-        for (var j = 1; j < data.surfaceX[i].length; j++) {
-            ctx.strokeStyle = data.surfaceColour[i][j - 1];
-            ctx.lineWidth = data.surfaceSize[i][j - 1];
+    for (var i in data.publicPathMap) {
+        ctx.strokeStyle = data.clientColours[i];
+        ctx.lineWidth = data.clientSizes[i];
+        if(data.publicPathMap[i][0]) {
             ctx.beginPath();
-            if (data.surfaceDrag[i][j - 1]) {
-                ctx.moveTo(data.surfaceX[i][j - 1] - 0.01, data.surfaceY[i][j - 1]);
+            ctx.moveTo(data.publicPathMap[i][0][0], data.publicPathMap[i][0][1]);
+            for (var j = 1; j < data.publicPathMap[i].length; j++) {
+                ctx.lineTo(data.publicPathMap[i][j][0], data.publicPathMap[i][j][1]);
             }
-            else {
-                ctx.moveTo(data.surfaceX[i][j], data.surfaceY[i][j]);
-            }
-            if (data.surfaceX[i][j] > 0) {
-                ctx.lineTo(data.surfaceX[i][j], data.surfaceY[i][j]);
-                ctx.closePath();
-                ctx.stroke();
-            }
+            ctx.stroke();
         }
     }
 }
@@ -114,7 +108,7 @@ document.getElementById("clearBtn").onclick = function () {
 };
 
 socket.on('clear', function () {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    serverCtx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
 document.getElementById("brushBtn").onclick = function () {
