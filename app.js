@@ -122,6 +122,7 @@ class Surface {
         this.actionMap[client.id] = [];
         this.deletedActionMap[client.id] = [];
         this.publicPathMap[client.id] = [];
+        SOCKET_LIST[client.id].emit('updatePerm', this.getPermData());
     }
 
     onClientLeave(client) {
