@@ -242,21 +242,30 @@ document.getElementById("brushSize").onchange = function () {
 
 var viewX = 0;
 var viewY = 0;
+var keyStates = {
+    'W': false,
+    'A': false,
+    'S': false,
+    'D': false
+}
+
+// Update loop for viewCanvas
 function repeat() {
     viewCanvas.width = window.innerWidth;
     viewCanvas.height = window.innerHeight - 250;
     translateAll();
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
-    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
     viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
-    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
                       viewCanvas.width, viewCanvas.height); 
     viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
                       viewCanvas.width, viewCanvas.height); 
+    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
+    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
     requestAnimationFrame(repeat);
 }
+repeat();
 
 function translateAll() {
     if(keyStates['W']) {
@@ -266,11 +275,11 @@ function translateAll() {
         }
     }
     if(keyStates['D']) {
-            for(var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
-                canvasArray[i].top = viewY;
-                canvasArray[i].left = (viewX += SCROLL_SPEED);
-            }
+        for(var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
+            canvasArray[i].top = viewY;
+            canvasArray[i].left = (viewX += SCROLL_SPEED);
         }
+    }
     if(keyStates['S']) {
         for(var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
             canvasArray[i].top = (viewY += SCROLL_SPEED);
@@ -285,14 +294,7 @@ function translateAll() {
     }
 }
 
-var keyStates = {
-    'W': false,
-    'A': false,
-    'S': false,
-    'D': false
-}
-
-overlay.onkeydown = function(e) {
+overlay.onkeydown = function(event) {
     if(String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = true;
     }
@@ -307,7 +309,7 @@ overlay.onkeydown = function(e) {
     }
 }
 
-overlay.onkeyup = function(e) {
+overlay.onkeyup = function(event) {
     if(String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = false;
     }
@@ -321,5 +323,3 @@ overlay.onkeyup = function(e) {
         keyStates['D'] = false;
     }
 }
-
-repeat();
