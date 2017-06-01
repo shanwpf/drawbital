@@ -1,9 +1,11 @@
 var canvas = document.getElementById('publicSurface');
+var viewCanvas = document.getElementById('view');
 var serverCanvas = document.getElementById('serverSurface');
 var overlay = document.getElementById('overlay');
 var cursorLayer = document.getElementById('cursorLayer');
 var permCanvas = document.getElementById('permanentSurface');
 var cursorCtx = cursorLayer.getContext('2d');
+var viewCtx = viewCanvas.getContext('2d');
 var permCtx = permCanvas.getContext('2d');
 var serverCtx = serverSurface.getContext('2d');
 var ctx = canvas.getContext('2d');
@@ -12,6 +14,8 @@ var curTool = "brush";
 var curSize = 5;
 var socket = io();
 var lastUpdateTime = 0;
+var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
+var SCROLL_SPEED = 2;
 
 $(document).ready(function() {
     $('#full').spectrum({
@@ -181,10 +185,10 @@ function changeTool(tool) {
 }
 
 function getMousePos(canvas, evt) {
-    var rect = overlay.getBoundingClientRect();
+    var rect = viewCanvas.getBoundingClientRect();
     return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
+        x: evt.clientX - rect.left + viewX,
+        y: evt.clientY - rect.top + viewY
     };
 }
 
@@ -231,3 +235,87 @@ document.getElementById("brushSize").onchange = function () {
     curSize = brushSize.value;
     socket.emit('size', { value: brushSize.value });
 }
+
+var viewX = 0;
+var viewY = 0;
+function repeat() {
+    viewCanvas.width = window.innerWidth;
+    viewCanvas.height = window.innerHeight - 250;
+    translateAll();
+    viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
+    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
+    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
+    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
+    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
+                      viewCanvas.width, viewCanvas.height); 
+    requestAnimationFrame(repeat);
+}
+
+function translateAll() {
+    if(keyStates['W']) {
+        for(var i = 0; i < canvasArray.length && viewY > 0; i++) {
+            canvasArray[i].top = (viewY -= SCROLL_SPEED);
+            canvasArray[i].left = viewX;
+        }
+    }
+    if(keyStates['D']) {
+            for(var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
+                canvasArray[i].top = viewY;
+                canvasArray[i].left = (viewX += SCROLL_SPEED);
+            }
+        }
+    if(keyStates['S']) {
+        for(var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
+            canvasArray[i].top = (viewY += SCROLL_SPEED);
+            canvasArray[i].left = viewX;
+        }
+    }
+    if(keyStates['A']) {
+        for(var i = 0; i < canvasArray.length && viewX > 0; i++) {
+            canvasArray[i].top = viewY;
+            canvasArray[i].left = (viewX -= SCROLL_SPEED);
+        }
+    }
+}
+
+var keyStates = {
+    'W': false,
+    'A': false,
+    'S': false,
+    'D': false
+}
+
+overlay.onkeydown = function(e) {
+    if(String.fromCharCode(event.keyCode) == 'W') {
+        keyStates['W'] = true;
+    }
+    if(String.fromCharCode(event.keyCode) == 'A') {
+        keyStates['A'] = true;
+    }
+    if(String.fromCharCode(event.keyCode) == 'S') {
+        keyStates['S'] = true;
+    }
+    if(String.fromCharCode(event.keyCode) == 'D') {
+        keyStates['D'] = true;
+    }
+}
+
+overlay.onkeyup = function(e) {
+    if(String.fromCharCode(event.keyCode) == 'W') {
+        keyStates['W'] = false;
+    }
+    if(String.fromCharCode(event.keyCode) == 'A') {
+        keyStates['A'] = false;
+    }
+    if(String.fromCharCode(event.keyCode) == 'S') {
+        keyStates['S'] = false;
+    }
+    if(String.fromCharCode(event.keyCode) == 'D') {
+        keyStates['D'] = false;
+    }
+}
+
+repeat();

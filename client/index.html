@@ -24,6 +24,26 @@
             <input id="signDiv-username" type="text"></input>
             <button id="signDiv-Apply">Apply</button>
         </div>
+
+        <style type="text/css">
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #cursorLayer {
+                display: none;
+            }
+            #publicSurface {
+                display: none;
+            }
+            #serverSurface {
+                display: none;
+            }
+            #permanentSurface {
+                display: none;
+            }
+        </style>
         <input type="button" id="clearBtn" value="Clear"> Colour:
         <input type='text' id='full'/>
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
@@ -31,22 +51,24 @@
         <input type="button" id="textBtn" value="Text">
         <input type="button" id="undoBtn" value="Undo">
         <input type="button" id="redoBtn" value="Redo">
+        <input type="button" id="dragBtn" value="Drag(Not yet implemented)">
+        Navigate the canvas using WASD
         <div style="position: relative;">
-            <canvas id="overlay" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
-            <canvas id="cursorLayer" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
-            <canvas id="publicSurface" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
-            <canvas id="serverSurface" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
-            <canvas id="permanentSurface" width="2000" height="1000" style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
-            <canvas id="border" width="2000" height="1000" style="border:1px solid #000000"></canvas>
+            <canvas id="overlay" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 6;" tabindex='1'></canvas>
+            <canvas id="view" style="position: relative; left: 0; top: 0; z-index: 5; border:1px solid #000000"></canvas>
+            <canvas id="cursorLayer" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
+            <canvas id="publicSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+            <canvas id="serverSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+            <canvas id="permanentSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
         </div>
-        <div id="gameDiv" style="position: relative;">
+        <div id="gameDiv" style="position: relative; z-index: 7;">
                 Chat Box:
                 <div id="chat-text" style="width:600px;height:150px;overflow-y:scroll">               
                     <div>Hello!</div>
                 </div>
             
                 <form id="chat-form">
-                    <input id="chat-input" type="text" style="width:500px"></input>
+                    <input id="chat-input" type="text" style="width:500px" onclick="this.select()"></input>
                 </form>
         </div>
     </div>
