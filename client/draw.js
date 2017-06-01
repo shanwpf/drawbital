@@ -173,6 +173,9 @@ function changeTool(tool) {
             posy = pos.y;
             socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
         }
+        
+        // Clear the brush cursor
+        cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
     }
     else if (curTool === "brush") {
         overlay.onmousedown = function (e) {
@@ -201,6 +204,7 @@ overlay.onmousedown = function (e) {
         socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
 }
 
+var prevPosX, prevPosY;
 overlay.onmousemove = function (e) {
     var pos = getMousePos(overlay, e);
     posx = pos.x;
@@ -208,7 +212,8 @@ overlay.onmousemove = function (e) {
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     if(curTool == "brush") {
         var r = curSize / 2;
-        cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
+        if(prevPosX)
+            cursorCtx.clearRect(prevPosX - 2 * r, prevPosY - 2 * r, r * 4, r * 4);
         cursorCtx.fillStyle = curColour;
         cursorCtx.lineWidth = 1;
         cursorCtx.beginPath();
@@ -216,9 +221,8 @@ overlay.onmousemove = function (e) {
         cursorCtx.closePath();
         cursorCtx.fill();
     }
-    else {
-        cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    prevPosX = posx;
+    prevPosY = posy;
 };
 
 overlay.onmouseup = function (e) {
