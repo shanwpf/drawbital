@@ -28,6 +28,7 @@ var curSize = 5;
 var socket = io();
 var lastUpdateTime = 0;
 var SCROLL_SPEED = 2;
+var loggedIn = false;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -49,6 +50,8 @@ $(document).ready(function () {
 });
 
 socket.on('initSurface', function (data) {
+    if(!loggedIn)
+        loggedIn = true;
     initSurface(data);
 });
 
@@ -58,6 +61,12 @@ socket.on('updateSurface', function (data) {
 
 socket.on('updatePerm', function (data) {
     updatePerm(data);
+})
+
+// Start the requestAnimationFrame loop on successful sign in
+socket.on('signInResponse', function (data) {
+    if(data.success)
+        repeat();
 })
 
 function onServerUpdateReceived(data) {
@@ -279,7 +288,6 @@ function repeat() {
         viewCanvas.width, viewCanvas.height);
     requestAnimationFrame(repeat);
 }
-repeat();
 
 function translateAll() {
     if (keyStates['W']) {
