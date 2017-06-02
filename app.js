@@ -10,6 +10,7 @@ var timeThen = 0;
 
 var USERS = {
     //username:password
+    "": "",
     "bob": "asd",
     "bob2": "bob",
     "bob3": "ttt",
