@@ -1,20 +1,32 @@
+// Real-time client drawing
 var canvas = document.getElementById('publicSurface');
-var viewCanvas = document.getElementById('view');
-var serverCanvas = document.getElementById('serverSurface');
-var overlay = document.getElementById('overlay');
-var cursorLayer = document.getElementById('cursorLayer');
-var permCanvas = document.getElementById('permanentSurface');
-var cursorCtx = cursorLayer.getContext('2d');
-var viewCtx = viewCanvas.getContext('2d');
-var permCtx = permCanvas.getContext('2d');
-var serverCtx = serverSurface.getContext('2d');
 var ctx = canvas.getContext('2d');
+
+// Saved client drawing but not permanent (able to undo/redo)
+var serverCanvas = document.getElementById('serverSurface');
+var serverCtx = serverSurface.getContext('2d');
+
+// Saved and permanent drawings (unable to undo/redo)
+var permCanvas = document.getElementById('permanentSurface');
+var permCtx = permCanvas.getContext('2d');
+
+// Draw cursors
+var cursorLayer = document.getElementById('cursorLayer');
+var cursorCtx = cursorLayer.getContext('2d');
+
+// Client viewport
+var viewCanvas = document.getElementById('view');
+var viewCtx = viewCanvas.getContext('2d');
+
+// For input capture
+var overlay = document.getElementById('overlay');
+
+var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
 var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
 var lastUpdateTime = 0;
-var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
 var SCROLL_SPEED = 2;
 
 $(document).ready(function() {
@@ -212,7 +224,7 @@ overlay.onmousemove = function (e) {
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     if(curTool == "brush") {
         var r = curSize / 2;
-        if(prevPosX)
+        if(prevPosX || prevPosX >= 0)
             cursorCtx.clearRect(prevPosX - 2 * r, prevPosY - 2 * r, r * 4, r * 4);
         cursorCtx.fillStyle = curColour;
         cursorCtx.lineWidth = 1;
