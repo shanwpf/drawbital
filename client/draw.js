@@ -50,7 +50,7 @@ $(document).ready(function () {
 });
 
 socket.on('initSurface', function (data) {
-    if(!loggedIn)
+    if (!loggedIn)
         loggedIn = true;
     initSurface(data);
 });
@@ -65,7 +65,7 @@ socket.on('updatePerm', function (data) {
 
 // Start the requestAnimationFrame loop on successful sign in
 socket.on('signInResponse', function (data) {
-    if(data.success)
+    if (data.success)
         repeat();
 })
 
@@ -219,7 +219,9 @@ function getMousePos(canvas, evt) {
 // Unnecessary
 var mousedown = false;
 overlay.onmousedown = function (e) {
-    e.preventDefault();
+    // Prevent text selection while dragging
+    document.onselectstart = function () { return false; }
+
     var pos = getMousePos(overlay, e);
     posx = pos.x;
     posy = pos.y;
@@ -228,7 +230,6 @@ overlay.onmousedown = function (e) {
 
 var prevPosX, prevPosY;
 overlay.onmousemove = function (e) {
-    e.preventDefault();
     var pos = getMousePos(overlay, e);
     posx = pos.x;
     posy = pos.y;
@@ -249,6 +250,9 @@ overlay.onmousemove = function (e) {
 };
 
 overlay.onmouseup = function (e) {
+    // Allow text selection after dragging
+    document.onselectstart = function () { return true; }
+
     mousedown = false;
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
