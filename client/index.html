@@ -5,32 +5,33 @@
     <title>Drawbital</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/style.css" rel="stylesheet">
     <link rel='stylesheet' href='/client/spectrum.css' />
     <link href="/client/signin.css" rel="stylesheet">
+    <link href="/client/draw.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="container" id="signInDiv">
-      <form class="form-signin">
-        <h2 class="form-signin-heading">Please sign in</h2>
-        <label for="inputUsername" class="sr-only">Username</label>
-        <input type="username" id="signInDiv-username" class="form-control" placeholder="Username" required autofocus>
-        <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" id="signInDiv-password" class="form-control" placeholder="Password" required>
-        <div class="checkbox">
-          <label>
+        <form class="form-signin">
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <label for="inputUsername" class="sr-only">Username</label>
+            <input type="username" id="signInDiv-username" class="form-control" placeholder="Username" required autofocus>
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="signInDiv-password" class="form-control" placeholder="Password" required>
+            <div class="checkbox">
+                <label>
             <input type="checkbox" value="remember-me"> Remember me
           </label>
-        </div>
-        <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
-        <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signUp" type="submit">Register</button>
-      </form>
-    </div> <!-- /container -->
-    <div id="displayDiv" style="display:none;">
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signUp" type="submit">Register</button>
+        </form>
+    </div>
+    <!-- /container -->
 
+    <div class="container" id="displayDiv" style="display:none;">
         <div id="signDiv">
-            Username: 
+            Username:
             <input id="signDiv-username" type="text"></input>
             <button id="signDiv-Apply">Apply</button>
         </div>
@@ -41,29 +42,32 @@
                 padding: 0;
                 overflow: hidden;
             }
+
             #cursorLayer {
                 display: none;
             }
+
             #publicSurface {
                 display: none;
             }
+
             #serverSurface {
                 display: none;
             }
+
             #permanentSurface {
                 display: none;
             }
         </style>
         <input type="button" id="clearBtn" value="Clear"> Colour:
-        <input type='text' id='full'/>
+        <input type='text' id='full' />
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
         <input type="button" id="brushBtn" value="Brush">
         <input type="button" id="textBtn" value="Text">
         <input type="button" id="undoBtn" value="Undo">
         <input type="button" id="redoBtn" value="Redo">
-        <input type="button" id="dragBtn" value="Drag(Not yet implemented)">
-        Navigate the canvas using WASD
-        <div style="position: relative;">
+        <input type="button" id="dragBtn" value="Drag(Not yet implemented)"> Navigate the canvas using WASD
+        <div id="canvasDiv" style="position: relative;">
             <canvas id="overlay" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 6;" tabindex='1'></canvas>
             <canvas id="view" style="position: relative; left: 0; top: 0; z-index: 5; border:1px solid #000000"></canvas>
             <canvas id="cursorLayer" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
@@ -72,24 +76,27 @@
             <canvas id="permanentSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
         </div>
         <div id="gameDiv" style="position: relative; z-index: 7;">
-                Chat Box:
-                <div id="chat-text" style="width:600px;height:150px;overflow-y:scroll">               
-                    <div>Hello!</div>
-                </div>
-            
-                <form id="chat-form">
-                    <input id="chat-input" type="text" style="width:500px"></input>
-                </form>
+            Chat Box:
+            <div id="chat-text" style="width:600px;height:150px;overflow-y:scroll">
+                <div>Hello!</div>
+            </div>
+
+            <form id="chat-form">
+                <input id="chat-input" type="text" style="width:500px"></input>
+            </form>
         </div>
     </div>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+        crossorigin="anonymous">
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src=" https://unpkg.com/vue"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jcanvas/16.7.3/jcanvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>

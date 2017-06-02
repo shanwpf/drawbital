@@ -29,22 +29,22 @@ var socket = io();
 var lastUpdateTime = 0;
 var SCROLL_SPEED = 2;
 
-$(document).ready(function() {
+$(document).ready(function () {
     $('#full').spectrum({
-    color: '#ECC',
-    showInput: true,
-    className: 'full-spectrum',
-    showInitial: true,
-    showPalette: true,
-    showSelectionPalette: true,
-    maxSelectionSize: 10,
-    preferredFormat: 'hex',
-    localStorageKey: 'spectrum.drawbital',
-    showAlpha: true,
-    move: function(colour) {
-        curColour = colour.toRgbString();
-        socket.emit('colour', { value: colour.toRgbString() });
-    }
+        color: '#ECC',
+        showInput: true,
+        className: 'full-spectrum',
+        showInitial: true,
+        showPalette: true,
+        showSelectionPalette: true,
+        maxSelectionSize: 10,
+        preferredFormat: 'hex',
+        localStorageKey: 'spectrum.drawbital',
+        showAlpha: true,
+        move: function (colour) {
+            curColour = colour.toRgbString();
+            socket.emit('colour', { value: colour.toRgbString() });
+        }
     });
 });
 
@@ -62,7 +62,7 @@ socket.on('updatePerm', function (data) {
 
 function onServerUpdateReceived(data) {
     var timeElapsed = Date.now() - lastUpdateTime;
-    if(timeElapsed >= 1000/60) {
+    if (timeElapsed >= 1000 / 60) {
         updateBrush(data);
         lastUpdateTime = Date.now();
     }
@@ -86,9 +86,9 @@ function updatePerm(data) {
                 permCtx.lineWidth = data.actionList[i].size;
                 permCtx.beginPath();
                 permCtx.moveTo(points[0][0], points[0][1] - 0.01);
-                for(var j = 1; j < points.length; j++) {
-                    if(points[j][0] > 0)
-                    permCtx.lineTo(points[j][0], points[j][1]);
+                for (var j = 1; j < points.length; j++) {
+                    if (points[j][0] > 0)
+                        permCtx.lineTo(points[j][0], points[j][1]);
                 }
                 permCtx.stroke();
             }
@@ -114,9 +114,9 @@ function initSurface(data) {
                 serverCtx.lineWidth = data.actionList[i].size;
                 serverCtx.beginPath();
                 serverCtx.moveTo(points[0][0], points[0][1] - 0.01);
-                for(var j = 1; j < points.length; j++) {
-                    if(points[j][0] > 0)
-                    serverCtx.lineTo(points[j][0], points[j][1]);
+                for (var j = 1; j < points.length; j++) {
+                    if (points[j][0] > 0)
+                        serverCtx.lineTo(points[j][0], points[j][1]);
                 }
                 serverCtx.stroke();
             }
@@ -138,11 +138,11 @@ function updateBrush(data) {
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     for (var i in data.publicPathMap) {
         ctx.strokeStyle = data.clientColours[i];
         ctx.lineWidth = data.clientSizes[i];
-        if(data.publicPathMap[i][0]) {
+        if (data.publicPathMap[i][0]) {
             ctx.beginPath();
             ctx.moveTo(data.publicPathMap[i][0][0], data.publicPathMap[i][0][1]);
             for (var j = 1; j < data.publicPathMap[i].length; j++) {
@@ -185,7 +185,7 @@ function changeTool(tool) {
             posy = pos.y;
             socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
         }
-        
+
         // Clear the brush cursor
         cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -210,21 +210,23 @@ function getMousePos(canvas, evt) {
 // Unnecessary
 var mousedown = false;
 overlay.onmousedown = function (e) {
-        var pos = getMousePos(overlay, e);
-        posx = pos.x;
-        posy = pos.y;
-        socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+    e.preventDefault();
+    var pos = getMousePos(overlay, e);
+    posx = pos.x;
+    posy = pos.y;
+    socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
 }
 
 var prevPosX, prevPosY;
 overlay.onmousemove = function (e) {
+    e.preventDefault();
     var pos = getMousePos(overlay, e);
     posx = pos.x;
     posy = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
-    if(curTool == "brush") {
+    if (curTool == "brush") {
         var r = curSize / 2;
-        if(prevPosX || prevPosX >= 0)
+        if (prevPosX || prevPosX >= 0)
             cursorCtx.clearRect(prevPosX - 2 * r, prevPosY - 2 * r, r * 4, r * 4);
         cursorCtx.fillStyle = curColour;
         cursorCtx.lineWidth = 1;
@@ -268,70 +270,70 @@ function repeat() {
     translateAll();
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
     viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
+        viewCanvas.width, viewCanvas.height);
     viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
+        viewCanvas.width, viewCanvas.height);
     viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
+        viewCanvas.width, viewCanvas.height);
     viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-                      viewCanvas.width, viewCanvas.height); 
+        viewCanvas.width, viewCanvas.height);
     requestAnimationFrame(repeat);
 }
 repeat();
 
 function translateAll() {
-    if(keyStates['W']) {
-        for(var i = 0; i < canvasArray.length && viewY > 0; i++) {
+    if (keyStates['W']) {
+        for (var i = 0; i < canvasArray.length && viewY > 0; i++) {
             canvasArray[i].top = (viewY -= SCROLL_SPEED);
             canvasArray[i].left = viewX;
         }
     }
-    if(keyStates['D']) {
-        for(var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
+    if (keyStates['D']) {
+        for (var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
             canvasArray[i].top = viewY;
             canvasArray[i].left = (viewX += SCROLL_SPEED);
         }
     }
-    if(keyStates['S']) {
-        for(var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
+    if (keyStates['S']) {
+        for (var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
             canvasArray[i].top = (viewY += SCROLL_SPEED);
             canvasArray[i].left = viewX;
         }
     }
-    if(keyStates['A']) {
-        for(var i = 0; i < canvasArray.length && viewX > 0; i++) {
+    if (keyStates['A']) {
+        for (var i = 0; i < canvasArray.length && viewX > 0; i++) {
             canvasArray[i].top = viewY;
             canvasArray[i].left = (viewX -= SCROLL_SPEED);
         }
     }
 }
 
-overlay.onkeydown = function(event) {
-    if(String.fromCharCode(event.keyCode) == 'W') {
+overlay.onkeydown = function (event) {
+    if (String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = true;
     }
-    if(String.fromCharCode(event.keyCode) == 'A') {
+    if (String.fromCharCode(event.keyCode) == 'A') {
         keyStates['A'] = true;
     }
-    if(String.fromCharCode(event.keyCode) == 'S') {
+    if (String.fromCharCode(event.keyCode) == 'S') {
         keyStates['S'] = true;
     }
-    if(String.fromCharCode(event.keyCode) == 'D') {
+    if (String.fromCharCode(event.keyCode) == 'D') {
         keyStates['D'] = true;
     }
 }
 
-overlay.onkeyup = function(event) {
-    if(String.fromCharCode(event.keyCode) == 'W') {
+overlay.onkeyup = function (event) {
+    if (String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = false;
     }
-    if(String.fromCharCode(event.keyCode) == 'A') {
+    if (String.fromCharCode(event.keyCode) == 'A') {
         keyStates['A'] = false;
     }
-    if(String.fromCharCode(event.keyCode) == 'S') {
+    if (String.fromCharCode(event.keyCode) == 'S') {
         keyStates['S'] = false;
     }
-    if(String.fromCharCode(event.keyCode) == 'D') {
+    if (String.fromCharCode(event.keyCode) == 'D') {
         keyStates['D'] = false;
     }
 }

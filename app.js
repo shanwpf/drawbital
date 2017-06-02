@@ -10,27 +10,27 @@ var timeThen = 0;
 
 var USERS = {
     //username:password
-    "bob":"asd",
-    "bob2":"bob",
-    "bob3":"ttt",  
+    "bob": "asd",
+    "bob2": "bob",
+    "bob3": "ttt",
 }
- 
+
 //cb stands for callback
-var isValidPassword = function(data,cb){
-    setTimeout(function(){
+var isValidPassword = function (data, cb) {
+    setTimeout(function () {
         cb(USERS[data.username] === data.password);
-    },10);
+    }, 10);
 }
-var isUsernameTaken = function(data,cb){
-    setTimeout(function(){
+var isUsernameTaken = function (data, cb) {
+    setTimeout(function () {
         cb(USERS[data.username]);
-    },10);
+    }, 10);
 }
-var addUser = function(data,cb){
-    setTimeout(function(){
+var addUser = function (data, cb) {
+    setTimeout(function () {
         USERS[data.username] = data.password;
         cb();
-    },10);
+    }, 10);
 }
 
 // Send html file to client using Express
@@ -49,35 +49,35 @@ io.sockets.on('connection', function (socket) {
     console.log('socket connection');
     SOCKET_LIST[socket.id] = socket;
 
-    socket.on('signIn', function(data){
-        isValidPassword(data,function(res){
-            if(res){
-               loggedIn = true;
-               Client.onConnect(socket,data.username);
-               socket.emit('signInResponse',{success:true});
+    socket.on('signIn', function (data) {
+        isValidPassword(data, function (res) {
+            if (res) {
+                loggedIn = true;
+                Client.onConnect(socket, data.username);
+                socket.emit('signInResponse', { success: true });
             } else {
-                socket.emit('signInResponse',{success:false});         
+                socket.emit('signInResponse', { success: false });
             }
         });
     });
 
-    socket.on('signUp', function(data){
-        isUsernameTaken(data,function(res){
-            if(res){
-                socket.emit('signUpResponse',{success:false});     
+    socket.on('signUp', function (data) {
+        isUsernameTaken(data, function (res) {
+            if (res) {
+                socket.emit('signUpResponse', { success: false });
             } else {
-                addUser(data,function(){
-                    socket.emit('signUpResponse',{success:true});                  
+                addUser(data, function () {
+                    socket.emit('signUpResponse', { success: true });
                 });
             }
-        });    
+        });
     });
 
     socket.on('disconnect', function () {
         console.log('socket disconnected');
         delete SOCKET_LIST[socket.id];
-        if(loggedIn)
-        Client.onDisconnect(socket);
+        if (loggedIn)
+            Client.onDisconnect(socket);
     });
 })
 
@@ -134,13 +134,13 @@ class Surface {
     }
 
     makePermanent() {
-        for(var i = 0; i < this.actionList.length; i++) {
-            if(!this.actionList[i].deleted) {
+        for (var i = 0; i < this.actionList.length; i++) {
+            if (!this.actionList[i].deleted) {
                 this.permanentActionList.push(this.actionList[i]);
             }
         }
         this.actionList.splice(0);
-        for(var i in this.actionMap) {
+        for (var i in this.actionMap) {
             this.actionMap[i] = [];
             this.deletedActionMap[i] = [];
         }
@@ -178,7 +178,7 @@ class Surface {
     }
 
     refresh(refreshPerm) {
-        if(refreshPerm) {
+        if (refreshPerm) {
             for (var i in this.room.clientList) {
                 SOCKET_LIST[i].emit('updatePerm', this.getPermData());
                 SOCKET_LIST[i].emit('initSurface', this.getCurData());
@@ -327,29 +327,29 @@ class Client {
             }
             client.mouseX = data.x;
             client.mouseY = data.y;
-            
+
         });
 
         // on socket to handle chat
-        socket.on('Apply',function(data){
-            if(client.name != data.username){
+        socket.on('Apply', function (data) {
+            if (client.name != data.username) {
                 emitToChat(client.name + " now named: " + data.username);
                 client.name = data.username;
             }
         });
-        
-        socket.on('sendMsgToServer',function(data){
-            for(var i in SOCKET_LIST){
-                SOCKET_LIST[i].emit('addToChat',  client.name + ': ' + data);
+
+        socket.on('sendMsgToServer', function (data) {
+            for (var i in SOCKET_LIST) {
+                SOCKET_LIST[i].emit('addToChat', client.name + ': ' + data);
             }
         });
 
-        socket.on('evalServer',function(data){
-            if(!DEBUG)
+        socket.on('evalServer', function (data) {
+            if (!DEBUG)
                 return;
             //debugg purpose
             var res = eval(data);
-            socket.emit('evalAnswer',res);     
+            socket.emit('evalAnswer', res);
         });
     }
 
@@ -362,7 +362,7 @@ class Client {
 
     static update(ClientArr) {
         for (var i in Client.list) {
-             Client.list[i].update();
+            Client.list[i].update();
         }
     }
 }
@@ -421,30 +421,27 @@ class Text extends Tool {
     use(text) {
         if (text) {
             this.surface.addAction(this.client.id, [[this.client.mouseX, this.client.mouseY]], "text", this.client.colour,
-                                    Math.max(MIN_FONT_SIZE, this.client.size), text);
+                Math.max(MIN_FONT_SIZE, this.client.size), text);
             this.surface.refresh();
         }
     }
 }
 
 // functions for chat
-function emitConnection(name)
-{
-    for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('addToChat',  name + ': ' + "has connected");
+function emitConnection(name) {
+    for (var i in SOCKET_LIST) {
+        SOCKET_LIST[i].emit('addToChat', name + ': ' + "has connected");
     }
 }
-function emitDisconnect(name)
-{
-    for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('addToChat',   name + " has Disconnected");
+function emitDisconnect(name) {
+    for (var i in SOCKET_LIST) {
+        SOCKET_LIST[i].emit('addToChat', name + " has Disconnected");
     }
 }
 
-function emitToChat(string)
-{
-    for(var i in SOCKET_LIST){
-    SOCKET_LIST[i].emit('addToChat', string);
+function emitToChat(string) {
+    for (var i in SOCKET_LIST) {
+        SOCKET_LIST[i].emit('addToChat', string);
     }
 }
 
@@ -460,8 +457,8 @@ setInterval(function () {
             SOCKET_LIST[j].emit('updateSurface', pack);
         }
     }
-    if(Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
-        for(var i = 0; i < Room.list.length; i++) {
+    if (Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
+        for (var i = 0; i < Room.list.length; i++) {
             Room.list[i].surface.makePermanent();
         }
         timeThen = Date.now();
