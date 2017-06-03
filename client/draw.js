@@ -20,13 +20,14 @@ var viewCtx = viewCanvas.getContext('2d');
 
 // For input capture
 var overlay = document.getElementById('overlay');
+viewCanvas.width = window.innerWidth - 400;
+viewCanvas.height = window.innerHeight - 250;
 
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
 var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
-var lastUpdateTime = 0;
 var SCROLL_SPEED = 2;
 var scale = 1;
 var ZOOM_SMOOTHNESS = 10;
@@ -231,7 +232,6 @@ overlay.onmousemove = function (e) {
     posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     cursorDrawn = false;
-    // drawCursor(posx, posy);
     };
 
 var prevPosX, prevPosY;
@@ -264,7 +264,6 @@ overlay.onmouseleave = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
-
 document.getElementById("brushSize").onchange = function () {
     curSize = brushSize.value;
     socket.emit('size', { value: brushSize.value });
@@ -279,13 +278,16 @@ var keyStates = {
     'D': false
 }
 
-var chatDiv = document.getElementById('chatDiv');
-// Update loop
-function repeat() {
+window.onresize = function () {
     viewCanvas.width = window.innerWidth - 400;
     viewCanvas.height = window.innerHeight - 250;
     chatDiv.style.height = viewCanvas.height + "px";
     document.getElementById('chat-text').style.width = chatDiv.style.width;
+};
+
+var chatDiv = document.getElementById('chatDiv');
+// Update loop
+function repeat() {
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
     drawAll(mouseX, mouseY);
     translateAll();
