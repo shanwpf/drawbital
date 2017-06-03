@@ -151,7 +151,7 @@ class Surface {
     copyPathToServer(client) {
         this.addAction(client.id, this.publicPathMap[client.id], client.curTool, client.colour, client.size);
         this.publicPathMap[client.id] = [];
-        this.refresh();
+        this.refresh(false);
     }
 
     addAction(id, path, tool, colour, size, text) {
