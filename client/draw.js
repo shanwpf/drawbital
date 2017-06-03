@@ -30,6 +30,8 @@ var lastUpdateTime = 0;
 var SCROLL_SPEED = 2;
 var scale = 1;
 var ZOOM_SMOOTHNESS = 10;
+var serverData, publicData, permData;
+var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -51,15 +53,18 @@ $(document).ready(function () {
 });
 
 socket.on('initSurface', function (data) {
-    initSurface(data);
+    serverData = data;
+    serverDrawn = false;
 });
 
 socket.on('updateSurface', function (data) {
-    onServerUpdateReceived(data);
+    publicData = data;
+    publicDrawn = false;
 });
 
 socket.on('updatePerm', function (data) {
-    updatePerm(data);
+    permData = data;
+    permDrawn = false;
 })
 
 // Start the requestAnimationFrame loop on successful sign in
@@ -67,14 +72,6 @@ socket.on('signInResponse', function (data) {
     if (data.success)
         repeat();
 })
-
-function onServerUpdateReceived(data) {
-    var timeElapsed = Date.now() - lastUpdateTime;
-    if (timeElapsed >= 1000 / 60) {
-        updateBrush(data);
-        lastUpdateTime = Date.now();
-    }
-}
 
 function updatePerm(data) {
     var points;
@@ -228,13 +225,18 @@ overlay.onmousedown = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
 }
 
-var prevPosX, prevPosY;
 overlay.onmousemove = function (e) {
     var pos = getMousePos(overlay, e);
-    posx = pos.x;
-    posy = pos.y;
+    posx = mouseX = pos.x;
+    posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
-    if (curTool == "brush") {
+    cursorDrawn = false;
+    // drawCursor(posx, posy);
+    };
+
+var prevPosX, prevPosY;
+function drawCursor(x, y) {
+if (curTool == "brush") {
         var r = curSize / 2;
         var clear_r = Math.max(1, r);
         if (prevPosX || prevPosX >= 0)
@@ -248,7 +250,7 @@ overlay.onmousemove = function (e) {
     }
     prevPosX = posx;
     prevPosY = posy;
-};
+}
 
 overlay.onmouseup = function (e) {
     // Allow text selection after dragging
@@ -285,9 +287,29 @@ function repeat() {
     chatDiv.style.height = viewCanvas.height + "px";
     document.getElementById('chat-text').style.width = chatDiv.style.width;
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
+    drawAll(mouseX, mouseY);
     translateAll();
     drawZoomed();
     requestAnimationFrame(repeat);
+}
+
+function drawAll(x, y) {
+    if(!serverDrawn) {
+        initSurface(serverData);
+        serverDrawn = true;
+    }
+    if(!publicDrawn) {
+        updateBrush(publicData);
+        publicDrawn = true;
+    }
+    if(!permDrawn) {
+        updatePerm(permData);
+        permDrawn = true;
+    }
+    if(!cursorDrawn) {
+        drawCursor(x, y);
+        cursorDrawn = true;
+    }
 }
 
 // Draw taking zoom into account
