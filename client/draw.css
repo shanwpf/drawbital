@@ -14,3 +14,6 @@
 #chat-text > div {
     word-wrap: break-word;
 }
+#chat-text {
+    flex: 1;
+}

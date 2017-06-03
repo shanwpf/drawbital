@@ -276,10 +276,13 @@ var keyStates = {
     'D': false
 }
 
-// Update loop for viewCanvas
+var chatDiv = document.getElementById('chatDiv');
+// Update loop
 function repeat() {
     viewCanvas.width = window.innerWidth - 400;
     viewCanvas.height = window.innerHeight - 250;
+    chatDiv.style.height = viewCanvas.height + "px";
+    document.getElementById('chat-text').style.width = chatDiv.style.width;
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
     translateAll();
     drawZoomed();
