@@ -20,8 +20,6 @@ var viewCtx = viewCanvas.getContext('2d');
 
 // For input capture
 var overlay = document.getElementById('overlay');
-viewCanvas.width = window.innerWidth - 400;
-viewCanvas.height = window.innerHeight - 250;
 
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
 var curColour = "#000000"
@@ -61,6 +59,7 @@ $(document).ready(function () {
             ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
         ]
     });
+    resize();
 });
 
 socket.on('initSurface', function (data) {
@@ -289,11 +288,15 @@ var keyStates = {
 }
 
 window.onresize = function () {
+    resize();
+};
+
+function resize() {
     viewCanvas.width = window.innerWidth - 400;
     viewCanvas.height = window.innerHeight - 250;
     chatDiv.style.height = viewCanvas.height + "px";
     document.getElementById('chat-text').style.width = chatDiv.style.width;
-};
+}
 
 var chatDiv = document.getElementById('chatDiv');
 // Update loop
