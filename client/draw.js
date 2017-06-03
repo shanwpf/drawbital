@@ -28,7 +28,8 @@ var curSize = 5;
 var socket = io();
 var lastUpdateTime = 0;
 var SCROLL_SPEED = 2;
-var loggedIn = false;
+var scale = 1;
+var ZOOM_SMOOTHNESS = 10;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -50,8 +51,6 @@ $(document).ready(function () {
 });
 
 socket.on('initSurface', function (data) {
-    if (!loggedIn)
-        loggedIn = true;
     initSurface(data);
 });
 
@@ -211,20 +210,21 @@ function changeTool(tool) {
 function getMousePos(canvas, evt) {
     var rect = viewCanvas.getBoundingClientRect();
     return {
-        x: evt.clientX - rect.left + viewX,
-        y: evt.clientY - rect.top + viewY
+        x: (evt.clientX - rect.left + (viewX * scale)) / scale,
+        y: (evt.clientY - rect.top + (viewY * scale)) / scale
     };
 }
 
 // Unnecessary
 var mousedown = false;
+var mouseX, mouseY;
 overlay.onmousedown = function (e) {
     // Prevent text selection while dragging
     document.onselectstart = function () { return false; }
 
     var pos = getMousePos(overlay, e);
-    posx = pos.x;
-    posy = pos.y;
+    posx = mouseX = pos.x;
+    posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
 }
 
@@ -280,17 +280,31 @@ var keyStates = {
 function repeat() {
     viewCanvas.width = window.innerWidth;
     viewCanvas.height = window.innerHeight - 250;
-    translateAll();
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
-    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-        viewCanvas.width, viewCanvas.height);
-    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-        viewCanvas.width, viewCanvas.height);
-    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-        viewCanvas.width, viewCanvas.height);
-    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width, viewCanvas.height, 0, 0,
-        viewCanvas.width, viewCanvas.height);
+    translateAll();
+    drawZoomed();
     requestAnimationFrame(repeat);
+}
+
+// Draw taking zoom into account
+function drawZoomed() {
+    viewCtx.save();
+    viewCtx.scale(scale, scale);
+    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+        viewCanvas.width / scale, viewCanvas.height / scale);
+    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+        viewCanvas.width / scale, viewCanvas.height / scale);
+    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+        viewCanvas.width / scale, viewCanvas.height / scale);
+    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+        viewCanvas.width / scale, viewCanvas.height / scale);
+    viewCtx.restore();
+}
+
+overlay.onmousewheel = function (event) {
+    var wheel = event.wheelDelta / 120;//n or -n
+    var zoom = 1 + wheel / ZOOM_SMOOTHNESS;
+    scale *= zoom;
 }
 
 function translateAll() {
