@@ -236,8 +236,9 @@ overlay.onmousemove = function (e) {
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     if (curTool == "brush") {
         var r = curSize / 2;
+        var clear_r = Math.max(1, r);
         if (prevPosX || prevPosX >= 0)
-            cursorCtx.clearRect(prevPosX - 2 * r, prevPosY - 2 * r, r * 4, r * 4);
+            cursorCtx.clearRect(prevPosX - 2 * clear_r, prevPosY - 2 * clear_r, clear_r * 4, clear_r * 4);
         cursorCtx.fillStyle = curColour;
         cursorCtx.lineWidth = 1;
         cursorCtx.beginPath();
