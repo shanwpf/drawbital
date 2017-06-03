@@ -8,6 +8,62 @@
     <link rel='stylesheet' href='/client/spectrum.css' />
     <link href="/client/signin.css" rel="stylesheet">
     <link href="/client/draw.css" rel="stylesheet">
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+                <a class="navbar-brand" href="#">Drawbital</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#">Link</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="navbar-form navbar-left">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">About</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
 </head>
 
 <body>
@@ -31,16 +87,9 @@
     <!-- /container -->
 
     <div class="container" id="displayDiv" style="display:none;">
-        <div id="signDiv">
-            Username:
-            <input id="signDiv-username" type="text"></input>
-            <button id="signDiv-Apply">Apply</button>
-        </div>
 
         <style type="text/css">
             body {
-                margin: 0;
-                padding: 0;
                 overflow: hidden;
             }
 
@@ -60,40 +109,43 @@
                 display: none;
             }
         </style>
-        <input type="button" id="clearBtn" value="Clear"> Colour:
+        <div class="btn-group">
+            <input class="btn btn-primary" type="button" id="clearBtn" value="Clear">
+            <input class="btn btn-primary" type="button" id="brushBtn" value="Brush">
+            <input class="btn btn-primary" type="button" id="textBtn" value="Text">
+            <input class="btn btn-primary" type="button" id="undoBtn" value="Undo">
+            <input class="btn btn-primary" type="button" id="redoBtn" value="Redo">
+            <input class="btn btn-primary" type="button" id="dragBtn" value="Drag(Not yet implemented)">
+        </div>
         <input type='text' id='full' />
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
-        <input type="button" id="brushBtn" value="Brush">
-        <input type="button" id="textBtn" value="Text">
-        <input type="button" id="undoBtn" value="Undo">
-        <input type="button" id="redoBtn" value="Redo">
-        <input type="button" id="dragBtn" value="Drag(Not yet implemented)"> Pan using WASD, Zoom using mousewheel
-        <div id="canvasDiv" style="position: relative;">
-            <canvas id="overlay" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 6;" tabindex='1'></canvas>
-            <canvas id="view" style="position: relative; left: 0; top: 0; z-index: 5; border:1px solid #000000"></canvas>
-            <canvas id="cursorLayer" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
-            <canvas id="publicSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
-            <canvas id="serverSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
-            <canvas id="permanentSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
-        </div>
-        <div id="gameDiv" style="position: relative; z-index: 7;">
-            Chat Box:
-            <div id="chat-text" style="width:600px;height:150px;overflow-y:scroll">
-                <div>Hello!</div>
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> Pan using WASD, zoom using
+        mousewheel
+        <div id="flexcontainer">
+            <div id="canvasDiv" style="position: relative;">
+                <canvas id="overlay" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 6;" tabindex='1'></canvas>
+                <canvas id="view" style="position: relative; left: 0; top: 0; z-index: 5; border:1px solid #000000"></canvas>
+                <canvas id="cursorLayer" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
+                <canvas id="publicSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+                <canvas id="serverSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+                <canvas id="permanentSurface" width="3000" height="3000" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
             </div>
-
-            <form id="chat-form">
-                <input id="chat-input" type="text" style="width:500px"></input>
-            </form>
+            <div id="chatDiv" class="panel panel-default" style="z-index: 7;">
+                <div class="panel-heading">Chat</div>
+                <div id="chat-text" class="panel-body" style="width:300px;height:500px;overflow-y:scroll">
+                    <div>Hello!</div>
+                </div>
+                <form id="chat-form">
+                    <input id="chat-input" type="text" style="width:300px"></input>
+                </form>
+            </div>
         </div>
+        <!-- /flexcontainer -->
     </div>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
-        crossorigin="anonymous">
-    <!-- Latest compiled and minified JavaScript -->
+    <link rel="stylesheet" href="/client/theme.min.css">
     <script src=" https://unpkg.com/vue"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>

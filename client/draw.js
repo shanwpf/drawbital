@@ -278,7 +278,7 @@ var keyStates = {
 
 // Update loop for viewCanvas
 function repeat() {
-    viewCanvas.width = window.innerWidth;
+    viewCanvas.width = window.innerWidth - 400;
     viewCanvas.height = window.innerHeight - 250;
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
     translateAll();

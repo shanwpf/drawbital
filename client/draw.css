@@ -1,0 +1,16 @@
+#flexcontainer {
+    display: flex;
+}
+#canvasDiv > canvas{
+    outline-style: none;
+}
+#chat-input {
+    flex: 1 1 auto;
+}
+#chatDiv {
+    display: flex;
+    flex-direction: column;
+}
+#chat-text > div {
+    word-wrap: break-word;
+}
