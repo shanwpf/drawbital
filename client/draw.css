@@ -16,4 +16,5 @@
 }
 #chat-text {
     flex: 1;
+    width: 330px;
 }
