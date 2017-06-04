@@ -53,7 +53,7 @@ $('#draw-tab').on('click', function () {
         $('#draw-li').attr('class', 'active');
         $('#lobby-li').removeAttr('class');
         lobbyDiv.style.display = "none";
-        displayDiv.style.display = "inline";
+        displayDiv.style.display = "inline-block";
     }
 })
 
