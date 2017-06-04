@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel='stylesheet' href='/client/spectrum.css' />
     <link href="/client/signin.css" rel="stylesheet">
+    <link href="/client/lobby.css" rel="stylesheet">
     <link href="/client/draw.css" rel="stylesheet">
 
     <nav class="navbar navbar-default">
@@ -86,6 +87,30 @@
     </div>
     <!-- /container -->
 
+    <div class="container" id="lobbyDiv" style="display:none;">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Room list</div>
+            <div class="panel-body">
+                <ul id="room-list" class="list-group">
+                    <li class="list-group-item">Test room<span class="badge">3</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Create a Room</div>
+            <div class="panel-body">
+                <input id="room-name" class="form-control" type="text" placeholder="Room name"></input>
+                <input id="max-users" class="form-control" type="text" placeholder="Max no. of users"></input>
+                <label class="radio-inline"><input type="radio" name="privacyradio">Public</label>
+                <label class="radio-inline"><input type="radio" name="privacyradio">Private</label>
+                <input id="password" class="form-control" type="text" placeholder="Password"></input>
+            </div>
+            <div class="panel-footer">
+                <button id="createBtn" type="button" class="btn btn-success">Create Room</button>
+            </div>
+        </div>
+    </div> <!-- /lobbuDiv -->
+
     <div class="container" id="displayDiv" style="display:none;">
 
         <style type="text/css">
@@ -143,13 +168,12 @@
                 </div> <!--/chat-text-->
 
                 <div id="user-list" class="panel-body" style="display:none;">
-                     
                 </div> <!-- /user-list -->
 
                 <form id="chat-form" class="panel-footer">
                     <input id="chat-input" class="form-control" placeholder="Type a message" type="text" style="width:300px;"></input>
                 </form>
-            </div>
+            </div> <!-- /chatDiv -->
         </div>
         <!-- /flexcontainer -->
     </div>
@@ -168,5 +192,6 @@
     <script src='/client/spectrum.js'></script>
     <script src='/client/chat.js'></script>
     <script src='/client/signin.js'></script>
+    <script src='/client/lobby.js'></script>
 </body>
 </html>

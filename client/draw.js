@@ -78,9 +78,11 @@ socket.on('drawPermData', function (data) {
 })
 
 // Start the requestAnimationFrame loop on successful sign in
-socket.on('signInResponse', function (data) {
-    if (data.success)
+socket.on('joinStatus', function (data) {
+    if (data.value) {
+        displayDiv.style.display = "inline-block";
         repeat();
+    }
 })
 
 function drawPermData(data) {

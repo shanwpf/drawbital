@@ -27,8 +27,6 @@ function writeUserData(userId, password) {
   });
 }
 
-
-
 //cb stands for callback
 var isValidPassword = function (data, cb) {
     setTimeout(function () {
@@ -100,8 +98,11 @@ io.sockets.on('connection', function (socket) {
 })
 
 class Room {
-    constructor(name) {
+    constructor(name, maxUsers, password, creator) {
         this.name = name;
+        this.maxUsers = maxUsers;
+        this.password = password;
+        this.creatorId = creator;
         this.clientList = {};
         this.surface = new Surface(this);
         Room.list.push(this);
@@ -111,6 +112,8 @@ class Room {
     addClient(client) {
         this.clientList[client.id] = client;
         this.surface.onClientJoin(client);
+        client.joinRoom(this);
+        SOCKET_LIST[client.id].emit('joinStatus', { value: true });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
 
@@ -118,7 +121,19 @@ class Room {
         delete this.clientList[client.id];
         this.surface.onClientLeave(client);
     }
+
+    static updateRoomList() {
+        var pack = [];
+        for(var i = 0; i < Room.list.length; i++) {
+            pack[i] = {
+                roomName: Room.list[i].name,
+                numUsers: Object.keys(Room.list[i].clientList).length
+            }
+        }
+        return pack;
+    }
 }
+
 
 Room.list = []
 
@@ -271,16 +286,21 @@ class Client {
         this.idle = true;
         this.colour = "#000000";
         this.size = 5;
-        this.room = defaultRoom;
+        this.room = undefined;
         this.toolList = {
-            brush: new Brush(this.room.surface, this),
-            text: new Text(this.room.surface, this)
+            brush: undefined,
+            text: undefined
         };
         this.curTool = "brush";
         Client.list[id] = this;
         return this;
     }
 
+    joinRoom(room) {
+        this.room = room;
+        this.toolList.brush = new Brush(this.room.surface, this);
+        this.toolList.text = new Text(this.room.surface, this);
+    }
     // Use current tool
     useCurTool(text) {
         if (this.curTool === "brush") {
@@ -292,6 +312,8 @@ class Client {
     }
 
     update() {
+        if(!this.room)
+            return;
         if (this.mouseDown) {
             this.idle = false;
         }
@@ -316,7 +338,7 @@ class Client {
         client.name = username;
         emitConnection(client.name, client);
         // PLACEHOLDER: Replace when rooms are implemented properly
-        defaultRoom.addClient(client);
+        //defaultRoom.addClient(client);
 
         socket.on('undo', function () {
             client.room.surface.undo(client.id);
@@ -379,12 +401,19 @@ class Client {
             var res = eval(data);
             socket.emit('evalAnswer', res);
         });
+
+        socket.on('createRoom', function(data) {
+            var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId);
+            room.addClient(Client.list[room.creatorId]);
+            console.log("created room");
+        })
     }
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];
         emitDisconnect(client.name);
-        client.room.removeClient(client);
+        if(client.room) 
+            client.room.removeClient(client);
         delete Client.list[socket.id];
     }
 
@@ -483,6 +512,12 @@ function emitToChat(string) {
         SOCKET_LIST[i].emit('addToChat', string);
     }
 }
+
+setInterval(function () {
+    for(var i in SOCKET_LIST) {
+        SOCKET_LIST[i].emit('updateRoomList', Room.updateRoomList());
+    }
+}, 2000)
 
 // Receive data from clients and update their states
 setInterval(function () {

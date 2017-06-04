@@ -3,6 +3,7 @@ var signInDivUsername = document.getElementById('signInDiv-username');
 var signInDivSignIn = document.getElementById('signInDiv-signIn');
 var signInDivSignUp = document.getElementById('signInDiv-signUp');
 var signInDivPassword = document.getElementById('signInDiv-password');
+var lobbyDiv = document.getElementById('lobbyDiv');
 
 function disableButtons(bool)
 {
@@ -12,7 +13,7 @@ function disableButtons(bool)
 
 signInDivSignIn.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        alert("dont it blank :(");
+        alert("Please enter a valid username/password");
     else
     {
         disableButtons(true);
@@ -32,7 +33,8 @@ signInDivSignUp.onclick = function () {
 socket.on('signInResponse', function (data) {
     if (data.success) {
         signInDiv.style.display = 'none';
-        displayDiv.style.display = 'inline-block';
+        lobbyDiv.style.display = 'flex';
+        // displayDiv.style.display = 'inline-block';
     } else{
         disableButtons(false);
         alert("Sign in unsuccessful.");
