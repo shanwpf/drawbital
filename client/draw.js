@@ -59,7 +59,6 @@ $(document).ready(function () {
             ["#600", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
         ]
     });
-    document.getElementById('chat-text').style.width = chatDiv.style.width;
     resize();
 });
 

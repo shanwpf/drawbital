@@ -130,10 +130,22 @@
                 <canvas id="permanentSurface" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
             </div>
             <div id="chatDiv" class="panel panel-default" style="z-index: 7;">
-                <div class="panel-heading">Chat</div>
+
+                <div class="panel-heading">
+                    <ul class="nav nav-tabs">
+                        <li id="chatTab" class="active"><a href="#">Chat</a></li>
+                        <li id="userTab"><a href="#">View users</a></li>
+                    </ul>
+                </div>
+
                 <div id="chat-text" class="panel-body" style="width:300px;height:500px;overflow-y:scroll">
                     <div>Hello!</div>
-                </div>
+                </div> <!--/chat-text-->
+
+                <div id="user-list" class="panel-body" style="width:300px;height:500px;overflow-y:scroll;display:none;">
+                    <div>Test user</div>
+                </div> <!-- /user-list -->
+
                 <form id="chat-form" class="panel-footer">
                     <input id="chat-input" type="text" style="width:300px;"></input>
                 </form>

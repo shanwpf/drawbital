@@ -1,6 +1,9 @@
 var chatText = document.getElementById('chat-text');
 var chatInput = document.getElementById('chat-input');
 var chatForm = document.getElementById('chat-form');
+var chatTab = document.getElementById('chatTab');
+var userTab = document.getElementById('userTab');
+var userList = document.getElementById('user-list');
 
 socket.on('addToChat', function (data) {
         //detect if the user is at the end of the scroll
@@ -30,8 +33,6 @@ chatForm.onsubmit = function (e) {
         chatInput.value = '';
 }
 
-
-
 var signDiv = document.getElementById('signDiv');
 var signDivUsername = document.getElementById('signDiv-username');
 var signDivApply = document.getElementById('signDiv-Apply');
@@ -40,3 +41,17 @@ var signDivApply = document.getElementById('signDiv-Apply');
 signDivApply.onclick = function () {
         socket.emit('Apply', { username: signDivUsername.value });
 }*/
+
+$(document).ready(function() {
+        chatText.style.width = chatDiv.style.width;
+        userList.style.width = chatDiv.style.width;
+})
+userTab.onclick = function () {
+        chatTab.setAttribute("class", "");
+        chatText.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;display:none;");
+        userList.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;");
+}
+chatTab.onclick = function () {
+        chatText.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;");
+        userList.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;display:none;");
+}
