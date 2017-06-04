@@ -331,26 +331,26 @@ overlay.onmousewheel = function (event) {
 function translateAll() {
     if (keyStates['W']) {
         for (var i = 0; i < canvasArray.length && viewY > 0; i++) {
-            canvasArray[i].top = (viewY -= SCROLL_SPEED);
+            canvasArray[i].top = (viewY -= PANNING_SPEED);
             canvasArray[i].left = viewX;
         }
     }
     if (keyStates['D']) {
         for (var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
             canvasArray[i].top = viewY;
-            canvasArray[i].left = (viewX += SCROLL_SPEED);
+            canvasArray[i].left = (viewX += PANNING_SPEED);
         }
     }
     if (keyStates['S']) {
         for (var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
-            canvasArray[i].top = (viewY += SCROLL_SPEED);
+            canvasArray[i].top = (viewY += PANNING_SPEED);
             canvasArray[i].left = viewX;
         }
     }
     if (keyStates['A']) {
         for (var i = 0; i < canvasArray.length && viewX > 0; i++) {
             canvasArray[i].top = viewY;
-            canvasArray[i].left = (viewX -= SCROLL_SPEED);
+            canvasArray[i].left = (viewX -= PANNING_SPEED);
         }
     }
 }
