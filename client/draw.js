@@ -26,7 +26,7 @@ var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
-var SCROLL_SPEED = 2;
+var PANNING_SPEED = 2;
 var scale = 1;
 var ZOOM_SMOOTHNESS = 10;
 var serverData, publicData, permData;
