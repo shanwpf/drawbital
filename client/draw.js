@@ -18,7 +18,7 @@ var cursorCtx = cursorLayer.getContext('2d');
 var viewCanvas = document.getElementById('view');
 var viewCtx = viewCanvas.getContext('2d');
 
-// For input capture
+// For input capture, might not be necessary
 var overlay = document.getElementById('overlay');
 
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
@@ -49,30 +49,30 @@ $(document).ready(function () {
             socket.emit('colour', { value: colour.toRgbString() });
         },
         palette: [
-            ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
-            ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
-            ["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc"],
-            ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
-            ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
-            ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
-            ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
-            ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+            ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
+            ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"],
+            ["#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#cfe2f3", "#d9d2e9", "#ead1dc"],
+            ["#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
+            ["#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6fa8dc", "#8e7cc3", "#c27ba0"],
+            ["#c00", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3d85c6", "#674ea7", "#a64d79"],
+            ["#900", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#0b5394", "#351c75", "#741b47"],
+            ["#600", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
         ]
     });
     resize();
 });
 
-socket.on('initSurface', function (data) {
+socket.on('drawServerData', function (data) {
     serverData = data;
     serverDrawn = false;
 });
 
-socket.on('updateSurface', function (data) {
+socket.on('drawPublicData', function (data) {
     publicData = data;
     publicDrawn = false;
 });
 
-socket.on('updatePerm', function (data) {
+socket.on('drawPermData', function (data) {
     permData = data;
     permDrawn = false;
 })
@@ -83,7 +83,7 @@ socket.on('signInResponse', function (data) {
         repeat();
 })
 
-function updatePerm(data) {
+function drawPermData(data) {
     var points;
     permCtx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
@@ -111,7 +111,7 @@ function updatePerm(data) {
     }
 }
 
-function initSurface(data) {
+function drawServerData(data) {
     var points;
     serverCtx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
@@ -139,17 +139,7 @@ function initSurface(data) {
     }
 }
 
-function updateText(data) {
-    for (var i in data.surfaceText) {
-        for (var j = 0; j < data.surfaceText[i].length; j++) {
-            serverCtx.font = data.surfaceText[i][j].size + "px sans-serif";
-            serverCtx.fillStyle = data.surfaceText[i][j].colour;
-            serverCtx.fillText(data.surfaceText[i][j].text, data.surfaceText[i][j].x, data.surfaceText[i][j].y);
-        }
-    }
-}
-
-function updateBrush(data) {
+function drawPublicData(data) {
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -193,27 +183,14 @@ document.getElementById("redoBtn").onclick = function () {
 function changeTool(tool) {
     curTool = tool;
     socket.emit('changeTool', { toolName: tool });
-    if (curTool === "text") {
-        overlay.onmousedown = function (e) {
-            var pos = getMousePos(overlay, e);
-            posx = pos.x;
-            posy = pos.y;
-            socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
-        }
 
-        // Clear the brush cursor
+    // Clears brush cursor
+    if (curTool === "text") {
         cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    else if (curTool === "brush") {
-        overlay.onmousedown = function (e) {
-            var pos = getMousePos(overlay, e);
-            posx = pos.x;
-            posy = pos.y;
-            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
-        };
     }
 }
 
+// Get accurate mouse positions
 function getMousePos(canvas, evt) {
     var rect = viewCanvas.getBoundingClientRect();
     return {
@@ -222,17 +199,16 @@ function getMousePos(canvas, evt) {
     };
 }
 
-// Unnecessary
-var mousedown = false;
 var mouseX, mouseY;
 overlay.onmousedown = function (e) {
-    // Prevent text selection while dragging
-    document.onselectstart = function () { return false; }
-
+    document.onselectstart = function () { return false; } // Prevent text selection when dragging
     var pos = getMousePos(overlay, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
-    socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+    if (curTool == "brush")
+        socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+    else if (curTool == "text")
+        socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
 }
 
 overlay.onmousemove = function (e) {
@@ -241,11 +217,12 @@ overlay.onmousemove = function (e) {
     posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     cursorDrawn = false;
-    };
+};
 
 var prevPosX, prevPosY;
+// Draw brush cursor
 function drawCursor(x, y) {
-if (curTool == "brush") {
+    if (curTool == "brush") {
         var r = curSize / 2;
         var clear_r = Math.max(1, r);
         if (prevPosX || prevPosX >= 0)
@@ -262,10 +239,7 @@ if (curTool == "brush") {
 }
 
 overlay.onmouseup = function (e) {
-    // Allow text selection after dragging
-    document.onselectstart = function () { return true; }
-
-    mousedown = false;
+    document.onselectstart = function () { return true; } // Allow text selection
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
@@ -278,8 +252,6 @@ document.getElementById("brushSize").onchange = function () {
     socket.emit('size', { value: brushSize.value });
 }
 
-var viewX = 0;
-var viewY = 0;
 var keyStates = {
     'W': false,
     'A': false,
@@ -287,10 +259,12 @@ var keyStates = {
     'D': false
 }
 
+// Change the size of elements when the browser is resized
 window.onresize = function () {
     resize();
 };
 
+var chatDiv = document.getElementById('chatDiv');
 function resize() {
     viewCanvas.width = window.innerWidth - 400;
     viewCanvas.height = window.innerHeight - 250;
@@ -298,7 +272,6 @@ function resize() {
     document.getElementById('chat-text').style.width = chatDiv.style.width;
 }
 
-var chatDiv = document.getElementById('chatDiv');
 // Update loop
 function repeat() {
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
@@ -308,26 +281,31 @@ function repeat() {
     requestAnimationFrame(repeat);
 }
 
+// Draw on each respective canvas if an update was received for that canvas and it has not yet been drawn
 function drawAll(x, y) {
-    if(!serverDrawn) {
-        initSurface(serverData);
+    if (!serverDrawn) {
+        drawServerData(serverData);
         serverDrawn = true;
     }
-    if(!publicDrawn) {
-        updateBrush(publicData);
+    if (!publicDrawn) {
+        drawPublicData(publicData);
         publicDrawn = true;
     }
-    if(!permDrawn) {
-        updatePerm(permData);
+    if (!permDrawn) {
+        drawPermData(permData);
         permDrawn = true;
     }
-    if(!cursorDrawn) {
+    if (!cursorDrawn) {
         drawCursor(x, y);
         cursorDrawn = true;
     }
 }
 
-// Draw taking zoom into account
+// Current topleft x and y coordinates of viewCanvas
+var viewX = 0;
+var viewY = 0;
+
+// Draw viewCanvas taking zoom into account
 function drawZoomed() {
     viewCtx.save();
     viewCtx.scale(scale, scale);
@@ -348,6 +326,7 @@ overlay.onmousewheel = function (event) {
     scale *= zoom;
 }
 
+// Panning logic
 function translateAll() {
     if (keyStates['W']) {
         for (var i = 0; i < canvasArray.length && viewY > 0; i++) {
