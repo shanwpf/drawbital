@@ -110,9 +110,9 @@ class Room {
     }
 
     addClient(client) {
+        client.joinRoom(this);
         this.clientList[client.id] = client;
         this.surface.onClientJoin(client);
-        client.joinRoom(this);
         SOCKET_LIST[client.id].emit('joinStatus', { value: true });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
