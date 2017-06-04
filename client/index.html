@@ -93,25 +93,29 @@
     </div>
     <!-- /container -->
 
-    <div class="container" id="lobbyDiv" style="display:none;">
-        <div class="panel panel-primary">
-            <div class="panel-heading">Room list</div>
-            <div class="panel-body">
-                <div id="room-list" class="list-group">
+    <div class="container">
+        <div class="row" id="lobbyDiv" style="display:none;">
+            <div class="col-md-8 panel panel-default">
+                <div class="panel-heading">
+                    <h3>Room list</h3>
+                </div>
+                <div id="room-panel-body" class="panel-body">
+                    <div id="room-list" class="list-group">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Create a Room</div>
-            <div class="panel-body">
-                <input id="room-name" class="form-control" type="text" placeholder="Room name"></input>
-                <input id="max-users" class="form-control" type="text" placeholder="Max no. of users"></input>
-                <label class="radio-inline"><input type="radio" name="privacyradio">Public</label>
-                <label class="radio-inline"><input type="radio" name="privacyradio">Private</label>
-                <input id="password" class="form-control" type="text" placeholder="Password"></input>
-            </div>
-            <div class="panel-footer">
-                <button id="createBtn" type="button" class="btn btn-success">Create Room</button>
+            <div id="create-room-flexcontainer" class="col-md-3 panel panel-default">
+                <div class="panel-heading">Create a Room</div>
+                <div class="panel-body">
+                    <input id="room-name" class="form-control" type="text" placeholder="Room name"></input>
+                    <input id="max-users" class="form-control" type="text" placeholder="Max no. of users"></input>
+                    <label class="radio-inline"><input type="radio" name="privacyradio">Public</label>
+                    <label class="radio-inline"><input type="radio" name="privacyradio">Private</label>
+                    <input id="password" class="form-control" type="text" placeholder="Password"></input>
+                </div>
+                <div class="panel-footer">
+                    <button id="createBtn" type="button" class="btn btn-success">Create Room</button>
+                </div>
             </div>
         </div>
     </div>

@@ -32,7 +32,8 @@ socket.on('updateRoomList', function (data) {
     for (var i = 0; i < data.length; i++) {
         roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
             + data[i].roomName
-            + '<span class="badge">' + data[i].numUsers + '</span></a>';
+            + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
+            + data[i].numUsers + '</span></a>';
     }
 })
 
@@ -52,7 +53,7 @@ $('#draw-tab').on('click', function () {
         $('#draw-li').attr('class', 'active');
         $('#lobby-li').removeAttr('class');
         lobbyDiv.style.display = "none";
-        displayDiv.style.display = "inline-block";
+        displayDiv.style.display = "inline";
     }
 })
 
@@ -60,7 +61,7 @@ $('#lobby-tab').on('click', function () {
     if (loggedIn) {
         $('#lobby-li').attr('class', 'active');
         $('#draw-li').removeAttr('class');
-        lobbyDiv.style.display = "flex";
+        lobbyDiv.style.display = "inline";
         displayDiv.style.display = "none";
     }
 })

@@ -33,7 +33,7 @@ signInDivSignUp.onclick = function () {
 socket.on('signInResponse', function (data) {
     if (data.success) {
         signInDiv.style.display = 'none';
-        lobbyDiv.style.display = 'flex';
+        lobbyDiv.style.display = 'inline';
         // displayDiv.style.display = 'inline-block';
     } else{
         disableButtons(false);

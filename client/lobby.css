@@ -1,14 +1,17 @@
-#lobbyDiv {
+#lobbyDiv > .panel {
+    height: 500px;
+}
+#room-list {
+    overflow-y: scroll;
+    height: 350px;
+}
+#create-room-flexcontainer {
     display: flex;
-    width: 100%;
-    height: 100%;
+    flex-direction: column;
 }
-#lobbyDiv > .panel-default {
+#create-room-flexcontainer > .panel-body {
     flex-grow: 1;
 }
-#lobbyDiv > .panel-primary {
-    flex-grow: 5;
-}
-#lobbyDiv >  .btn {
-    flex-grow: 1;
+#create-room-flexcontainer > .panel-footer {
+    text-align: center;
 }
