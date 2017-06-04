@@ -16,6 +16,7 @@ socket.on('signInResponse', function (data) {
 createBtn.onclick = function () {
     if (!roomNameForm.value.trim() || !maxUsersForm.value.trim()) {
         alert("Please enter valid room information");
+        return;
     }
     socket.emit('createRoom', {
         roomName: roomNameForm.value.trim(),

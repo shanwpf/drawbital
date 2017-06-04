@@ -297,6 +297,9 @@ class Client {
     }
 
     joinRoom(room) {
+        if(this.room) {
+            this.room.removeClient(this);
+        }
         this.room = room;
         this.toolList.brush = new Brush(this.room.surface, this);
         this.toolList.text = new Text(this.room.surface, this);
