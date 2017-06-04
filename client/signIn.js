@@ -5,11 +5,17 @@ var signInDivSignUp = document.getElementById('signInDiv-signUp');
 var signInDivPassword = document.getElementById('signInDiv-password');
 
 signInDivSignIn.onclick = function () {
-    socket.emit('signIn', { username: signInDivUsername.value, password: signInDivPassword.value });
+    if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
+        alert("dont it blank :(");
+    else
+    socket.emit('signIn', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
 }
 
 signInDivSignUp.onclick = function () {
-    socket.emit('signUp', { username: signInDivUsername.value, password: signInDivPassword.value });
+    if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
+        alert("dont it blank :(");
+    else
+        socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
 }
 
 socket.on('signInResponse', function (data) {
@@ -25,5 +31,5 @@ socket.on('signUpResponse', function (data) {
     if (data.success) {
         alert("Sign up successful.");
     } else
-        alert("Sign up unsuccessful.");
+        alert("Sign up unsuccessful, Username taken");
 });

@@ -2,34 +2,51 @@ var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
+var firebase = require("firebase");
 var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
 var timeThen = 0;
 
-var USERS = {
-    //username:password
-    "": "",
-    "bob": "asd",
-    "bob2": "bob",
-    "bob3": "ttt",
+//this way of doing is suppose to be for enduser, not for server
+//init firebase database
+var config = {
+    apiKey: "AIzaSyB4MInO1YJZCiHJOg4EqGRzcoz7Kpz1vqA",
+    authDomain: "drawer-e233e.firebaseapp.com",
+    databaseURL: "https://drawer-e233e.firebaseio.com",
+    projectId: "drawer-e233e",
+    storageBucket: "drawer-e233e.appspot.com",
+    messagingSenderId: "624328057648"
+  };
+firebase.initializeApp(config);
+
+function writeUserData(userId, password) {
+  firebase.database().ref('users/' + userId).set({
+    logInPass:password
+  });
 }
+
+
 
 //cb stands for callback
 var isValidPassword = function (data, cb) {
     setTimeout(function () {
-        cb(USERS[data.username] === data.password);
+        return firebase.database().ref('/users/' + data.username).once('value').then(function(snapshot) {
+            cb(snapshot.val() !==null && snapshot.val().logInPass == data.password)
+        });
     }, 10);
 }
 var isUsernameTaken = function (data, cb) {
     setTimeout(function () {
-        cb(USERS[data.username]);
+        return firebase.database().ref('/users/' + data.username).once('value').then(function(snapshot) {
+            cb(snapshot.val() !==null)
+        });
     }, 10);
 }
 var addUser = function (data, cb) {
     setTimeout(function () {
-        USERS[data.username] = data.password;
+        writeUserData(data.username, data.password);
         cb();
     }, 10);
 }

@@ -36,6 +36,7 @@ var signDiv = document.getElementById('signDiv');
 var signDivUsername = document.getElementById('signDiv-username');
 var signDivApply = document.getElementById('signDiv-Apply');
 
+/*
 signDivApply.onclick = function () {
         socket.emit('Apply', { username: signDivUsername.value });
-}
+}*/
