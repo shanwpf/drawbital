@@ -17,8 +17,10 @@
 #chat-text {
     flex: 1;
     width: 330px;
+    overflow-y: scroll;
 }
 #user-list {
     flex: 1;
     width: 330px;
+    overflow-y: scroll;
 }

@@ -89,10 +89,13 @@ $(document).ready(function() {
 })
 userTab.onclick = function () {
         chatTab.setAttribute("class", "");
-        chatText.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;display:none;");
-        userList.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;");
+        userTab.setAttribute("class", "active");
+        chatText.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;display:none;");
+        userList.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;");
 }
 chatTab.onclick = function () {
-        chatText.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;");
-        userList.setAttribute("style", "width:300px;height:500px;overflow-y:scroll;display:none;");
+        userTab.setAttribute("class", "");
+        chatTab.setAttribute("class", "active");
+        chatText.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;");
+        userList.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;display:none;");
 }
