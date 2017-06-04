@@ -43,8 +43,8 @@ socket.on('signInResponse', function (data) {
 socket.on('signUpResponse', function (data) {
     if (data.success) {
         alert("Sign up successful.");
-    } else{
-        disableButtons(false);
+    }else{
         alert("Sign up unsuccessful, Username taken");
     }
+    disableButtons(false);
 });

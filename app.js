@@ -314,7 +314,7 @@ class Client {
     static onConnect(socket, username) {
         var client = new Client(socket.id);
         client.name = username;
-        emitConnection(client.name);
+        emitConnection(client.name, client);
         // PLACEHOLDER: Replace when rooms are implemented properly
         defaultRoom.addClient(client);
 
@@ -459,14 +459,22 @@ class Text extends Tool {
 }
 
 // functions for chat
-function emitConnection(name) {
+function emitConnection(name, client) {
+    var dataArr = [];
+    for (var i in Client.list) {
+           dataArr.push(Client.list[i].name);
+    }
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('addToChat', name + ': ' + "has connected");
+        if(i !== client.id)
+           SOCKET_LIST[i].emit('connectUsers', name);
     }
+    SOCKET_LIST[client.id].emit('initUsers', dataArr);
 }
 function emitDisconnect(name) {
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('addToChat', name + " has Disconnected");
+          SOCKET_LIST[i].emit('disconnectUsers', name);
     }
 }
 

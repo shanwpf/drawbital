@@ -19,6 +19,47 @@ socket.on('addToChat', function (data) {
                 chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
 });
 
+
+
+// data is the username
+socket.on('initUsers', function (data) {
+        //detect if the user is at the end of the scroll
+        for(var i in data)
+        {
+         var iDiv = document.createElement('div');
+         iDiv.id = data[i];
+         iDiv.innerHTML = data[i];
+         userList.appendChild(iDiv);
+        }
+});
+
+
+// data is the username
+socket.on('connectUsers', function (data) {
+        //detect if the user is at the end of the scroll
+         var auto = false;
+        if (Math.abs(chatText.scrollTop - (chatText.scrollHeight - chatText.offsetHeight)) < 1)
+                auto = true;
+
+        // add string into the chatbox
+        var iDiv = document.createElement('div');
+        iDiv.id = data;
+        iDiv.innerHTML = data;
+        userList.appendChild(iDiv);
+
+        // auto scrolling to the most recent
+        if (auto)
+                chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
+});
+
+
+// data is the username
+socket.on('disconnectUsers', function (data) {
+        var toDel = document.getElementById(data);
+        toDel.remove();
+});
+
+
 socket.on('evalAnswer', function (data) {
         console.log(data);
 });
