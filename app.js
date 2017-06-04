@@ -111,7 +111,7 @@ class Room {
     addClient(client) {
         this.clientList[client.id] = client;
         this.surface.onClientJoin(client);
-        SOCKET_LIST[client.id].emit('initSurface', this.surface.getCurData());
+        SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
 
     removeClient(client) {
@@ -140,7 +140,7 @@ class Surface {
         this.actionMap[client.id] = [];
         this.deletedActionMap[client.id] = [];
         this.publicPathMap[client.id] = [];
-        SOCKET_LIST[client.id].emit('updatePerm', this.getPermData());
+        SOCKET_LIST[client.id].emit('drawPermData', this.getPermData());
     }
 
     onClientLeave(client) {
@@ -151,6 +151,8 @@ class Surface {
         delete this.publicPathMap[client.id];
     }
 
+    // Makes all existing actions in actionList permanent
+    // Actions that are permanent will not be modified by the client
     makePermanent() {
         for (var i = 0; i < this.actionList.length; i++) {
             if (!this.actionList[i].deleted) {
@@ -165,18 +167,21 @@ class Surface {
         this.refresh(true);
     }
 
+    // Creates an action after client has finished a stroke
     copyPathToServer(client) {
         this.addAction(client.id, this.publicPathMap[client.id], client.curTool, client.colour, client.size);
         this.publicPathMap[client.id] = [];
         this.refresh(false);
     }
 
+    // Creates an action and adds it to actionList and updates actionMap
     addAction(id, path, tool, colour, size, text) {
         var action = new Action(id, path, tool, colour, size, text);
         this.actionList.push(action);
         this.actionMap[id].push(this.actionList.length - 1);
     }
 
+    // Marks an action as deleted so it is not rendered
     undo(id) {
         if (this.actionMap[id].length > 0) {
             var idx = this.actionMap[id].pop();
@@ -186,6 +191,7 @@ class Surface {
         }
     }
 
+    // Unmarks a deleted action. It will be rendered
     redo(id) {
         if (this.deletedActionMap[id].length > 0) {
             var idx = this.deletedActionMap[id].pop();
@@ -195,21 +201,23 @@ class Surface {
         }
     }
 
+    // Refreshes and updates serverCanvas on the client if !refreshPerm
+    // Refreshes and updates serverCanvas and permCanvas on the client if refreshPerm
     refresh(refreshPerm) {
         if (refreshPerm) {
             for (var i in this.room.clientList) {
-                SOCKET_LIST[i].emit('updatePerm', this.getPermData());
-                SOCKET_LIST[i].emit('initSurface', this.getCurData());
+                SOCKET_LIST[i].emit('drawPermData', this.getPermData());
+                SOCKET_LIST[i].emit('drawServerData', this.getServerData());
             }
         }
         else {
             for (var i in this.room.clientList) {
-                SOCKET_LIST[i].emit('initSurface', this.getCurData());
+                SOCKET_LIST[i].emit('drawServerData', this.getServerData());
             }
         }
     }
 
-    getDeltaData() {
+    getPublicData() {
         var pack = {
             clientColours: this.clientColours,
             clientSizes: this.clientSizes,
@@ -225,13 +233,15 @@ class Surface {
         return pack;
     }
 
-    getCurData() {
+    getServerData() {
         var pack = {
             actionList: this.actionList
         }
         return pack;
     }
 
+    // Deletes ALL data (including permanent data)
+    // Probably won't be a public feature at release
     clearSurface() {
         this.actionList = [];
         this.permanentActionList = [];
@@ -271,6 +281,7 @@ class Client {
         return this;
     }
 
+    // Use current tool
     useCurTool(text) {
         if (this.curTool === "brush") {
             this.toolList.brush.use();
@@ -345,7 +356,6 @@ class Client {
             }
             client.mouseX = data.x;
             client.mouseY = data.y;
-
         });
 
         // on socket to handle chat
@@ -387,15 +397,17 @@ class Client {
 
 Client.list = {};
 
+// An action consists of all the data required to draw an element on the canvas
+// text is optional, only needed if the action is to draw text
 class Action {
     constructor(id, points, tool, colour, size, text) {
         this.id = id;
-        this.points = points;
-        this.tool = tool;
-        this.colour = colour;
+        this.points = points; // points = array of x,y coordinates = [[x,y], [x,y], ...]
+        this.tool = tool; // "brush", "text", etc.
+        this.colour = colour; // RGBA format
         this.size = size;
         this.text = text;
-        this.deleted = false;
+        this.deleted = false; // Mark for lazy deletion
     }
 }
 
@@ -422,6 +434,7 @@ class Brush extends Tool {
         }
     }
 
+    // Record the path travelled by client's cursor
     addClick() {
         var id = this.client.id;
         this.surface.clientColours[id] = this.client.colour;
@@ -463,16 +476,18 @@ function emitToChat(string) {
     }
 }
 
+// Receive data from clients and update their states
 setInterval(function () {
     Client.update();
 }, 15);
 
+//  Send data to clients
 setInterval(function () {
     for (var i = 0; i < Room.list.length; i++) {
         var room = Room.list[i];
-        var pack = room.surface.getDeltaData();
+        var pack = room.surface.getPublicData();
         for (var j in room.clientList) {
-            SOCKET_LIST[j].emit('updateSurface', pack);
+            SOCKET_LIST[j].emit('drawPublicData', pack);
         }
     }
     if (Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
