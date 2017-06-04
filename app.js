@@ -405,7 +405,10 @@ class Client {
         socket.on('createRoom', function(data) {
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId);
             room.addClient(Client.list[room.creatorId]);
-            console.log("created room");
+        })
+        
+        socket.on('joinRoom', function(data) {
+            Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
         })
     }
 
