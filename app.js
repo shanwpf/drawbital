@@ -127,7 +127,8 @@ class Room {
         for(var i = 0; i < Room.list.length; i++) {
             pack[i] = {
                 roomName: Room.list[i].name,
-                numUsers: Object.keys(Room.list[i].clientList).length
+                numUsers: Object.keys(Room.list[i].clientList).length,
+                isPrivate: (Room.list[i].password ? true : false)
             }
         }
         return pack;
@@ -411,7 +412,8 @@ class Client {
         })
         
         socket.on('joinRoom', function(data) {
-            Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
+            if(!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password)
+                Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
         })
     }
 
@@ -528,7 +530,7 @@ setInterval(function () {
 // Receive data from clients and update their states
 setInterval(function () {
     Client.update();
-}, 15);
+}, 30);
 
 //  Send data to clients
 setInterval(function () {

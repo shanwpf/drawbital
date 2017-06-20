@@ -30,10 +30,19 @@ socket.on('updateRoomList', function (data) {
     roomData = data
     roomList.innerHTML = "";
     for (var i = 0; i < data.length; i++) {
-        roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
-            + data[i].roomName
-            + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
-            + data[i].numUsers + '</span></a>';
+        if(data[i].isPrivate) {
+            roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
+                + data[i].roomName
+                + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
+                + data[i].numUsers + '</span>'
+                + '<span class="glyphicon glyphicon-lock"></span></a>';
+        }
+        else {
+            roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
+                + data[i].roomName
+                + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
+                + data[i].numUsers + '</span></a>';
+        }
     }
 })
 
@@ -45,7 +54,11 @@ socket.on('joinStatus', function (data) {
 })
 
 $(document.body).on('dblclick', '.list-group-item', function () {
-    socket.emit('joinRoom', { roomNumber: this.id, clientId: socket.id });
+    var password;
+    if(roomData[this.id].isPrivate) {
+        password = prompt("Enter password", "");
+    }    
+    socket.emit('joinRoom', { roomNumber: this.id, clientId: socket.id, password: password });
 })
 
 $('#draw-tab').on('click', function () {
