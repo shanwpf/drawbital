@@ -54,8 +54,13 @@ socket.on('joinStatus', function (data) {
 })
 
 $(document.body).on('dblclick', '.list-group-item', function () {
+    var room = roomData[this.id];
+    if(room.numUsers >= room.maxUsers) {
+        alert("Room is full");
+        return;
+    }
     var password;
-    if(roomData[this.id].isPrivate) {
+    if(room.isPrivate) {
         password = prompt("Enter password", "");
     }    
     socket.emit('joinRoom', { roomNumber: this.id, clientId: socket.id, password: password });

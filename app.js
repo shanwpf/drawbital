@@ -128,7 +128,8 @@ class Room {
             pack[i] = {
                 roomName: Room.list[i].name,
                 numUsers: Object.keys(Room.list[i].clientList).length,
-                isPrivate: (Room.list[i].password ? true : false)
+                isPrivate: (Room.list[i].password ? true : false),
+                maxUsers: Room.list[i].maxUsers
             }
         }
         return pack;
