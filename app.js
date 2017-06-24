@@ -104,6 +104,9 @@ class Room {
         this.password = password;
         this.creatorId = creator;
         this.clientList = {};
+        //chatText object structure; .message, .userName
+        this.chatText=[];
+        this.chatUsers=[];
         this.surface = new Surface(this);
         Room.list.push(this);
         return this;
@@ -385,18 +388,10 @@ class Client {
             client.mouseY = data.y;
         });
 
-        // on socket to handle chat
-        socket.on('Apply', function (data) {
-            if (client.name != data.username) {
-                emitToChat(client.name + " now named: " + data.username);
-                client.name = data.username;
-            }
-        });
-
+        
         socket.on('sendMsgToServer', function (data) {
-            for (var i in SOCKET_LIST) {
-                SOCKET_LIST[i].emit('addToChat', client.name + ': ' + data);
-            }
+            client.room.chatText.push({message:data, userName:client.name});
+            emitToChat(client.name + ': ' + data, client.room);
         });
 
         socket.on('evalServer', function (data) {
@@ -408,18 +403,40 @@ class Client {
         });
 
         socket.on('createRoom', function(data) {
+            if(client.room){
+                 client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
+                refreshUserList(client.room, client.name+" has left the room");
+            }
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId);
             room.addClient(Client.list[room.creatorId]);
-        })
+            //add user's name into the room chatusers list
+            room.chatUsers.push(Client.list[room.creatorId].name);
+            socket.emit('connectRoom', {chatUsersList:client.room.chatUsers, chatTextList:client.room.chatText});
+            refreshUserList(client.room, client.name+" has joined the room");
+        });
         
         socket.on('joinRoom', function(data) {
             if(!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password)
+                if(client.room){
+                    client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
+                    // refresh for those who are in current room 
+                    refreshUserList(client.room, client.name+" has left the room");
+                }
                 Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
-        })
+                //add user's name into the room chatusers list
+                Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
+                socket.emit('connectRoom', {chatUsersList:client.room.chatUsers, chatTextList:client.room.chatText});
+                // refresh for those who are in next room
+                refreshUserList(client.room, client.name+" has joined the room");
+        });
     }
+    
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];
+        // remove name of users from chatusers
+        if(client.room)
+            client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
         emitDisconnect(client.name);
         if(client.room) 
             client.room.removeClient(client);
@@ -516,10 +533,24 @@ function emitDisconnect(name) {
     }
 }
 
-function emitToChat(string) {
-    for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('addToChat', string);
+function emitToChat(string, room) {
+    for (var i in room.clientList) {
+           SOCKET_LIST[i].emit('addToChat', string);
     }
+
+}
+
+function refreshUserList(room){
+    for (var i in room.clientList) {
+           SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
+    }
+}
+function refreshUserList(room, string){
+    for (var i in room.clientList) {
+           SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
+           SOCKET_LIST[i].emit('addToChat', string);
+    }
+    
 }
 
 setInterval(function () {

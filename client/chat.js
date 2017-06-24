@@ -19,20 +19,50 @@ socket.on('addToChat', function (data) {
                 chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
 });
 
+socket.on('refreshUserList', function (data) {
+        while (userList.firstChild){
+                userList.removeChild(userList.firstChild);
+        };
+        for(var i in data)
+        {
+                var iDiv = document.createElement('div');
+                iDiv.id = data[i];
+                iDiv.innerHTML = data[i];
+                userList.appendChild(iDiv);
+        }
 
+});
 
 // data is the username
 socket.on('initUsers', function (data) {
         //detect if the user is at the end of the scroll
         for(var i in data)
         {
-         var iDiv = document.createElement('div');
-         iDiv.id = data[i];
-         iDiv.innerHTML = data[i];
-         userList.appendChild(iDiv);
+                var iDiv = document.createElement('div');
+                iDiv.id = data[i];
+                iDiv.innerHTML = data[i];
+                userList.appendChild(iDiv);
         }
 });
-
+socket.on('connectRoom', function (data) {
+        
+        //two ways of adding a child into div
+        //console.log(data);
+        clearChatUser();
+        for(var i in data.chatUsersList)
+        {
+                var iDiv = document.createElement('div');
+                iDiv.id = data.chatUsersList[i];
+                iDiv.innerHTML = data.chatUsersList[i];
+                userList.appendChild(iDiv);
+        }
+        for(var i in data.chatTextList)
+        {
+                chatText.innerHTML += '<div>' +data.chatTextList[i].userName +":"+ data.chatTextList[i].message + '</div>';
+        }
+        // auto scrolling to the most recent
+         chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
+})
 
 // data is the username
 socket.on('connectUsers', function (data) {
@@ -78,10 +108,14 @@ var signDiv = document.getElementById('signDiv');
 var signDivUsername = document.getElementById('signDiv-username');
 var signDivApply = document.getElementById('signDiv-Apply');
 
-/*
-signDivApply.onclick = function () {
-        socket.emit('Apply', { username: signDivUsername.value });
-}*/
+function clearChatUser(){
+        while (chatText.firstChild) {
+                chatText.removeChild(chatText.firstChild);
+        };
+        while (userList.firstChild) {
+                userList.removeChild(userList.firstChild);
+        };
+}
 
 $(document).ready(function() {
         chatText.style.width = chatDiv.style.width;

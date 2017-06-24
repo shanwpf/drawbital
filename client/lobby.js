@@ -24,6 +24,7 @@ createBtn.onclick = function () {
         password: passwordForm.value,
         creatorId: socket.id
     });
+    clearChatUser();
 }
 
 socket.on('updateRoomList', function (data) {
@@ -83,3 +84,4 @@ $('#lobby-tab').on('click', function () {
         displayDiv.style.display = "none";
     }
 })
+
