@@ -7,7 +7,8 @@ var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
-var GAME_TIME_LIMIT = 60;
+var GAME_TIME_LIMIT = 30;
+var GAME_MAX_POINTS = 10;
 var timeThen = 0;
 var gameWords = {
     "hard": []
@@ -108,10 +109,11 @@ class Game {
         this.curDrawerIdx = -1;
         this.curDrawer = this.room.clients[0];
         this.category = "hard";
-        this.then = Date.now();
+        this.then = 0;
         this.started = false;
+        this.roundTransition = false;
         this.word = "sunshine";
-        this.pointsAwarded = 10;
+        this.pointsAwarded = GAME_MAX_POINTS;
     }
 
     update() {
@@ -119,8 +121,19 @@ class Game {
             this.started = false;
         else if (!this.started && this.room.clients.length >= 2) {
             this.started = true;
+            this.then = Date.now();
             this.nextDrawer();
             SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
+        }
+
+        if(this.roundTransition) {
+            if(this.timer > 0) {
+                this.updateTimer();
+            } 
+            else {
+                this.nextDrawer();
+            }
+            return;
         }
 
         if (this.started) {
@@ -128,7 +141,7 @@ class Game {
                 this.updateTimer();
             }
             else {
-                this.nextDrawer();
+                this.roundOver();
             }
         }
     }
@@ -141,18 +154,27 @@ class Game {
         }
     }
 
+    roundOver() {
+        this.roundTransition = true;
+        this.curDrawer.canDraw = false;
+        emitToChat(this.room, 'Round over!');
+        emitToChat(this.room, 'The answer was: ' + this.word);
+        this.timer = 10;
+    }
+
     nextDrawer() {
         this.room.surface.clearSurface();
         this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
         this.curDrawer = this.room.clients[this.curDrawerIdx];
         this.curDrawer.canDraw = true;
         for (var i = 0; i < this.room.clients.length; i++) {
-            if (this.room.clients[i] != this.curDrawer)
-                this.room.clients[i].canDraw = false;
+            this.room.clients[i].solved = false;
         }
         this.word = this.getRandomWord();
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
+        this.pointsAwarded = GAME_MAX_POINTS;
+        this.roundTransition = false;
     }
 
     getRandomWord() {
@@ -170,7 +192,7 @@ class Game {
         }
         else {
             if(!client.solved)
-                SOCKET_LIST[client.id].emit("gameCheckAnswer", { value: false });
+                emitToClientChat(client, answer + ' is incorrect, try again');
         }
         return correct;
     }
@@ -219,6 +241,8 @@ class Room {
         this.surface.onClientJoin(client);
         if (this.mode == "draw")
             client.canDraw = true;
+        else
+            client.canDraw = false;
         SOCKET_LIST[client.id].emit('joinStatus', { value: true, roomMode: this.mode });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
@@ -384,6 +408,7 @@ class Surface {
         for (var i in this.actionMap) {
             this.actionMap[i] = [];
             this.deletedActionMap[i] = [];
+            this.publicPathMap[i] = [];
         }
         for (var i in this.room.clientList) {
             SOCKET_LIST[i].emit('clear');
@@ -663,6 +688,10 @@ function emitToChat(room, string) {
     for (var i in room.clientList) {
         SOCKET_LIST[i].emit('addToChat', string);
     }
+}
+
+function emitToClientChat(client, string) {
+    SOCKET_LIST[client.id].emit('addToChat', string);
 }
 
 function refreshUserList(room) {
