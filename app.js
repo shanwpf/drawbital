@@ -424,6 +424,7 @@ class Client {
         if (this.room) {
             this.room.removeClient(this);
         }
+        this.points = 0;
         this.room = room;
         this.toolList.brush = new Brush(this.room.surface, this);
         this.toolList.text = new Text(this.room.surface, this);
