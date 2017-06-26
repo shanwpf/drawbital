@@ -97,13 +97,54 @@ io.sockets.on('connection', function (socket) {
     });
 })
 
+class Game {
+    constructor(room) {
+        this.room = room;
+        this.timer = 0;
+        this.curDrawerIdx = 0;
+        this.curDrawer = this.room.clients[0];
+        this.then = Date.now();
+        this.started = false;
+        this.word = "sunshine"
+    }
+
+    update() {
+        if(this.room.clients.length <= 1)
+            this.started = false;
+        else 
+            this.started = true;
+
+        if(this.started) {
+            if(timer < GAME_TIME_LIMIT) {
+                this.timer = (Date.now() - this.then) / 1000;
+                this.then = Date.now();
+            }
+            else {
+                this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
+            }
+        }
+    }
+
+    checkAnswer(client, answer) {
+        if(answer == this.word) {
+            SOCKET_LIST[client.id].emit("gameCheckAnswer", {correct: true});
+        }
+        else {
+            SOCKET_LIST[client.id].emit("gameCheckAnswer", {correct: false});
+        }
+    }
+}
+
 class Room {
-    constructor(name, maxUsers, password, creator) {
+    constructor(name, maxUsers, password, creator, mode) {
         this.name = name;
         this.maxUsers = maxUsers;
         this.password = password;
         this.creatorId = creator;
         this.clientList = {};
+        this.clients = [];
+        this.mode = mode; // "draw" or "game"
+        this.game = undefined;
         //chatText object structure; .message, .userName
         this.chatText=[];
         this.chatUsers=[];
@@ -112,15 +153,29 @@ class Room {
         return this;
     }
 
+    getGameData() {
+        var pack = {
+            timer: this.timer,
+            curDrawer: this.curDrawer,
+        }
+        return pack;
+    }
+
     addClient(client) {
         client.joinRoom(this);
         this.clientList[client.id] = client;
+        this.clients.push(client);
         this.surface.onClientJoin(client);
         SOCKET_LIST[client.id].emit('joinStatus', { value: true });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
 
     removeClient(client) {
+        for(var i = 0; i < this.clients.length; i++) {
+            if(this.clients[i] == client) {
+                this.clients.splice(i, 1);
+            }
+        }
         delete this.clientList[client.id];
         this.surface.onClientLeave(client);
     }
@@ -132,10 +187,17 @@ class Room {
                 roomName: Room.list[i].name,
                 numUsers: Object.keys(Room.list[i].clientList).length,
                 isPrivate: (Room.list[i].password ? true : false),
-                maxUsers: Room.list[i].maxUsers
+                maxUsers: Room.list[i].maxUsers,
+                mode: Room.list[i].mode
             }
         }
         return pack;
+    }
+
+    addChatMsg(client, message) {
+        this.chatText.push({message: message, userName: client.name});
+        if(this.game)
+            this.game.checkAnswer(client, message);
     }
 }
 
@@ -297,6 +359,7 @@ class Client {
             text: undefined
         };
         this.curTool = "brush";
+        this.canDraw = true;
         Client.list[id] = this;
         return this;
     }
@@ -320,6 +383,7 @@ class Client {
     }
 
     update() {
+        if(this.canDraw) {
         if(!this.room)
             return;
         if (this.mouseDown) {
@@ -337,6 +401,7 @@ class Client {
             this.dragging = false;
             this.idle = true;
             this.useCurTool();
+        }
         }
     }
 
@@ -390,7 +455,7 @@ class Client {
 
         
         socket.on('sendMsgToServer', function (data) {
-            client.room.chatText.push({message:data, userName:client.name});
+            client.room.addChatMsg(client, data);
             emitToChat(client.name + ': ' + data, client.room);
         });
 
@@ -407,7 +472,10 @@ class Client {
                  client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
                 refreshUserList(client.room, client.name+" has left the room");
             }
-            var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId);
+            var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId, data.mode);
+            if(room.mode == "game") {
+                room.game = new Game(room);
+            }
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list
             room.chatUsers.push(Client.list[room.creatorId].name);
