@@ -7,7 +7,11 @@ var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
+var GAME_TIME_LIMIT = 60;
 var timeThen = 0;
+var gameWords = {
+    "hard": []
+}
 
 //this way of doing is suppose to be for enduser, not for server
 //init firebase database
@@ -100,40 +104,74 @@ io.sockets.on('connection', function (socket) {
 class Game {
     constructor(room) {
         this.room = room;
-        this.timer = 0;
-        this.curDrawerIdx = 0;
+        this.timer = GAME_TIME_LIMIT;
+        this.curDrawerIdx = -1;
         this.curDrawer = this.room.clients[0];
+        this.category = "hard";
         this.then = Date.now();
         this.started = false;
-        this.word = "sunshine"
+        this.word = "sunshine";
     }
 
     update() {
-        if(this.room.clients.length <= 1)
+        if(this.started && this.room.clients.length <= 1)
             this.started = false;
-        else 
+        else if(!this.started && this.room.clients.length >= 2){
             this.started = true;
+            this.nextDrawer();
+            SOCKET_LIST[this.curDrawer.id].emit('gameWord', {value: this.word});
+        }
 
         if(this.started) {
-            if(timer < GAME_TIME_LIMIT) {
-                this.timer = (Date.now() - this.then) / 1000;
-                this.then = Date.now();
+            if(this.timer > 0) {
+                this.updateTimer();
             }
             else {
-                this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
+                this.nextDrawer();
             }
         }
+    }
+
+    updateTimer() {
+        this.timer -= (Date.now() - this.then) / 1000;
+        this.then = Date.now();
+        for(var i = 0; i < this.room.clients.length; i++) {
+            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', {value: this.timer});
+        }
+    }
+
+    nextDrawer() {
+        this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
+        this.curDrawer = this.room.clients[this.curDrawerIdx];
+        this.word = this.getRandomWord();
+        SOCKET_LIST[this.curDrawer.id].emit('gameWord', {value: this.word});
+        this.room.surface.clearSurface();
+        this.timer = GAME_TIME_LIMIT;
+    }
+
+    getRandomWord() {
+        return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))];
     }
 
     checkAnswer(client, answer) {
-        if(answer == this.word) {
-            SOCKET_LIST[client.id].emit("gameCheckAnswer", {correct: true});
+        if(answer.toLowerCase().trim() == this.word.toLowerCase().trim()) {
+            SOCKET_LIST[client.id].emit("gameCheckAnswer", {value: true});
         }
         else {
-            SOCKET_LIST[client.id].emit("gameCheckAnswer", {correct: false});
+            SOCKET_LIST[client.id].emit("gameCheckAnswer", {value: false});
         }
     }
 }
+
+// Read word bank from text file
+function getWords() {
+    var fs = require("fs");
+    fs.readFile("./words-hard.txt", function(text){
+        var text = fs.readFileSync("./words-hard.txt").toString('utf-8');
+        gameWords["hard"] = text.split("\n")
+    });
+}
+getWords();
 
 class Room {
     constructor(name, maxUsers, password, creator, mode) {
@@ -166,7 +204,7 @@ class Room {
         this.clientList[client.id] = client;
         this.clients.push(client);
         this.surface.onClientJoin(client);
-        SOCKET_LIST[client.id].emit('joinStatus', { value: true });
+        SOCKET_LIST[client.id].emit('joinStatus', { value: true, roomMode: this.mode });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
 
@@ -455,8 +493,8 @@ class Client {
 
         
         socket.on('sendMsgToServer', function (data) {
-            client.room.addChatMsg(client, data);
             emitToChat(client.name + ': ' + data, client.room);
+            client.room.addChatMsg(client, data);
         });
 
         socket.on('evalServer', function (data) {
@@ -621,6 +659,7 @@ function refreshUserList(room, string){
     
 }
 
+
 setInterval(function () {
     for(var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('updateRoomList', Room.updateRoomList());
@@ -648,3 +687,11 @@ setInterval(function () {
         timeThen = Date.now();
     }
 }, 45);
+
+setInterval(function () {
+    for(var i = 0; i < Room.list.length; i++) {
+        var room = Room.list[i];
+        if(room.game)
+            room.game.update();
+    }
+}, 1000)
