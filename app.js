@@ -143,6 +143,7 @@ class Game {
             }
             else {
                 this.roundOver();
+                refreshUserList(this.room);
             }
         }
     }
@@ -190,6 +191,7 @@ class Game {
             this.pointsAwarded -= 2;
             client.solved = true;
             emitToChat(this.room, client.name + ' got the correct answer!');
+            refreshUserList(client.room);
         }
         else {
             if(!client.solved)
@@ -219,8 +221,7 @@ class Room {
         this.clients = [];
         this.mode = mode || "draw"; // "draw" or "game"
         this.game = undefined;
-        //chatText object structure; .message, .userName
-        this.chatText = [];
+        this.chatText = []; //chatText object structure; .message, .userName
         this.chatUsers = [];
         this.surface = new Surface(this);
         Room.list.push(this);
@@ -563,7 +564,7 @@ class Client {
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list
             room.chatUsers.push(Client.list[room.creatorId].name);
-            socket.emit('connectRoom', { chatUsersList: client.room.chatUsers, chatTextList: client.room.chatText });
+            socket.emit('connectRoom', { chatTextList: client.room.chatText });
             refreshUserList(client.room, client.name + " has joined the room");
         });
 
@@ -577,7 +578,7 @@ class Client {
             Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
             //add user's name into the room chatusers list
             Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
-            socket.emit('connectRoom', { chatUsersList: client.room.chatUsers, chatTextList: client.room.chatText });
+            socket.emit('connectRoom', { chatTextList: client.room.chatText });
             // refresh for those who are in next room
             refreshUserList(client.room, client.name + " has joined the room");
         });
@@ -667,21 +668,16 @@ class Text extends Tool {
 
 // functions for chat
 function emitConnection(name, client) {
-    var dataArr = [];
-    for (var i in Client.list) {
-        dataArr.push(Client.list[i].name);
-    }
+
     for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('addToChat', name + ': ' + "has connected");
-        if (i !== client.id)
-            SOCKET_LIST[i].emit('connectUsers', name);
+        SOCKET_LIST[i].emit('addToChat', name + " has connected to the server");
     }
-    SOCKET_LIST[client.id].emit('initUsers', dataArr);
+   
 }
 function emitDisconnect(name) {
     for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('addToChat', name + " has Disconnected");
-        SOCKET_LIST[i].emit('disconnectUsers', name);
+        SOCKET_LIST[i].emit('addToChat', name + " has Disconnected from the server");
+        
     }
 }
 
@@ -696,14 +692,24 @@ function emitToClientChat(client, string) {
 }
 
 function refreshUserList(room) {
-    for (var i in room.clientList) {
-        SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
-    }
+   refreshUserList(room,null);
 }
+
 function refreshUserList(room, string) {
-    for (var i in room.clientList) {
-        SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
-        SOCKET_LIST[i].emit('addToChat', string);
+    var chatTextList = [];
+
+    if(room.mode!=="game")
+        chatTextList = room.chatUsers 
+    else{
+        for (var i in room.clientList){
+            chatTextList.push({name: room.clientList[i].name, score: room.clientList[i].points});
+        }
+    }
+
+    for (var i in room.clientList){
+        SOCKET_LIST[i].emit('refreshUserList', chatTextList);
+        if(string !==null)
+            SOCKET_LIST[i].emit('addToChat', string);
     }
 
 }

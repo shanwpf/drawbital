@@ -23,39 +23,33 @@ socket.on('refreshUserList', function (data) {
         while (userList.firstChild){
                 userList.removeChild(userList.firstChild);
         };
-        for(var i in data)
-        {
-                var iDiv = document.createElement('div');
-                iDiv.id = data[i];
-                iDiv.innerHTML = data[i];
-                userList.appendChild(iDiv);
-        }
-
+        
+        if(data[0] === undefined)
+                return;
+                
+       if(data[0].name){
+                for(var i in data)
+                {
+                        userList.innerHTML += '<div>' + data[i].name+ "\t" +data[i].score + '</div>';
+                }
+              
+       }else
+       {
+                
+                for(var i in data)
+                {
+                   userList.innerHTML += '<div>' + data[i] + '</div>';
+                }
+       }
 });
 
-// data is the username
-socket.on('initUsers', function (data) {
-        //detect if the user is at the end of the scroll
-        for(var i in data)
-        {
-                var iDiv = document.createElement('div');
-                iDiv.id = data[i];
-                iDiv.innerHTML = data[i];
-                userList.appendChild(iDiv);
-        }
-});
+
 socket.on('connectRoom', function (data) {
         
         //two ways of adding a child into div
         //console.log(data);
         clearChatUser();
-        for(var i in data.chatUsersList)
-        {
-                var iDiv = document.createElement('div');
-                iDiv.id = data.chatUsersList[i];
-                iDiv.innerHTML = data.chatUsersList[i];
-                userList.appendChild(iDiv);
-        }
+
         for(var i in data.chatTextList)
         {
                 chatText.innerHTML += '<div>' +data.chatTextList[i].userName +":"+ data.chatTextList[i].message + '</div>';
@@ -63,31 +57,6 @@ socket.on('connectRoom', function (data) {
         // auto scrolling to the most recent
          chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
 })
-
-// data is the username
-socket.on('connectUsers', function (data) {
-        //detect if the user is at the end of the scroll
-         var auto = false;
-        if (Math.abs(chatText.scrollTop - (chatText.scrollHeight - chatText.offsetHeight)) < 1)
-                auto = true;
-
-        // add string into the chatbox
-        var iDiv = document.createElement('div');
-        iDiv.id = data;
-        iDiv.innerHTML = data;
-        userList.appendChild(iDiv);
-
-        // auto scrolling to the most recent
-        if (auto)
-                chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
-});
-
-
-// data is the username
-socket.on('disconnectUsers', function (data) {
-        var toDel = document.getElementById(data);
-        toDel.remove();
-});
 
 
 socket.on('evalAnswer', function (data) {
