@@ -4,6 +4,7 @@ var maxUsersForm = document.getElementById('max-users');
 var passwordForm = document.getElementById('password');
 var createBtn = document.getElementById('createBtn');
 var lobbyDiv = document.getElementById('lobbyDiv');
+var drawRadio = document.getElementById('drawRadio');
 var roomData;
 var joinedRoom = false;
 var loggedIn = false;
@@ -22,13 +23,14 @@ createBtn.onclick = function () {
         roomName: roomNameForm.value.trim(),
         maxUsers: maxUsersForm.value.trim(),
         password: passwordForm.value,
-        creatorId: socket.id
+        creatorId: socket.id,
+        mode: (drawRadio.checked ? "draw" : "game")
     });
     clearChatUser();
 }
 
 socket.on('updateRoomList', function (data) {
-    roomData = data
+    roomData = data;
     roomList.innerHTML = "";
     for (var i = 0; i < data.length; i++) {
         if(data[i].isPrivate) {

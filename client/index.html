@@ -109,10 +109,8 @@
                 <div class="panel-body">
                     <input id="room-name" class="form-control" type="text" placeholder="Room name"></input>
                     <input id="max-users" class="form-control" type="text" placeholder="Max no. of users"></input>
-                    <!--
-                    <label class="radio-inline"><input type="radio" name="privacyradio">Public</label>
-                    <label class="radio-inline"><input type="radio" name="privacyradio">Private</label>
-                    -->
+                    <label class="radio-inline"><input type="radio" id="drawRadio" name="modeRadio" checked>Draw</label>
+                    <label class="radio-inline"><input type="radio" id="gameRadio" name="modeRadio">Pictionary</label>
                     <input id="password" class="form-control" type="text" placeholder="Password (Optional)"></input>
                 </div>
                 <div class="panel-footer">
@@ -126,25 +124,6 @@
     <div class="container" id="displayDiv" style="display:none;">
 
         <style type="text/css">
-            body {
-                overflow: hidden;
-            }
-
-            #cursorLayer {
-                display: none;
-            }
-
-            #publicSurface {
-                display: none;
-            }
-
-            #serverSurface {
-                display: none;
-            }
-
-            #permanentSurface {
-                display: none;
-            }
         </style>
         <div class="btn-group">
             <input class="btn btn-danger" type="button" id="clearBtn" value="Clear">

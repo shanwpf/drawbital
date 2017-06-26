@@ -24,3 +24,18 @@
     width: 330px;
     overflow-y: scroll;
 }
+body {
+    overflow: hidden;
+}
+#cursorLayer {
+    display: none;
+}
+#publicSurface {
+    display: none;
+}
+#serverSurface {
+    display: none;
+}
+#permanentSurface {
+    display: none;
+}
