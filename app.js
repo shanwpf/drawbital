@@ -7,8 +7,9 @@ var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
-var GAME_TIME_LIMIT = 30;
+var GAME_TIME_LIMIT = 60;
 var GAME_MAX_POINTS = 10;
+var GAME_TRANSITION_TIME = 10;
 var timeThen = 0;
 var gameWords = {
     "hard": []
@@ -159,7 +160,7 @@ class Game {
         this.curDrawer.canDraw = false;
         emitToChat(this.room, 'Round over!');
         emitToChat(this.room, 'The answer was: ' + this.word);
-        this.timer = 10;
+        this.timer = GAME_TRANSITION_TIME;
     }
 
     nextDrawer() {
@@ -216,7 +217,7 @@ class Room {
         this.creatorId = creator;
         this.clientList = {};
         this.clients = [];
-        this.mode = mode; // "draw" or "game"
+        this.mode = mode || "draw"; // "draw" or "game"
         this.game = undefined;
         //chatText object structure; .message, .userName
         this.chatText = [];
@@ -416,7 +417,7 @@ class Surface {
     }
 }
 
-var defaultRoom = new Room("default");
+var defaultRoom = new Room("Welcome to Drawbital - Default room - Free draw");
 
 class Client {
     constructor(id) {
