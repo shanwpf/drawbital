@@ -35,10 +35,9 @@ socket.on('refreshUserList', function (data) {
               
        }else
        {
-                
                 for(var i in data)
                 {
-                   userList.innerHTML += '<div>' + data[i] + '</div>';
+                        userList.innerHTML += '<div>' + data[i] + '</div>';
                 }
        }
 });

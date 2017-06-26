@@ -143,7 +143,6 @@ class Game {
             }
             else {
                 this.roundOver();
-                refreshUserList(this.room);
             }
         }
     }
@@ -162,6 +161,7 @@ class Game {
         emitToChat(this.room, 'Round over!');
         emitToChat(this.room, 'The answer was: ' + this.word);
         this.timer = GAME_TRANSITION_TIME;
+        refreshUserList(this.room,"empty");
     }
 
     nextDrawer() {
@@ -191,7 +191,7 @@ class Game {
             this.pointsAwarded -= 2;
             client.solved = true;
             emitToChat(this.room, client.name + ' got the correct answer!');
-            refreshUserList(client.room);
+            refreshUserList(client.room,"empty");
         }
         else {
             if(!client.solved)
@@ -691,10 +691,8 @@ function emitToClientChat(client, string) {
     SOCKET_LIST[client.id].emit('addToChat', string);
 }
 
-function refreshUserList(room) {
-   refreshUserList(room,null);
-}
 
+//feed string "empty" if you dont want display message after refresh, no overloading in js :(
 function refreshUserList(room, string) {
     var chatTextList = [];
 
@@ -708,7 +706,7 @@ function refreshUserList(room, string) {
 
     for (var i in room.clientList){
         SOCKET_LIST[i].emit('refreshUserList', chatTextList);
-        if(string !==null)
+        if(string != "empty")
             SOCKET_LIST[i].emit('addToChat', string);
     }
 
