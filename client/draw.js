@@ -84,7 +84,7 @@ socket.on('drawPermData', function (data) {
 socket.on('joinStatus', function (data) {
     if (data.value) {
         displayDiv.style.display = "inline-block";
-        if(data.roomMode == "game")
+        if (data.roomMode == "game")
             timerPanel.style.display = "inline-block";
         else
             timerPanel.style.display = "none";

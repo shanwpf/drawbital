@@ -22,27 +22,27 @@ var config = {
     projectId: "drawer-e233e",
     storageBucket: "drawer-e233e.appspot.com",
     messagingSenderId: "624328057648"
-  };
+};
 firebase.initializeApp(config);
 
 function writeUserData(userId, password) {
-  firebase.database().ref('users/' + userId).set({
-    logInPass:password
-  });
+    firebase.database().ref('users/' + userId).set({
+        logInPass: password
+    });
 }
 
 //cb stands for callback
 var isValidPassword = function (data, cb) {
     setTimeout(function () {
-        return firebase.database().ref('/users/' + data.username).once('value').then(function(snapshot) {
-            cb(snapshot.val() !==null && snapshot.val().logInPass == data.password)
+        return firebase.database().ref('/users/' + data.username).once('value').then(function (snapshot) {
+            cb(snapshot.val() !== null && snapshot.val().logInPass == data.password)
         });
     }, 10);
 }
 var isUsernameTaken = function (data, cb) {
     setTimeout(function () {
-        return firebase.database().ref('/users/' + data.username).once('value').then(function(snapshot) {
-            cb(snapshot.val() !==null)
+        return firebase.database().ref('/users/' + data.username).once('value').then(function (snapshot) {
+            cb(snapshot.val() !== null)
         });
     }, 10);
 }
@@ -111,19 +111,20 @@ class Game {
         this.then = Date.now();
         this.started = false;
         this.word = "sunshine";
+        this.pointsAwarded = 10;
     }
 
     update() {
-        if(this.started && this.room.clients.length <= 1)
+        if (this.started && this.room.clients.length <= 1)
             this.started = false;
-        else if(!this.started && this.room.clients.length >= 2){
+        else if (!this.started && this.room.clients.length >= 2) {
             this.started = true;
             this.nextDrawer();
-            SOCKET_LIST[this.curDrawer.id].emit('gameWord', {value: this.word});
+            SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         }
 
-        if(this.started) {
-            if(this.timer > 0) {
+        if (this.started) {
+            if (this.timer > 0) {
                 this.updateTimer();
             }
             else {
@@ -135,17 +136,22 @@ class Game {
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
-        for(var i = 0; i < this.room.clients.length; i++) {
-            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', {value: this.timer});
+        for (var i = 0; i < this.room.clients.length; i++) {
+            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', { value: this.timer });
         }
     }
 
     nextDrawer() {
+        this.room.surface.clearSurface();
         this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
         this.curDrawer = this.room.clients[this.curDrawerIdx];
+        this.curDrawer.canDraw = true;
+        for (var i = 0; i < this.room.clients.length; i++) {
+            if (this.room.clients[i] != this.curDrawer)
+                this.room.clients[i].canDraw = false;
+        }
         this.word = this.getRandomWord();
-        SOCKET_LIST[this.curDrawer.id].emit('gameWord', {value: this.word});
-        this.room.surface.clearSurface();
+        SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
     }
 
@@ -154,19 +160,26 @@ class Game {
     }
 
     checkAnswer(client, answer) {
-        if(answer.toLowerCase().trim() == this.word.toLowerCase().trim()) {
-            SOCKET_LIST[client.id].emit("gameCheckAnswer", {value: true});
+        var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
+        if (!client.solved && correct) {
+            SOCKET_LIST[client.id].emit("gameCheckAnswer", { value: true });
+            client.points += this.pointsAwarded;
+            this.pointsAwarded -= 2;
+            client.solved = true;
+            emitToChat(this.room, client.name + ' got the correct answer!');
         }
         else {
-            SOCKET_LIST[client.id].emit("gameCheckAnswer", {value: false});
+            if(!client.solved)
+                SOCKET_LIST[client.id].emit("gameCheckAnswer", { value: false });
         }
+        return correct;
     }
 }
 
 // Read word bank from text file
 function getWords() {
     var fs = require("fs");
-    fs.readFile("./words-hard.txt", function(text){
+    fs.readFile("./words-hard.txt", function (text) {
         var text = fs.readFileSync("./words-hard.txt").toString('utf-8');
         gameWords["hard"] = text.split("\n")
     });
@@ -184,8 +197,8 @@ class Room {
         this.mode = mode; // "draw" or "game"
         this.game = undefined;
         //chatText object structure; .message, .userName
-        this.chatText=[];
-        this.chatUsers=[];
+        this.chatText = [];
+        this.chatUsers = [];
         this.surface = new Surface(this);
         Room.list.push(this);
         return this;
@@ -204,13 +217,15 @@ class Room {
         this.clientList[client.id] = client;
         this.clients.push(client);
         this.surface.onClientJoin(client);
+        if (this.mode == "draw")
+            client.canDraw = true;
         SOCKET_LIST[client.id].emit('joinStatus', { value: true, roomMode: this.mode });
         SOCKET_LIST[client.id].emit('drawServerData', this.surface.getServerData());
     }
 
     removeClient(client) {
-        for(var i = 0; i < this.clients.length; i++) {
-            if(this.clients[i] == client) {
+        for (var i = 0; i < this.clients.length; i++) {
+            if (this.clients[i] == client) {
                 this.clients.splice(i, 1);
             }
         }
@@ -220,7 +235,7 @@ class Room {
 
     static updateRoomList() {
         var pack = [];
-        for(var i = 0; i < Room.list.length; i++) {
+        for (var i = 0; i < Room.list.length; i++) {
             pack[i] = {
                 roomName: Room.list[i].name,
                 numUsers: Object.keys(Room.list[i].clientList).length,
@@ -233,9 +248,10 @@ class Room {
     }
 
     addChatMsg(client, message) {
-        this.chatText.push({message: message, userName: client.name});
-        if(this.game)
-            this.game.checkAnswer(client, message);
+        this.chatText.push({ message: message, userName: client.name });
+        if (!this.game || client == this.game.curDrawer
+            || (this.game && !this.game.checkAnswer(client, message)))
+            emitToChat(this, client.name + ': ' + message);
     }
 }
 
@@ -398,12 +414,14 @@ class Client {
         };
         this.curTool = "brush";
         this.canDraw = true;
+        this.points = 0;
+        this.solved = false;
         Client.list[id] = this;
         return this;
     }
 
     joinRoom(room) {
-        if(this.room) {
+        if (this.room) {
             this.room.removeClient(this);
         }
         this.room = room;
@@ -421,25 +439,25 @@ class Client {
     }
 
     update() {
-        if(this.canDraw) {
-        if(!this.room)
-            return;
-        if (this.mouseDown) {
-            this.idle = false;
-        }
-        if (this.mouseMove && this.mouseDown && !this.idle) {
-            this.dragging = true;
-            this.useCurTool();
-        }
-        else if (this.mouseDown && !this.idle) {
-            this.dragging = true;
-            this.useCurTool();
-        }
-        else if (!this.idle) {
-            this.dragging = false;
-            this.idle = true;
-            this.useCurTool();
-        }
+        if (this.canDraw) {
+            if (!this.room)
+                return;
+            if (this.mouseDown) {
+                this.idle = false;
+            }
+            if (this.mouseMove && this.mouseDown && !this.idle) {
+                this.dragging = true;
+                this.useCurTool();
+            }
+            else if (this.mouseDown && !this.idle) {
+                this.dragging = true;
+                this.useCurTool();
+            }
+            else if (!this.idle) {
+                this.dragging = false;
+                this.idle = true;
+                this.useCurTool();
+            }
         }
     }
 
@@ -458,7 +476,8 @@ class Client {
             client.room.surface.redo(client.id);
         })
         socket.on('clear', function () {
-            client.room.surface.clearSurface();
+            if (client.canDraw)
+                client.room.surface.clearSurface();
         })
         socket.on('colour', function (data) {
             client.colour = data.value;
@@ -470,7 +489,8 @@ class Client {
             client.curTool = data.toolName;
         })
         socket.on('drawText', function (data) {
-            client.useCurTool(data.text);
+            if (client.canDraw)
+                client.useCurTool(data.text);
         })
         socket.on('keyPress', function (data) {
             if (data.inputId === 'mousedown') {
@@ -491,9 +511,8 @@ class Client {
             client.mouseY = data.y;
         });
 
-        
+
         socket.on('sendMsgToServer', function (data) {
-            emitToChat(client.name + ': ' + data, client.room);
             client.room.addChatMsg(client, data);
         });
 
@@ -505,46 +524,46 @@ class Client {
             socket.emit('evalAnswer', res);
         });
 
-        socket.on('createRoom', function(data) {
-            if(client.room){
-                 client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
-                refreshUserList(client.room, client.name+" has left the room");
+        socket.on('createRoom', function (data) {
+            if (client.room) {
+                client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
+                refreshUserList(client.room, client.name + " has left the room");
             }
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId, data.mode);
-            if(room.mode == "game") {
+            if (room.mode == "game") {
                 room.game = new Game(room);
             }
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list
             room.chatUsers.push(Client.list[room.creatorId].name);
-            socket.emit('connectRoom', {chatUsersList:client.room.chatUsers, chatTextList:client.room.chatText});
-            refreshUserList(client.room, client.name+" has joined the room");
+            socket.emit('connectRoom', { chatUsersList: client.room.chatUsers, chatTextList: client.room.chatText });
+            refreshUserList(client.room, client.name + " has joined the room");
         });
-        
-        socket.on('joinRoom', function(data) {
-            if(!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password)
-                if(client.room){
-                    client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
+
+        socket.on('joinRoom', function (data) {
+            if (!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password)
+                if (client.room) {
+                    client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
                     // refresh for those who are in current room 
-                    refreshUserList(client.room, client.name+" has left the room");
+                    refreshUserList(client.room, client.name + " has left the room");
                 }
-                Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
-                //add user's name into the room chatusers list
-                Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
-                socket.emit('connectRoom', {chatUsersList:client.room.chatUsers, chatTextList:client.room.chatText});
-                // refresh for those who are in next room
-                refreshUserList(client.room, client.name+" has joined the room");
+            Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
+            //add user's name into the room chatusers list
+            Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
+            socket.emit('connectRoom', { chatUsersList: client.room.chatUsers, chatTextList: client.room.chatText });
+            // refresh for those who are in next room
+            refreshUserList(client.room, client.name + " has joined the room");
         });
     }
-    
+
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];
         // remove name of users from chatusers
-        if(client.room)
-            client.room.chatUsers = client.room.chatUsers.filter(function(e) { return e !== client.name });
+        if (client.room)
+            client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
         emitDisconnect(client.name);
-        if(client.room) 
+        if (client.room)
             client.room.removeClient(client);
         delete Client.list[socket.id];
     }
@@ -623,45 +642,44 @@ class Text extends Tool {
 function emitConnection(name, client) {
     var dataArr = [];
     for (var i in Client.list) {
-           dataArr.push(Client.list[i].name);
+        dataArr.push(Client.list[i].name);
     }
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('addToChat', name + ': ' + "has connected");
-        if(i !== client.id)
-           SOCKET_LIST[i].emit('connectUsers', name);
+        if (i !== client.id)
+            SOCKET_LIST[i].emit('connectUsers', name);
     }
     SOCKET_LIST[client.id].emit('initUsers', dataArr);
 }
 function emitDisconnect(name) {
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('addToChat', name + " has Disconnected");
-          SOCKET_LIST[i].emit('disconnectUsers', name);
+        SOCKET_LIST[i].emit('disconnectUsers', name);
     }
 }
 
-function emitToChat(string, room) {
+function emitToChat(room, string) {
     for (var i in room.clientList) {
-           SOCKET_LIST[i].emit('addToChat', string);
-    }
-
-}
-
-function refreshUserList(room){
-    for (var i in room.clientList) {
-           SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
+        SOCKET_LIST[i].emit('addToChat', string);
     }
 }
-function refreshUserList(room, string){
+
+function refreshUserList(room) {
     for (var i in room.clientList) {
-           SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
-           SOCKET_LIST[i].emit('addToChat', string);
+        SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
     }
-    
+}
+function refreshUserList(room, string) {
+    for (var i in room.clientList) {
+        SOCKET_LIST[i].emit('refreshUserList', room.chatUsers);
+        SOCKET_LIST[i].emit('addToChat', string);
+    }
+
 }
 
 
 setInterval(function () {
-    for(var i in SOCKET_LIST) {
+    for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('updateRoomList', Room.updateRoomList());
     }
 }, 2000)
@@ -689,9 +707,9 @@ setInterval(function () {
 }, 45);
 
 setInterval(function () {
-    for(var i = 0; i < Room.list.length; i++) {
+    for (var i = 0; i < Room.list.length; i++) {
         var room = Room.list[i];
-        if(room.game)
+        if (room.game)
             room.game.update();
     }
 }, 1000)
