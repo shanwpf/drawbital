@@ -39,3 +39,6 @@ body {
 #permanentSurface {
     display: none;
 }
+#timerPanel {
+    display: none;
+}

@@ -31,6 +31,9 @@ var scale = 1;
 var ZOOM_SMOOTHNESS = 10;
 var serverData, publicData, permData;
 var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
+var gameTimer = 0;
+var gameTimerDiv = document.getElementById('gameTimerDiv');
+var timerPanel = document.getElementById('timerPanel');
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -81,8 +84,30 @@ socket.on('drawPermData', function (data) {
 socket.on('joinStatus', function (data) {
     if (data.value) {
         displayDiv.style.display = "inline-block";
+        if(data.roomMode == "game")
+            timerPanel.style.display = "inline-block";
+        else
+            timerPanel.style.display = "none";
         repeat();
     }
+})
+
+socket.on('gameCheckAnswer', function (data) {
+    if (data.value) {
+        alert('You are correct!');
+    }
+    else {
+        alert('Try again');
+    }
+})
+
+socket.on('gameWord', function (data) {
+    alert('Your word is: ' + data.value);
+})
+
+socket.on('gameTimer', function (data) {
+    gameTimer = data.value;
+    gameTimerDiv.innerHTML = "Time Left: " + Math.round(data.value);
 })
 
 function drawPermData(data) {
