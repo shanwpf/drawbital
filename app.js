@@ -196,13 +196,15 @@ class Game {
             if(this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded -= 2;
             client.solved = true;
-            emitToChat(this.room, client.name + ' got the correct answer!');
+            emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
             refreshUserList(client.room,"empty");
         }
+        /* Unnecessary. Rather keep chat clean
         else {
             if(!client.solved)
-                emitToClientChat(client, answer + ' is incorrect, try again');
+                emitToClientChat(client, '<p class="text-danger">'+answer + ' is incorrect, try again.</p>');
         }
+        */
         return correct;
     }
 }
@@ -499,9 +501,8 @@ class Client {
     static onConnect(socket, username) {
         var client = new Client(socket.id);
         client.name = username;
-        emitConnection(client.name, client);
-        // PLACEHOLDER: Replace when rooms are implemented properly
-        //defaultRoom.addClient(client);
+
+        //emitConnection(client.name, client); Unnecessary
 
         socket.on('undo', function () {
             client.room.surface.undo(client.id);
@@ -571,7 +572,7 @@ class Client {
             //add user's name into the room chatusers list
             room.chatUsers.push(Client.list[room.creatorId].name);
             socket.emit('connectRoom', { chatTextList: client.room.chatText });
-            refreshUserList(client.room, client.name + " has joined the room");
+            refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
         });
 
         socket.on('joinRoom', function (data) {
@@ -579,14 +580,14 @@ class Client {
                 if (client.room) {
                     client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
                     // refresh for those who are in current room 
-                    refreshUserList(client.room, client.name + " has left the room");
+                    refreshUserList(client.room, '<p class="text-danger">' + client.name + " has left the room</p>");
                 }
             Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
             //add user's name into the room chatusers list
             Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
             socket.emit('connectRoom', { chatTextList: client.room.chatText });
             // refresh for those who are in next room
-            refreshUserList(client.room, client.name + " has joined the room");
+            refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
         });
     }
 
@@ -596,7 +597,7 @@ class Client {
         // remove name of users from chatusers
         if (client.room)
             client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
-        emitDisconnect(client.name);
+        //emitDisconnect(client.name); Unecessary
         if (client.room)
             client.room.removeClient(client);
         delete Client.list[socket.id];
@@ -674,11 +675,9 @@ class Text extends Tool {
 
 // functions for chat
 function emitConnection(name, client) {
-
     for (var i in SOCKET_LIST) {
         SOCKET_LIST[i].emit('addToChat', name + " has connected to the server");
     }
-   
 }
 function emitDisconnect(name) {
     for (var i in SOCKET_LIST) {
