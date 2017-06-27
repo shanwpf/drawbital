@@ -125,7 +125,6 @@ class Game {
             this.started = true;
             this.then = Date.now();
             this.nextDrawer();
-            SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         }
 
         if(this.roundTransition) {
