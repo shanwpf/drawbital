@@ -9,6 +9,7 @@ var MINUTES_UNTIL_PERMANENT = 1;
 var DEBUG = true;
 var GAME_TIME_LIMIT = 60;
 var GAME_MAX_POINTS = 10;
+var GAME_MIN_POINTS = 2;
 var GAME_TRANSITION_TIME = 10;
 var timeThen = 0;
 var gameWords = {
@@ -109,12 +110,12 @@ class Game {
         this.timer = GAME_TIME_LIMIT;
         this.curDrawerIdx = -1;
         this.curDrawer = this.room.clients[0];
-        this.category = "hard";
+        this.category = "hard"; // Current word category
         this.then = 0;
-        this.started = false;
-        this.roundTransition = false;
-        this.word = "sunshine";
-        this.pointsAwarded = GAME_MAX_POINTS;
+        this.started = false;   // Has the game started?
+        this.roundTransition = false;   // Is the game transitioning to a new round?
+        this.word = ""; // Current word to guess
+        this.pointsAwarded = GAME_MAX_POINTS; // Points awarded to the next user that guesses correctly
     }
 
     update() {
@@ -147,6 +148,7 @@ class Game {
         }
     }
 
+    // Run countdown timer
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
@@ -155,6 +157,7 @@ class Game {
         }
     }
 
+    // Handle transition period between rounds
     roundOver() {
         this.roundTransition = true;
         this.curDrawer.canDraw = false;
@@ -164,6 +167,7 @@ class Game {
         refreshUserList(this.room,"empty");
     }
 
+    // Switch to the next drawer and starts a new round
     nextDrawer() {
         this.room.surface.clearSurface();
         this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
@@ -179,16 +183,19 @@ class Game {
         this.roundTransition = false;
     }
 
+    // Returns a random word under the current category
     getRandomWord() {
         return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))];
     }
 
+    // Takes in a client obj and a answer string to verify if the answer is correct
     checkAnswer(client, answer) {
         var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
         if (!client.solved && correct) {
             SOCKET_LIST[client.id].emit("gameCheckAnswer", { value: true });
             client.points += this.pointsAwarded;
-            this.pointsAwarded -= 2;
+            if(this.pointsAwarded > GAME_MIN_POINTS)
+                this.pointsAwarded -= 2;
             client.solved = true;
             emitToChat(this.room, client.name + ' got the correct answer!');
             refreshUserList(client.room,"empty");
@@ -681,12 +688,14 @@ function emitDisconnect(name) {
     }
 }
 
+// Send a message to all clients in room
 function emitToChat(room, string) {
     for (var i in room.clientList) {
         SOCKET_LIST[i].emit('addToChat', string);
     }
 }
 
+// Send a message to a specific client only
 function emitToClientChat(client, string) {
     SOCKET_LIST[client.id].emit('addToChat', string);
 }
