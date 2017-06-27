@@ -92,23 +92,6 @@ socket.on('joinStatus', function (data) {
     }
 })
 
-socket.on('gameCheckAnswer', function (data) {
-    if (data.value) {
-        alert('You are correct!');
-    }
-    else {
-        alert('Try again');
-    }
-})
-
-socket.on('gameWord', function (data) {
-    alert('Your word is: ' + data.value);
-})
-
-socket.on('gameTimer', function (data) {
-    gameTimer = data.value;
-    gameTimerDiv.innerHTML = "Time Left: " + Math.round(data.value);
-})
 
 function drawPermData(data) {
     var points;

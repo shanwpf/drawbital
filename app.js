@@ -119,8 +119,10 @@ class Game {
     }
 
     update() {
-        if (this.started && this.room.clients.length <= 1)
+        if (this.started && this.room.clients.length <= 1) {
             this.started = false;
+            emitToChat(this.room, '<p class="text-warning">Game stopped</p>');
+        }
         else if (!this.started && this.room.clients.length >= 2) {
             this.started = true;
             this.then = Date.now();
@@ -176,10 +178,13 @@ class Game {
             this.room.clients[i].solved = false;
         }
         this.word = this.getRandomWord();
+        emitToClientChat(this.curDrawer, '<p class="text-danger"> It\'s your turn to draw! Your word is '
+                                          + '<strong>' + this.word + '</strong></p>');
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
         this.pointsAwarded = GAME_MAX_POINTS;
         this.roundTransition = false;
+        playAudio('newDrawer', this.curDrawer);
     }
 
     // Returns a random word under the current category
@@ -191,12 +196,13 @@ class Game {
     checkAnswer(client, answer) {
         var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
         if (!client.solved && correct) {
-            SOCKET_LIST[client.id].emit("gameCheckAnswer", { value: true });
+            playAudio('answerFound', this.room);
             client.points += this.pointsAwarded;
+            emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
+            emitToClientChat(client, '<p class="text-success">'+ 'You earned ' + this.pointsAwarded + ' points.</p>');
             if(this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded -= 2;
             client.solved = true;
-            emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
             refreshUserList(client.room,"empty");
         }
         /* Unnecessary. Rather keep chat clean
@@ -206,6 +212,18 @@ class Game {
         }
         */
         return correct;
+    }
+}
+
+// Plays an audio track to the listener (either Room or Client)
+function playAudio(track, listener) {
+    if(listener instanceof Room) {
+        for(var i = 0; i < listener.clients.length; i++) {
+            SOCKET_LIST[listener.clients[i].id].emit('playAudio', { track: track });
+        }
+    }
+    if(listener instanceof Client) {
+        SOCKET_LIST[listener.id].emit('playAudio', { track: track });
     }
 }
 
@@ -562,7 +580,7 @@ class Client {
         socket.on('createRoom', function (data) {
             if (client.room) {
                 client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
-                refreshUserList(client.room, client.name + " has left the room");
+                refreshUserList(client.room, '<p class="text-primary">' + client.name + " has left the room</p>");
             }
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId, data.mode);
             if (room.mode == "game") {
@@ -580,7 +598,7 @@ class Client {
                 if (client.room) {
                     client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
                     // refresh for those who are in current room 
-                    refreshUserList(client.room, '<p class="text-danger">' + client.name + " has left the room</p>");
+                    refreshUserList(client.room, '<p class="text-primary">' + client.name + " has left the room</p>");
                 }
             Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
             //add user's name into the room chatusers list

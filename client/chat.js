@@ -4,6 +4,9 @@ var chatForm = document.getElementById('chat-form');
 var chatTab = document.getElementById('chatTab');
 var userTab = document.getElementById('userTab');
 var userList = document.getElementById('user-list');
+// Game audio
+var audioNewDrawer = new Audio('./client/audio/you_are_drawer.wav');
+var audioAnswerFound = new Audio('./client/audio/answer_found.wav');
 
 socket.on('addToChat', function (data) {
         //detect if the user is at the end of the scroll
@@ -62,6 +65,35 @@ socket.on('evalAnswer', function (data) {
         console.log(data);
 });
 
+socket.on('playAudio', function (data) {
+        switch(data.track) {
+                case 'newDrawer': audioNewDrawer.play(); break;
+                case 'answerFound': audioAnswerFound.play(); break;
+        }
+})
+
+// Game handlers
+
+/* Unnecessary
+socket.on('gameCheckAnswer', function (data) {
+    if (data.value) {
+        alert('You are correct!');
+    }
+    else {
+        alert('Try again');
+    }
+})
+
+socket.on('gameWord', function (data) {
+
+})
+*/
+
+socket.on('gameTimer', function (data) {
+    gameTimer = data.value;
+    gameTimerDiv.innerHTML = "Time Left: " + Math.round(data.value);
+})
+// /Game handlers
 
 chatForm.onsubmit = function (e) {
         e.preventDefault();
