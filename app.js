@@ -178,7 +178,7 @@ class Game {
             this.room.clients[i].solved = false;
         }
         this.word = this.getRandomWord();
-        emitToClientChat(this.curDrawer, '<p class="text-danger"> It\'s your turn to draw! Your word is '
+        emitToChat(this.curDrawer, '<p class="text-danger"> It\'s your turn to draw! Your word is '
                                           + '<strong>' + this.word + '</strong></p>');
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
@@ -199,7 +199,7 @@ class Game {
             playAudio('answerFound', this.room);
             client.points += this.pointsAwarded;
             emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
-            emitToClientChat(client, '<p class="text-success">'+ 'You earned ' + this.pointsAwarded + ' points.</p>');
+            emitToChat(client, '<p class="text-success">'+ 'You earned ' + this.pointsAwarded + ' points.</p>');
             if(this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded -= 2;
             client.solved = true;
@@ -208,7 +208,7 @@ class Game {
         /* Unnecessary. Rather keep chat clean
         else {
             if(!client.solved)
-                emitToClientChat(client, '<p class="text-danger">'+answer + ' is incorrect, try again.</p>');
+                emitToChat(client, '<p class="text-danger">'+answer + ' is incorrect, try again.</p>');
         }
         */
         return correct;
@@ -704,18 +704,15 @@ function emitDisconnect(name) {
     }
 }
 
-// Send a message to all clients in room
-function emitToChat(room, string) {
-    for (var i in room.clientList) {
-        SOCKET_LIST[i].emit('addToChat', string);
-    }
+// Send a message to receiver (Room or Client)
+function emitToChat(receiver, string) {
+    if(receiver instanceof Room)
+        for (var i in receiver.clientList) {
+            SOCKET_LIST[i].emit('addToChat', string);
+        }
+    if(receiver instanceof Client)
+        SOCKET_LIST[receiver.id].emit('addToChat', string);
 }
-
-// Send a message to a specific client only
-function emitToClientChat(client, string) {
-    SOCKET_LIST[client.id].emit('addToChat', string);
-}
-
 
 //feed string "empty" if you dont want display message after refresh, no overloading in js :(
 function refreshUserList(room, string) {
