@@ -30,14 +30,14 @@ socket.on('refreshUserList', function (data) {
        if(data[0].name){
                 for(var i in data)
                 {
-                        userList.innerHTML += '<div>' + data[i].name+ "&emsp;--&emsp;Score: " +data[i].score + '</div>';
+                        userList.innerHTML += '<li class="list-group-item">' + data[i].name + ' <span class="badge">' + data[i].score + '</span></li>';
                 }
               
        }else
        {
                 for(var i in data)
                 {
-                        userList.innerHTML += '<div>' + data[i] + '</div>';
+                        userList.innerHTML += '<li class="list-group-item">' + data[i] + '</li>';
                 }
        }
 });
