@@ -30,7 +30,7 @@ socket.on('refreshUserList', function (data) {
        if(data[0].name){
                 for(var i in data)
                 {
-                        userList.innerHTML += '<div>' + data[i].name+ "\t" +data[i].score + '</div>';
+                        userList.innerHTML += '<div>' + data[i].name+ "&emsp;--&emsp;Score: " +data[i].score + '</div>';
                 }
               
        }else
