@@ -6,8 +6,10 @@
 }
 #chat-input {
     flex: 1 1 auto;
+    width: 300px;
 }
 #chatDiv {
+    z-index: 7;
     display: flex;
     flex-direction: column;
 }
@@ -27,18 +29,44 @@
 body {
     overflow: hidden;
 }
-#cursorLayer {
-    display: none;
-}
-#publicSurface {
-    display: none;
+#permanentSurface {
+    z-index: 1;
 }
 #serverSurface {
-    display: none;
+    z-index: 2;
 }
-#permanentSurface {
+#publicSurface {
+    z-index: 3;
+}
+#cursorLayer {
+    z-index: 4;
+}
+#view {
+    z-index: 5;
+    position: relative;
+    left: 0;
+    top: 0;
+    border: 1px solid black;
+}
+#overlay {
+    z-index: 6;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+#cursorLayer, #publicSurface, #serverSurface, #permanentSurface {
     display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 #timerPanel {
+    position: absolute;
+    z-index: 8;
+    width: 20vh;
     display: none;
+    text-align: center;
+}
+#chat-text > div {
+    font-size: 1.15em;
 }

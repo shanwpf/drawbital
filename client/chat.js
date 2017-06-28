@@ -93,7 +93,7 @@ socket.on('gameWord', function (data) {
 
 socket.on('gameTimer', function (data) {
     gameTimer = data.value;
-    gameTimerDiv.innerHTML = "Time Left: " + Math.round(data.value);
+    gameTimerDiv.innerHTML = "<h4>Time Left: " + Math.round(data.value) + "</h4>";
 })
 // /Game handlers
 

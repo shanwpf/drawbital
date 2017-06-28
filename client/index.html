@@ -152,21 +152,22 @@
         </div>
         <input type='text' id='full' />
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
-        <div class="panel panel-default" id="timerPanel">
-            <div class="panel-body" id="gameTimerDiv">Waiting for players...</div>
-        </div>
         Pan using WASD, zoom using mousewheel
         <div id="flexcontainer">
             <div id="canvasDiv" style="position: relative;">
-                <canvas id="overlay" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 6;" tabindex='1'></canvas>
-                <canvas id="view" style="position: relative; left: 0; top: 0; z-index: 5; border:1px solid #000000"></canvas>
-                <canvas id="cursorLayer" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
-                <canvas id="publicSurface" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
-                <canvas id="serverSurface" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
-                <canvas id="permanentSurface" width="3500" height="3500" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+                <canvas id="overlay" width="3500" height="3500" tabindex='1'></canvas>
+                <canvas id="view"></canvas>
+                <canvas id="cursorLayer" width="3500" height="3500"></canvas>
+                <canvas id="publicSurface" width="3500" height="3500"></canvas>
+                <canvas id="serverSurface" width="3500" height="3500"></canvas>
+                <canvas id="permanentSurface" width="3500" height="3500"></canvas>
             </div>
-            <div id="chatDiv" class="panel panel-default" style="z-index: 7;">
 
+            <div class="panel panel-default" id="timerPanel">
+                <div class="panel-body" id="gameTimerDiv"><h4>Waiting for players...</h4></div>
+            </div>
+
+            <div id="chatDiv" class="panel panel-default">
                 <div class="panel-heading">
                     <ul class="nav nav-tabs">
                         <li id="chatTab" class="active"><a href="#">Chat</a></li>
@@ -178,7 +179,6 @@
                     <div>Hello!</div>
                 </div>
                 <!--/chat-text-->
-
                 <div class="panel-body">
                     <ul class="list-group" id="user-list" style="display:none;">
                     </ul>
@@ -186,7 +186,7 @@
                 <!-- /user-list -->
 
                 <form id="chat-form" class="panel-footer">
-                    <input id="chat-input" class="form-control" placeholder="Type a message" type="text" style="width:300px;"></input>
+                    <input id="chat-input" class="form-control" placeholder="Type a message" type="text"></input>
                 </form>
             </div>
             <!-- /chatDiv -->

@@ -90,7 +90,7 @@ socket.on('joinStatus', function (data) {
     if (data.value) {
         displayDiv.style.display = "inline-block";
         if (data.roomMode == "game")
-            timerPanel.style.display = "inline-block";
+            timerPanel.style.display = "inline";
         else
             timerPanel.style.display = "none";
         repeat();
