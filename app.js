@@ -334,6 +334,8 @@ class Room {
 
 
 Room.list = []
+var defaultRoom = new Room("Welcome to Drawbital - Default room - Free draw");
+defaultRoom.isDefaultRoom = true;
 
 class Surface {
     constructor(room) {
@@ -469,7 +471,6 @@ class Surface {
     }
 }
 
-var defaultRoom = new Room("Welcome to Drawbital - Default room - Free draw");
 
 class Client {
     constructor(id) {
