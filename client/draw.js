@@ -26,7 +26,7 @@ var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
 var socket = io();
-var PANNING_SPEED = 2;
+var PANNING_SPEED = 10;
 var scale = 1;
 var ZOOM_SMOOTHNESS = 10;
 var serverData, publicData, permData;
@@ -34,6 +34,11 @@ var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true
 var gameTimer = 0;
 var gameTimerDiv = document.getElementById('gameTimerDiv');
 var timerPanel = document.getElementById('timerPanel');
+var mousedown = false;
+var mouseX, mouseY;
+// Current topleft x and y coordinates of viewCanvas
+var viewX = 0;
+var viewY = 0;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -183,12 +188,15 @@ document.getElementById("brushBtn").onclick = function () {
 document.getElementById("textBtn").onclick = function () {
     changeTool("text");
 };
+document.getElementById("dragBtn").onclick = function () {
+};
 document.getElementById("undoBtn").onclick = function () {
     socket.emit('undo');
 };
 document.getElementById("redoBtn").onclick = function () {
     socket.emit('redo');
 };
+
 
 function changeTool(tool) {
     curTool = tool;
@@ -200,6 +208,8 @@ function changeTool(tool) {
     }
 }
 
+
+
 // Get accurate mouse positions
 function getMousePos(canvas, evt) {
     var rect = viewCanvas.getBoundingClientRect();
@@ -209,8 +219,8 @@ function getMousePos(canvas, evt) {
     };
 }
 
-var mouseX, mouseY;
 overlay.onmousedown = function (e) {
+    mousedown = true;
     document.onselectstart = function () { return false; } // Prevent text selection when dragging
     var pos = getMousePos(overlay, e);
     posx = mouseX = pos.x;
@@ -249,6 +259,7 @@ function drawCursor(x, y) {
 }
 
 overlay.onmouseup = function (e) {
+    mousedown = false;
     document.onselectstart = function () { return true; } // Allow text selection
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
@@ -310,21 +321,18 @@ function drawAll(x, y) {
     }
 }
 
-// Current topleft x and y coordinates of viewCanvas
-var viewX = 0;
-var viewY = 0;
 
 // Draw viewCanvas taking zoom into account
 function drawZoomed() {
     viewCtx.save();
     viewCtx.scale(scale, scale);
-    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
+    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
         viewCanvas.width / scale, viewCanvas.height / scale);
     viewCtx.restore();
 }
@@ -338,28 +346,20 @@ overlay.onmousewheel = function (event) {
 // Panning logic
 function translateAll() {
     if (keyStates['W']) {
-        for (var i = 0; i < canvasArray.length && viewY > 0; i++) {
-            canvasArray[i].top = (viewY -= PANNING_SPEED);
-            canvasArray[i].left = viewX;
-        }
+        if(viewY > 0)
+            viewY -= PANNING_SPEED;
     }
     if (keyStates['D']) {
-        for (var i = 0; i < canvasArray.length && viewX + viewCanvas.width < canvas.width; i++) {
-            canvasArray[i].top = viewY;
-            canvasArray[i].left = (viewX += PANNING_SPEED);
-        }
+        if(viewX + viewCanvas.width < canvas.width)
+            viewX += PANNING_SPEED;
     }
     if (keyStates['S']) {
-        for (var i = 0; i < canvasArray.length && viewY + viewCanvas.height < canvas.height; i++) {
-            canvasArray[i].top = (viewY += PANNING_SPEED);
-            canvasArray[i].left = viewX;
-        }
+        if (viewY + viewCanvas.height < canvas.height)
+            viewY += PANNING_SPEED;
     }
     if (keyStates['A']) {
-        for (var i = 0; i < canvasArray.length && viewX > 0; i++) {
-            canvasArray[i].top = viewY;
-            canvasArray[i].left = (viewX -= PANNING_SPEED);
-        }
+        if (viewX > 0)
+            viewX -= PANNING_SPEED;
     }
 }
 
