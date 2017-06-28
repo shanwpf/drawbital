@@ -6,6 +6,7 @@ var firebase = require("firebase");
 var SOCKET_LIST = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
+var ROOM_DELETE_TIME = 60 * 30; // Time in seconds before unused rooms are deleted
 var DEBUG = true;
 var GAME_TIME_LIMIT = 60;
 var GAME_MAX_POINTS = 10;
@@ -250,8 +251,31 @@ class Room {
         this.chatText = []; //chatText object structure; .message, .userName
         this.chatUsers = [];
         this.surface = new Surface(this);
+        this.timer = 0;
+        this.isDefaultRoom = false;
         Room.list.push(this);
         return this;
+    }
+
+    updateTimer() {
+        if(this.isDefaultRoom)
+            return;
+        if(this.clients.length == 0)
+            this.timer++;
+        else
+            this.timer = 0;
+        
+        if(this.timer >= ROOM_DELETE_TIME)
+            Room.deleteRoom(this);
+    }
+
+    static deleteRoom(room) {
+        for(var i = 0; i < Room.list.length; i++) {
+            if(Room.list[i] == room) {
+                Room.list.splice(i, 1);
+                return;
+            }
+        }
     }
 
     getGameData() {
@@ -766,6 +790,7 @@ setInterval(function () {
 setInterval(function () {
     for (var i = 0; i < Room.list.length; i++) {
         var room = Room.list[i];
+        room.updateTimer();
         if (room.game)
             room.game.update();
     }
