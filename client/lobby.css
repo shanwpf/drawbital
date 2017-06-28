@@ -1,9 +1,9 @@
-#lobbyDiv > .panel {
-    height: 500px;
+#lobbyDiv {
+    display: none;
 }
 #room-list {
+    height: calc(50vh - 15px);
     overflow-y: scroll;
-    height: 350px;
 }
 #create-room-flexcontainer {
     display: flex;
@@ -14,4 +14,10 @@
 }
 #create-room-flexcontainer > .panel-footer {
     text-align: center;
+}
+.panel-group {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: 60vh;
 }
