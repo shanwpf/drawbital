@@ -326,13 +326,13 @@ function drawAll(x, y) {
 function drawZoomed() {
     viewCtx.save();
     viewCtx.scale(scale, scale);
-    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
+    viewCtx.drawImage(permCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
+    viewCtx.drawImage(serverCanvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
+    viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, mouseX, mouseY,
+    viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
     viewCtx.restore();
 }
