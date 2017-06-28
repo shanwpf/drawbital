@@ -7,6 +7,7 @@ var userList = document.getElementById('user-list');
 // Game audio
 var audioNewDrawer = new Audio('./client/audio/you_are_drawer.wav');
 var audioAnswerFound = new Audio('./client/audio/answer_found.wav');
+var audioNewRound = new Audio('./client/audio/new_round.wav');
 
 socket.on('addToChat', function (data) {
         //detect if the user is at the end of the scroll
@@ -69,6 +70,7 @@ socket.on('playAudio', function (data) {
         switch(data.track) {
                 case 'newDrawer': audioNewDrawer.play(); break;
                 case 'answerFound': audioAnswerFound.play(); break;
+                case 'newRound': audioNewRound.play(); break;
         }
 })
 

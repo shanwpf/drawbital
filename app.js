@@ -186,6 +186,7 @@ class Game {
         this.pointsAwarded = GAME_MAX_POINTS;
         this.roundTransition = false;
         playAudio('newDrawer', this.curDrawer);
+        playAudio('newRound', this.room);
     }
 
     // Returns a random word under the current category
