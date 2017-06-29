@@ -333,9 +333,7 @@ class Room {
 }
 
 
-Room.list = []
-var defaultRoom = new Room("Welcome to Drawbital - Default room - Free draw");
-defaultRoom.isDefaultRoom = true;
+Room.list = [];
 
 class Surface {
     constructor(room) {
@@ -760,6 +758,8 @@ function refreshUserList(room, string) {
 
 }
 
+var defaultRoom = new Room("Welcome to Drawbital - Default room - Free draw");
+defaultRoom.isDefaultRoom = true;
 
 setInterval(function () {
     for (var i in SOCKET_LIST) {
