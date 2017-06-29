@@ -646,7 +646,7 @@ class Client {
         });
 
         socket.on('joinRoom', function (data) {
-            if (!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password)
+            if (!Room.list[data.roomNumber].password || Room.list[data.roomNumber].password == data.password) {
                 if (client.room) {
                     client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
                     // refresh for those who are in current room 
@@ -658,6 +658,7 @@ class Client {
             socket.emit('connectRoom', { chatTextList: client.room.chatText });
             // refresh for those who are in next room
             refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
+            }
         });
     }
 
