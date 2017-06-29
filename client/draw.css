@@ -21,9 +21,15 @@
     width: 330px;
     overflow-y: scroll;
 }
+#user-list-panel {
+    padding: 0;
+    flex-direction: column;
+    width: 330px;
+    display: none;
+    flex: 1;
+}
 #user-list {
     flex: 1;
-    width: 330px;
     overflow-y: scroll;
 }
 body {

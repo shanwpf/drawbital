@@ -4,6 +4,7 @@ var chatForm = document.getElementById('chat-form');
 var chatTab = document.getElementById('chatTab');
 var userTab = document.getElementById('userTab');
 var userList = document.getElementById('user-list');
+var userListPanel = document.getElementById('user-list-panel');
 // Game audio
 var audioNewDrawer = new Audio('./client/audio/you_are_drawer.wav');
 var audioAnswerFound = new Audio('./client/audio/answer_found.wav');
@@ -123,17 +124,17 @@ function clearChatUser(){
 
 $(document).ready(function() {
         chatText.style.width = chatDiv.style.width;
-        userList.style.width = chatDiv.style.width;
+        userListPanel.style.width = chatDiv.style.width;
 })
 userTab.onclick = function () {
         chatTab.setAttribute("class", "");
         userTab.setAttribute("class", "active");
-        chatText.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;display:none;");
-        userList.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;");
+        chatText.setAttribute("style", "display:none;");
+        userListPanel.setAttribute("style", "display:flex;");
 }
 chatTab.onclick = function () {
         userTab.setAttribute("class", "");
         chatTab.setAttribute("class", "active");
-        chatText.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;");
-        userList.setAttribute("style", "width:330px;height:500px;overflow-y:scroll;display:none;");
+        chatText.setAttribute("style", "display:inline;");
+        userListPanel.setAttribute("style", "display:none;");
 }
