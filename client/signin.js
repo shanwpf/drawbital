@@ -23,18 +23,19 @@ signInDivSignIn.onclick = function () {
 
 signInDivSignUp.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        return;
+        return false;
     else{
         if(signInDivUsername.value.length<3){
-            alert("User name should be at least 3 character long");
-            return;
+            showSnackBar("User name should be at least 3 character long");
         }
-        if(signInDivPassword.value.length<3){
-            alert("password should be at least 3 character long");
-            return;
+        else if(signInDivPassword.value.length<3){
+            showSnackBar("password should be at least 3 character long");
+
+        }else{
+            disableButtons(true);
+            socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
         }
-        disableButtons(true);
-        socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
+        return false;
     }
 }
 
@@ -44,21 +45,24 @@ socket.on('signInResponse', function (data) {
         lobbyDiv.style.display = 'inline';
     } else{
         disableButtons(false);
-        alert("Sign in unsuccessful.");
+        showSnackBar("Sign in unsuccessful.");
     }
+    return false;
 });
 
 socket.on('signedIn', function (data) {
         disableButtons(false);
-        alert("Already logged in.");
+        showSnackBar("Already logged in.");
+        return false;
 });
 
 
 socket.on('signUpResponse', function (data) {
     if (data.success) {
-        alert("Sign up successful.");
+        showSnackBar("Sign up successful.");
     }else{
-        alert("Sign up unsuccessful, Username taken");
+        showSnackBar("Sign up unsuccessful, Username taken");
     }
     disableButtons(false);
+    return false;
 });

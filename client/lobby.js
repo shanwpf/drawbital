@@ -29,13 +29,16 @@ createBtn.onclick = function () {
         pointsToWin: maxPoints.value
     });
     clearChatUser();
+    return false;
 }
 
 gameRadio.onclick = function () {
     $('#max-points').removeAttr('disabled');
+    return false;
 }
 drawRadio.onclick = function () {
     $('#max-points').attr('disabled', '');
+    return false;
 }
 
 socket.on('updateRoomList', function (data) {
