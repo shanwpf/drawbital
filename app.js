@@ -106,7 +106,7 @@ io.sockets.on('connection', function (socket) {
 })
 
 class Game {
-    constructor(room) {
+    constructor(room, pointsToWin) {
         this.room = room;
         this.timer = GAME_TIME_LIMIT;
         this.curDrawerIdx = -1;
@@ -117,6 +117,8 @@ class Game {
         this.roundTransition = false;   // Is the game transitioning to a new round?
         this.word = ""; // Current word to guess
         this.pointsAwarded = GAME_MAX_POINTS; // Points awarded to the next user that guesses correctly
+        this.pointsToWin = pointsToWin;
+        this.gameOver = false;
     }
 
     update() {
@@ -135,7 +137,12 @@ class Game {
                 this.updateTimer();
             } 
             else {
-                this.nextDrawer();
+                if(this.gameOver) {
+                    this.reset();
+                }
+                else {
+                    this.nextDrawer();
+                }
             }
             return;
         }
@@ -166,11 +173,11 @@ class Game {
         emitToChat(this.room, 'Round over!');
         emitToChat(this.room, 'The answer was: ' + this.word);
         this.timer = GAME_TRANSITION_TIME;
-        refreshUserList(this.room,"empty");
     }
 
     // Switch to the next drawer and starts a new round
     nextDrawer() {
+        this.roundTransition = false;
         this.room.surface.clearSurface();
         this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
         this.curDrawer = this.room.clients[this.curDrawerIdx];
@@ -184,7 +191,6 @@ class Game {
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
         this.pointsAwarded = GAME_MAX_POINTS;
-        this.roundTransition = false;
         playAudio('newDrawer', this.curDrawer);
         playAudio('newRound', this.room);
     }
@@ -194,25 +200,47 @@ class Game {
         return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))];
     }
 
+    reset() {
+        this.gameOver = false;
+        for(var i = 0; i < this.room.clients.length; i++) {
+            this.room.clients[i].points = 0;
+        }
+        refreshUserList(this.room,"empty");
+        this.curDrawerIdx = -1;
+        this.nextDrawer();
+    }
+
+    gameWon(client) {
+        emitToChat(this.room, '<p class="text-danger">' + client.name + ' has won the game!</p>');
+        emitToChat(this.room, '<p class="text-danger">Game restarting in 15 seconds.</p>');
+        playAudio('win', this.room);
+        this.roundTransition = true;
+        this.timer = 15;
+        this.gameOver = true;
+    }
+
     // Takes in a client obj and a answer string to verify if the answer is correct
     checkAnswer(client, answer) {
         var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
         if (!client.solved && correct) {
             playAudio('answerFound', this.room);
+
+            client.solved = true;
             client.points += this.pointsAwarded;
+            refreshUserList(this.room,"empty");
+
             emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
             emitToChat(client, '<p class="text-success">'+ 'You earned ' + this.pointsAwarded + ' points.</p>');
+
             if(this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded -= 2;
-            client.solved = true;
-            refreshUserList(client.room,"empty");
+
+            // Check if client has won
+            if(client.points >= this.pointsToWin) {
+                this.gameWon(client);
+                return correct;
+            }
         }
-        /* Unnecessary. Rather keep chat clean
-        else {
-            if(!client.solved)
-                emitToChat(client, '<p class="text-danger">'+answer + ' is incorrect, try again.</p>');
-        }
-        */
         return correct;
     }
 }
@@ -327,7 +355,7 @@ class Room {
     addChatMsg(client, message) {
         this.chatText.push({ message: message, userName: client.name });
         if (!this.game || client == this.game.curDrawer
-            || (this.game && !this.game.checkAnswer(client, message)))
+            || !this.game.checkAnswer(client, message))
             emitToChat(this, client.name + ': ' + message);
     }
 }
@@ -608,7 +636,7 @@ class Client {
             }
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId, data.mode);
             if (room.mode == "game") {
-                room.game = new Game(room);
+                room.game = new Game(room, data.pointsToWin);
             }
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list
