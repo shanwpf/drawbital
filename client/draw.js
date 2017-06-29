@@ -28,7 +28,7 @@ var curSize = 5;
 var socket = io();
 var PANNING_SPEED = 10;
 var scale = 1;
-var ZOOM_SMOOTHNESS = 10;
+var ZOOM_STEP = 20; // Higher value = smaller steps
 var serverData, publicData, permData;
 var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
 var gameTimer = 0;
@@ -196,6 +196,15 @@ document.getElementById("undoBtn").onclick = function () {
 document.getElementById("redoBtn").onclick = function () {
     socket.emit('redo');
 };
+document.getElementById("zoomOutBtn").onclick = function () {
+    zoom(0.1);
+};
+document.getElementById("resetZoomBtn").onclick = function () {
+    scale = 1;
+};
+document.getElementById("zoomInBtn").onclick = function () {
+    zoom(-0.1);
+};
 
 
 function changeTool(tool) {
@@ -208,7 +217,10 @@ function changeTool(tool) {
     }
 }
 
-
+function zoom(delta) {
+    if(scale + delta >= 0.2 && scale + delta <= 3)
+        scale += delta;
+}
 
 // Get accurate mouse positions
 function getMousePos(canvas, evt) {
@@ -338,9 +350,7 @@ function drawZoomed() {
 }
 
 overlay.onmousewheel = function (event) {
-    var wheel = event.wheelDelta / 120;//n or -n
-    var zoom = 1 + wheel / ZOOM_SMOOTHNESS;
-    scale *= zoom;
+    zoom((event.wheelDelta / 120) / ZOOM_STEP);
 }
 
 // Panning logic
