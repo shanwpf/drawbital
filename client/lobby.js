@@ -18,7 +18,6 @@ socket.on('signInResponse', function (data) {
 
 createBtn.onclick = function () {
     if (!roomNameForm.value.trim() || !maxUsersForm.value.trim()) {
-        //alert("Please enter valid room information");
         return;
     }
     socket.emit('createRoom', {
@@ -64,12 +63,15 @@ socket.on('joinStatus', function (data) {
         lobbyDiv.style.display = "none";
         joinedRoom = true;
     }
+    else {
+        showSnackBar("Incorrect password");
+    }
 })
 
 $(document.body).on('dblclick', '.list-group-item', function () {
     var room = roomData[this.id];
     if(room.numUsers >= room.maxUsers) {
-        alert("Room is full");
+        showSnackBar("Room is full");
         return;
     }
     var password;
@@ -96,4 +98,17 @@ $('#lobby-tab').on('click', function () {
         displayDiv.style.display = "none";
     }
 })
+
+function showSnackBar(message) {
+    // Get the snackbar DIV
+    var x = document.getElementById("snackbar")
+
+    x.innerHTML = message;
+
+    // Add the "show" class to DIV
+    x.className = "show";
+
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
 

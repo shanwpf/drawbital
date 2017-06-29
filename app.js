@@ -132,12 +132,12 @@ class Game {
             this.nextDrawer();
         }
 
-        if(this.roundTransition) {
-            if(this.timer > 0) {
+        if (this.roundTransition) {
+            if (this.timer > 0) {
                 this.updateTimer();
-            } 
+            }
             else {
-                if(this.gameOver) {
+                if (this.gameOver) {
                     this.reset();
                 }
                 else {
@@ -187,7 +187,7 @@ class Game {
         }
         this.word = this.getRandomWord();
         emitToChat(this.curDrawer, '<p class="text-danger"> It\'s your turn to draw! Your word is '
-                                          + '<strong>' + this.word + '</strong></p>');
+            + '<strong>' + this.word + '</strong></p>');
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
         this.timer = GAME_TIME_LIMIT;
         this.pointsAwarded = GAME_MAX_POINTS;
@@ -202,10 +202,10 @@ class Game {
 
     reset() {
         this.gameOver = false;
-        for(var i = 0; i < this.room.clients.length; i++) {
+        for (var i = 0; i < this.room.clients.length; i++) {
             this.room.clients[i].points = 0;
         }
-        refreshUserList(this.room,"empty");
+        refreshUserList(this.room, "empty");
         this.curDrawerIdx = -1;
         this.nextDrawer();
     }
@@ -227,16 +227,16 @@ class Game {
 
             client.solved = true;
             client.points += this.pointsAwarded;
-            refreshUserList(this.room,"empty");
+            refreshUserList(this.room, "empty");
 
-            emitToChat(this.room, '<p class="text-success">'+ client.name + ' got the correct answer!</p>');
-            emitToChat(client, '<p class="text-success">'+ 'You earned ' + this.pointsAwarded + ' points.</p>');
+            emitToChat(this.room, '<p class="text-success">' + client.name + ' got the correct answer!</p>');
+            emitToChat(client, '<p class="text-success">' + 'You earned ' + this.pointsAwarded + ' points.</p>');
 
-            if(this.pointsAwarded > GAME_MIN_POINTS)
+            if (this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded -= 2;
 
             // Check if client has won
-            if(client.points >= this.pointsToWin) {
+            if (client.points >= this.pointsToWin) {
                 this.gameWon(client);
                 return correct;
             }
@@ -247,12 +247,12 @@ class Game {
 
 // Plays an audio track to the listener (either Room or Client)
 function playAudio(track, listener) {
-    if(listener instanceof Room) {
-        for(var i = 0; i < listener.clients.length; i++) {
+    if (listener instanceof Room) {
+        for (var i = 0; i < listener.clients.length; i++) {
             SOCKET_LIST[listener.clients[i].id].emit('playAudio', { track: track });
         }
     }
-    if(listener instanceof Client) {
+    if (listener instanceof Client) {
         SOCKET_LIST[listener.id].emit('playAudio', { track: track });
     }
 }
@@ -287,20 +287,20 @@ class Room {
     }
 
     updateTimer() {
-        if(this.isDefaultRoom)
+        if (this.isDefaultRoom)
             return;
-        if(this.clients.length == 0)
+        if (this.clients.length == 0)
             this.timer++;
         else
             this.timer = 0;
-        
-        if(this.timer >= ROOM_DELETE_TIME)
+
+        if (this.timer >= ROOM_DELETE_TIME)
             Room.deleteRoom(this);
     }
 
     static deleteRoom(room) {
-        for(var i = 0; i < Room.list.length; i++) {
-            if(Room.list[i] == room) {
+        for (var i = 0; i < Room.list.length; i++) {
+            if (Room.list[i] == room) {
                 Room.list.splice(i, 1);
                 return;
             }
@@ -652,12 +652,15 @@ class Client {
                     // refresh for those who are in current room 
                     refreshUserList(client.room, '<p class="text-primary">' + client.name + " has left the room</p>");
                 }
-            Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
-            //add user's name into the room chatusers list
-            Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
-            socket.emit('connectRoom', { chatTextList: client.room.chatText });
-            // refresh for those who are in next room
-            refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
+                Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
+                //add user's name into the room chatusers list
+                Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
+                socket.emit('connectRoom', { chatTextList: client.room.chatText });
+                // refresh for those who are in next room
+                refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
+            }
+            else {
+                socket.emit('joinStatus', { value: false });
             }
         });
     }
@@ -746,11 +749,11 @@ class Text extends Tool {
 
 // Send a message to receiver (Room or Client)
 function emitToChat(receiver, string) {
-    if(receiver instanceof Room)
+    if (receiver instanceof Room)
         for (var i in receiver.clientList) {
             SOCKET_LIST[i].emit('addToChat', string);
         }
-    if(receiver instanceof Client)
+    if (receiver instanceof Client)
         SOCKET_LIST[receiver.id].emit('addToChat', string);
 }
 
@@ -758,17 +761,17 @@ function emitToChat(receiver, string) {
 function refreshUserList(room, string) {
     var chatTextList = [];
 
-    if(room.mode!=="game")
-        chatTextList = room.chatUsers 
-    else{
-        for (var i in room.clientList){
-            chatTextList.push({name: room.clientList[i].name, score: room.clientList[i].points});
+    if (room.mode !== "game")
+        chatTextList = room.chatUsers
+    else {
+        for (var i in room.clientList) {
+            chatTextList.push({ name: room.clientList[i].name, score: room.clientList[i].points });
         }
     }
 
-    for (var i in room.clientList){
+    for (var i in room.clientList) {
         SOCKET_LIST[i].emit('refreshUserList', chatTextList);
-        if(string != "empty")
+        if (string != "empty")
             SOCKET_LIST[i].emit('addToChat', string);
     }
 
