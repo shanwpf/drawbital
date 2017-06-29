@@ -25,6 +25,14 @@ signInDivSignUp.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
         return;
     else{
+        if(signInDivUsername.value.length<3){
+            alert("User name should be at least 3 character long");
+            return;
+        }
+        if(signInDivPassword.value.length<3){
+            alert("password should be at least 3 character long");
+            return;
+        }
         disableButtons(true);
         socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
     }
