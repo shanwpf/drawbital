@@ -715,19 +715,6 @@ class Text extends Tool {
     }
 }
 
-// functions for chat
-function emitConnection(name, client) {
-    for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('addToChat', name + " has connected to the server");
-    }
-}
-function emitDisconnect(name) {
-    for (var i in SOCKET_LIST) {
-        SOCKET_LIST[i].emit('addToChat', name + " has Disconnected from the server");
-        
-    }
-}
-
 // Send a message to receiver (Room or Client)
 function emitToChat(receiver, string) {
     if(receiver instanceof Room)
