@@ -356,7 +356,7 @@ class Room {
         this.chatText.push({ message: message, userName: client.name });
         if (!this.game || client == this.game.curDrawer
             || !this.game.checkAnswer(client, message))
-            emitToChat(this, client.name + ': ' + message);
+            emitToChat(this, '<strong>' + client.name + '</strong>: ' + message);
     }
 }
 
