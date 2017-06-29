@@ -21,6 +21,7 @@ var viewCtx = viewCanvas.getContext('2d');
 // For input capture, might not be necessary
 var overlay = document.getElementById('overlay');
 
+var looping = false;
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
 var curColour = "#000000"
 var curTool = "brush";
@@ -93,7 +94,11 @@ socket.on('joinStatus', function (data) {
             timerPanel.style.display = "inline";
         else
             timerPanel.style.display = "none";
-        repeat();
+
+        if(!looping) {
+            repeat();
+            looping = true;
+        }
     }
 })
 
