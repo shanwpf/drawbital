@@ -4,6 +4,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var firebase = require("firebase");
 var SOCKET_LIST = {};
+var USER_TRACKER = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var ROOM_DELETE_TIME = 60 * 30; // Time in seconds before unused rooms are deleted
@@ -56,6 +57,9 @@ var addUser = function (data, cb) {
         cb();
     }, 10);
 }
+var isLoggedIn = function (data) {
+    return USER_TRACKER[data.username];
+}
 
 // Send html file to client using Express
 app.use(express.static('public'));
@@ -76,6 +80,10 @@ io.sockets.on('connection', function (socket) {
     socket.on('signIn', function (data) {
         isValidPassword(data, function (res) {
             if (res) {
+                if(isLoggedIn(data)){
+                    socket.emit('signedIn', true);
+                    return;
+                }
                 loggedIn = true;
                 Client.onConnect(socket, data.username);
                 socket.emit('signInResponse', { success: true });
@@ -573,7 +581,7 @@ class Client {
         client.name = username;
 
         //emitConnection(client.name, client); Unnecessary
-
+        USER_TRACKER[username] = true;
         socket.on('undo', function () {
             client.room.surface.undo(client.id);
         })
@@ -668,6 +676,7 @@ class Client {
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];
+        USER_TRACKER[client.name] = false;
         // remove name of users from chatusers
         if (client.room)
             client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });

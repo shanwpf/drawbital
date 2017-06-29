@@ -40,6 +40,11 @@ socket.on('signInResponse', function (data) {
     }
 });
 
+socket.on('signedIn', function (data) {
+        disableButtons(false);
+        alert("Already logged in.");
+});
+
 
 socket.on('signUpResponse', function (data) {
     if (data.success) {
