@@ -20,7 +20,7 @@ var gameWords = {
 //this way of doing is suppose to be for enduser, not for server
 //init firebase database
 var config = {
-    apiKey: "AIzaSyB4MInO1YJZCiHJOg4EqGRzcoz7Kpz1vqA",
+    apiKey: process.env.FIREBASE_API_KEY,
     authDomain: "drawer-e233e.firebaseapp.com",
     databaseURL: "https://drawer-e233e.firebaseio.com",
     projectId: "drawer-e233e",
