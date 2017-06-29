@@ -45,15 +45,15 @@ socket.on('updateRoomList', function (data) {
     for (var i = 0; i < data.length; i++) {
         if(data[i].isPrivate) {
             roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
-                + data[i].roomName
-                + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
+                + data[i].roomName + " "
+                + '<span class="badge"><i class="fa fa-user"></i> '
                 + data[i].numUsers + '</span>'
-                + '<span class="glyphicon glyphicon-lock"></span></a>';
+                + '<i class="fa fa-lock"></i></a>';
         }
         else {
             roomList.innerHTML += '<a id="' + i + '" href="#" class="list-group-item list-group-item-action">'
                 + data[i].roomName
-                + '<span class="badge"><span class="glyphicon glyphicon-user"></span> '
+                + '<span class="badge"><i class="fa fa-user"></i> '
                 + data[i].numUsers + '</span></a>';
         }
     }
