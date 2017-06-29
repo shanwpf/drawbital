@@ -105,7 +105,7 @@
             </div>
             Either create an account or use "default" as username and password
             <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
-            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signUp" type="button">Register</button>
+            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signUp" type="submit">Register</button>
         </form>
     </div>
     <!-- /container -->
@@ -124,16 +124,27 @@
                 </div>
                 <div id="create-room-flexcontainer" class="col-md-3 panel panel-default">
                     <div class="panel-heading">Create a Room</div>
-                    <div class="panel-body">
-                        <input id="room-name" class="form-control" type="text" placeholder="Room name"></input>
-                        <input id="max-users" class="form-control" type="text" placeholder="Max no. of users"></input>
-                        <label class="radio-inline"><input type="radio" id="drawRadio" name="modeRadio" checked>Free Draw</label>
-                        <label class="radio-inline"><input type="radio" id="gameRadio" name="modeRadio">Guessketch (Test)</label>
-                        <input id="password" class="form-control" type="text" placeholder="Password (Optional)"></input>
-                    </div>
-                    <div class="panel-footer">
-                        <button id="createBtn" type="button" class="btn btn-success">Create Room</button>
-                    </div>
+                    <form>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <input id="room-name" class="form-control" type="text" placeholder="Room name" required></input>
+                            </div>
+                            <div class="form-group">
+                                <label for="max-users">Room capacity</label>
+                                <input id="max-users" class="form-control" type="number" min="1" max="100" value="10" name="capacity" required></input>
+                            </div>
+                            <div class="form-group">
+                                <label class="radio-inline"><input type="radio" id="drawRadio" name="modeRadio" checked>Free Draw</label>
+                                <label class="radio-inline"><input type="radio" id="gameRadio" name="modeRadio">Guessketch (Test)</label>
+                            </div>
+                            <div class="form-group">
+                                <input id="password" class="form-control" type="text" placeholder="Password (Optional)"></input>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <button id="createBtn" class="btn btn-success" type="submit">Create Room</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -151,8 +162,8 @@
             <input class="btn btn-primary" type="button" id="dragBtn" value="Drag(Not yet implemented)">
         </div>
         <input type='text' id='full' />
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
-        Pan using WASD, zoom using mousewheel
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> Pan using WASD, zoom using
+        mousewheel
         <div id="flexcontainer">
             <div id="canvasDiv" style="position: relative;">
                 <canvas id="overlay" width="3500" height="3500" tabindex='1'></canvas>
@@ -164,7 +175,9 @@
             </div>
 
             <div class="panel panel-default" id="timerPanel">
-                <div class="panel-body" id="gameTimerDiv"><h4>Waiting for players...</h4></div>
+                <div class="panel-body" id="gameTimerDiv">
+                    <h4>Waiting for players...</h4>
+                </div>
             </div>
 
             <div id="chatDiv" class="panel panel-default">

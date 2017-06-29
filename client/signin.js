@@ -13,7 +13,7 @@ function disableButtons(bool)
 
 signInDivSignIn.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        alert("Please enter a valid username/password");
+        return;
     else
     {
         disableButtons(true);
@@ -23,7 +23,7 @@ signInDivSignIn.onclick = function () {
 
 signInDivSignUp.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        alert("dont it blank :(");
+        return;
     else{
         disableButtons(true);
         socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });

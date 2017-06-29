@@ -9,10 +9,15 @@
     display: flex;
     flex-direction: column;
 }
-#create-room-flexcontainer > .panel-body {
+#create-room-flexcontainer > form {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
 }
-#create-room-flexcontainer > .panel-footer {
+#create-room-flexcontainer > form > .panel-body {
+    flex-grow: 1;
+}
+#create-room-flexcontainer > form > .panel-footer {
     text-align: center;
 }
 .panel-group {
