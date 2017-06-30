@@ -14,6 +14,7 @@ var GAME_MAX_POINTS = 10;
 var GAME_MIN_POINTS = 5;
 var GAME_TRANSITION_TIME = 10;
 var GAME_RUSH_TIME = 20;
+var GAME_HINT_PENALTY = 2;
 var timeThen = 0;
 var gameWords = {
     "hard": []
@@ -129,12 +130,14 @@ class Game {
         this.drawerPointsAwarded = GAME_MAX_POINTS;
         this.pointsToWin = pointsToWin;
         this.gameOver = false;
+        this.hintLevel = 0;
+        this.hint = "";
     }
 
     update() {
+        refreshUserList(this.room, "empty");
         if (this.started && this.room.clients.length <= 1) {
             this.started = false;
-            this.room.clients[0].canDraw = false;
             emitToChat(this.room, '<p class="text-warning">Game stopped</p>');
         }
         else if (!this.started && this.room.clients.length >= 2) {
@@ -172,9 +175,45 @@ class Game {
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
-        for (var i = 0; i < this.room.clients.length; i++) {
-            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', { value: this.timer });
+        for(var i = 0; i < this.room.clients.length; i++) {
+            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', { timer: this.timer});
+        } 
+    }
+
+    resetHint() {
+        this.hint = "";
+        for(var i = 0; i < this.room.clients.length; i++) {
+            SOCKET_LIST[this.room.clients[i].id].emit('gameHint', { hint: this.hint});
+        } 
+    }
+
+    showHint(id) {
+        if(this.curDrawer.id != id)
+            return;
+
+        switch(this.hintLevel) {
+            case 0: {
+                var str = "";
+                for(var i = 0; i < this.word.length; i++) {
+                    var char = this.word.substr(i, 1);
+                    if(char != " ") {
+                        char = "_ ";
+                    }
+                    else {
+                        char = "&emsp;"
+                    }
+                    str += char;
+                }
+                this.hint = str;
+                this.curDrawer.points -= GAME_HINT_PENALTY;
+                this.hintLevel++;
+                break;
+            }
         }
+
+        for(var i = 0; i < this.room.clients.length; i++) {
+            SOCKET_LIST[this.room.clients[i].id].emit('gameHint', { hint: this.hint});
+        } 
     }
 
     // Handle transition period between rounds
@@ -184,39 +223,55 @@ class Game {
         emitToChat(this.room, 'Round over!');
         emitToChat(this.room, 'The answer was: ' + this.word);
         this.timer = GAME_TRANSITION_TIME;
+        this.resetHint();
     }
 
     // Switch to the next drawer and starts a new round
     nextDrawer() {
         this.roundTransition = false;
         this.room.surface.clearSurface();
+
+        // Switch to next drawer
         this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
         this.curDrawer = this.room.clients[this.curDrawerIdx];
         this.curDrawer.canDraw = true;
+
         for (var i = 0; i < this.room.clients.length; i++) {
             this.room.clients[i].solved = false;
         }
+
+        // Get next word
         this.word = this.getRandomWord();
         emitToChat(this.curDrawer, '<p class="text-danger"> It\'s your turn to draw! Your word is '
             + '<strong>' + this.word + '</strong></p>');
         SOCKET_LIST[this.curDrawer.id].emit('gameWord', { value: this.word });
+
+        // Reset variables
         this.timer = GAME_TIME_LIMIT;
         this.pointsAwarded = GAME_MAX_POINTS;
+        this.drawerPointsAwarded = GAME_MAX_POINTS;
+
         playAudio('newDrawer', this.curDrawer);
         playAudio('newRound', this.room);
     }
 
+    verify() {
+        if(!this.curDrawer) {
+            this.nextDrawer();
+        }
+    }
+
     // Returns a random word under the current category
     getRandomWord() {
-        return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))];
+        return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))].trim();
     }
 
     reset() {
         this.gameOver = false;
+        this.resetHint();
         for (var i = 0; i < this.room.clients.length; i++) {
             this.room.clients[i].points = 0;
         }
-        refreshUserList(this.room, "empty");
         this.curDrawerIdx = -1;
         this.nextDrawer();
     }
@@ -238,7 +293,6 @@ class Game {
 
             client.solved = true;
             client.points += this.pointsAwarded;
-            refreshUserList(this.room, "empty");
 
             emitToChat(this.room, '<p class="text-success">' + client.name + ' got the correct answer!</p>');
             emitToChat(client, '<p class="text-success">' + 'You earned ' + this.pointsAwarded + ' points.</p>');
@@ -354,6 +408,9 @@ class Room {
     }
 
     removeClient(client) {
+        if(this.game) {
+            this.game.verify();
+        }
         for (var i = 0; i < this.clients.length; i++) {
             if (this.clients[i] == client) {
                 this.clients.splice(i, 1);
@@ -653,6 +710,10 @@ class Client {
             var res = eval(data);
             socket.emit('evalAnswer', res);
         });
+
+        socket.on('showHint', function (data) {
+            client.room.game.showHint(data.id);
+        })
 
         socket.on('createRoom', function (data) {
             if (client.room) {

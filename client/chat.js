@@ -95,8 +95,18 @@ socket.on('gameWord', function (data) {
 */
 
 socket.on('gameTimer', function (data) {
-    gameTimer = data.value;
-    gameTimerDiv.innerHTML = "<h4>Time Left: " + Math.round(data.value) + "</h4>";
+        $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Time Left: " + Math.round(data.timer) +"</h4>");
+})
+
+socket.on('gameHint', function (data) {
+        if(data.hint == "") {
+                $('#hintText').replaceWith("<h4 id='hintText'></h4>");
+        }
+        $('#hintText').replaceWith("<h4 id='hintText'>&emsp;Hint: " + data.hint + "</h4>");
+})
+
+$('#hintBtn').on('click', function() {
+        socket.emit('showHint', { id: socket.id });
 })
 // /Game handlers
 

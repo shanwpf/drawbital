@@ -66,10 +66,13 @@ body {
     left: 0;
     top: 0;
 }
+#gameTimerDiv {
+    display: flex;
+}
 #timerPanel {
     position: absolute;
     z-index: 8;
-    width: 20vh;
+    width: 30vw;
     display: none;
     text-align: center;
 }
