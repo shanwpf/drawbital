@@ -127,7 +127,7 @@ class Game {
         this.roundTransition = false;   // Is the game transitioning to a new round?
         this.word = ""; // Current word to guess
         this.pointsAwarded = GAME_MAX_POINTS; // Points awarded to the next user that guesses correctly
-        this.drawerPointsAwarded = GAME_MAX_POINTS;
+        this.drawerPointsCounter = 0;
         this.pointsToWin = pointsToWin;
         this.gameOver = false;
         this.hintLevel = 0;
@@ -249,7 +249,7 @@ class Game {
         // Reset variables
         this.timer = GAME_TIME_LIMIT;
         this.pointsAwarded = GAME_MAX_POINTS;
-        this.drawerPointsAwarded = GAME_MAX_POINTS;
+        this.drawerPointsCounter = 0;
 
         playAudio('newDrawer', this.curDrawer);
         playAudio('newRound', this.room);
@@ -298,12 +298,12 @@ class Game {
             emitToChat(client, '<p class="text-success">' + 'You earned ' + this.pointsAwarded + ' points.</p>');
 
             // Scoring system for drawer
-            this.curDrawer.points += this.drawerPointsAwarded;
-            if (this.drawerPointsAwarded == GAME_MAX_POINTS) {
-                this.drawerPointsAwarded -= 5;
+            if(this.drawerBonusPointsCounter == 0) {
+                this.curDrawer.points += GAME_MAX_POINTS;
+                this.drawerPointsCounter++;
             }
-            else if(this.drawerPointsAwarded >= 1) {
-                this.drawerPointsAwarded--;
+            else if(this.drawerPointsCounter <= 5) {
+                this.curDrawer.points++;
             }
 
             if (this.pointsAwarded > GAME_MIN_POINTS)
