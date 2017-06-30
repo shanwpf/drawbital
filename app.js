@@ -11,8 +11,9 @@ var ROOM_DELETE_TIME = 60 * 30; // Time in seconds before unused rooms are delet
 var DEBUG = true;
 var GAME_TIME_LIMIT = 60;
 var GAME_MAX_POINTS = 10;
-var GAME_MIN_POINTS = 2;
+var GAME_MIN_POINTS = 5;
 var GAME_TRANSITION_TIME = 10;
+var GAME_RUSH_TIME = 20;
 var timeThen = 0;
 var gameWords = {
     "hard": []
@@ -125,6 +126,7 @@ class Game {
         this.roundTransition = false;   // Is the game transitioning to a new round?
         this.word = ""; // Current word to guess
         this.pointsAwarded = GAME_MAX_POINTS; // Points awarded to the next user that guesses correctly
+        this.drawerPointsAwarded = GAME_MAX_POINTS;
         this.pointsToWin = pointsToWin;
         this.gameOver = false;
     }
@@ -132,6 +134,7 @@ class Game {
     update() {
         if (this.started && this.room.clients.length <= 1) {
             this.started = false;
+            this.room.clients[0].canDraw = false;
             emitToChat(this.room, '<p class="text-warning">Game stopped</p>');
         }
         else if (!this.started && this.room.clients.length >= 2) {
@@ -230,7 +233,7 @@ class Game {
     // Takes in a client obj and a answer string to verify if the answer is correct
     checkAnswer(client, answer) {
         var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
-        if (!client.solved && correct) {
+        if (!this.roundTransition && !client.solved && correct) {
             playAudio('answerFound', this.room);
 
             client.solved = true;
@@ -240,13 +243,27 @@ class Game {
             emitToChat(this.room, '<p class="text-success">' + client.name + ' got the correct answer!</p>');
             emitToChat(client, '<p class="text-success">' + 'You earned ' + this.pointsAwarded + ' points.</p>');
 
+            // Scoring system for drawer
+            this.curDrawer.points += this.drawerPointsAwarded;
+            if (this.drawerPointsAwarded == GAME_MAX_POINTS) {
+                this.drawerPointsAwarded -= 5;
+            }
+            else if(this.drawerPointsAwarded >= 1) {
+                this.drawerPointsAwarded--;
+            }
+
             if (this.pointsAwarded > GAME_MIN_POINTS)
-                this.pointsAwarded -= 2;
+                this.pointsAwarded--;
 
             // Check if client has won
             if (client.points >= this.pointsToWin) {
                 this.gameWon(client);
                 return correct;
+            }
+
+            // Reduce the time remaining when a player has found the answer
+            if(this.timer > GAME_RUSH_TIME) {
+                this.timer = GAME_RUSH_TIME;
             }
         }
         return correct;
