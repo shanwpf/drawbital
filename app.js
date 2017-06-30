@@ -175,6 +175,9 @@ class Game {
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
+        if(this.timer > GAME_RUSH_TIME - 1.9 && this.timer <= GAME_RUSH_TIME) {
+            playAudio('clock', this.room);
+        }
         for(var i = 0; i < this.room.clients.length; i++) {
             SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', { timer: this.timer});
         } 
@@ -218,6 +221,7 @@ class Game {
 
     // Handle transition period between rounds
     roundOver() {
+        playAudio('ding', this.room);
         this.roundTransition = true;
         this.curDrawer.canDraw = false;
         emitToChat(this.room, 'Round over!');
