@@ -116,7 +116,7 @@ io.sockets.on('connection', function (socket) {
 })
 
 class Game {
-    constructor(room, pointsToWin) {
+    constructor(room, roundsPerGame) {
         this.room = room;
         this.timer = GAME_TIME_LIMIT;
         this.curDrawerIdx = -1;
@@ -128,10 +128,11 @@ class Game {
         this.word = ""; // Current word to guess
         this.pointsAwarded = GAME_MAX_POINTS; // Points awarded to the next user that guesses correctly
         this.drawerPointsCounter = 0;
-        this.pointsToWin = pointsToWin;
-        this.gameOver = false;
+        this.isGameOver = false;
         this.hintLevel = 0;
         this.hint = "";
+        this.roundNum = 1;
+        this.roundsPerGame = roundsPerGame;
     }
 
     update() {
@@ -143,7 +144,7 @@ class Game {
         else if (!this.started && this.room.clients.length >= 2) {
             this.started = true;
             this.then = Date.now();
-            this.nextDrawer();
+            this.nextRound();
         }
 
         if (this.roundTransition) {
@@ -151,11 +152,11 @@ class Game {
                 this.updateTimer();
             }
             else {
-                if (this.gameOver) {
+                if (this.isGameOver) {
                     this.reset();
                 }
                 else {
-                    this.nextDrawer();
+                    this.nextRound();
                 }
             }
             return;
@@ -175,7 +176,7 @@ class Game {
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
-        if(this.timer > GAME_RUSH_TIME - 1.9 && this.timer <= GAME_RUSH_TIME) {
+        if(this.timer > 10 - 1.9 && this.timer <= 10 && !this.isGameOver) {
             playAudio('clock', this.room);
         }
         for(var i = 0; i < this.room.clients.length; i++) {
@@ -226,12 +227,33 @@ class Game {
         this.curDrawer.canDraw = false;
         emitToChat(this.room, 'Round over!');
         emitToChat(this.room, 'The answer was: ' + this.word);
-        this.timer = GAME_TRANSITION_TIME;
         this.resetHint();
+        this.roundNum++;
+        if(this.roundNum > this.roundsPerGame) {
+            this.gameOver();
+            return;
+        }
+        this.timer = GAME_TRANSITION_TIME;
+    }
+
+    gameOver() {
+        // Identify the winner
+        var winner = this.room.clients[0];
+        for(var i = 1; i < this.room.clients.length; i++) {
+            if(this.room.clients[i].points > winner.points)
+                winner = this.room.clients[i].points;
+        }
+
+        emitToChat(this.room, '<p class="text-danger">' + winner.name + ' has won the game!</p>');
+        emitToChat(this.room, '<p class="text-danger">Game restarting in 15 seconds...</p>');
+        playAudio('win', this.room);
+        this.roundTransition = true;
+        this.timer = 15;
+        this.isGameOver = true;
     }
 
     // Switch to the next drawer and starts a new round
-    nextDrawer() {
+    nextRound() {
         this.roundTransition = false;
         this.room.surface.clearSurface();
 
@@ -259,9 +281,10 @@ class Game {
         playAudio('newRound', this.room);
     }
 
+    // Confirm that client still exists, if not, go to next round
     verify() {
         if(!this.curDrawer) {
-            this.nextDrawer();
+            this.nextRound();
         }
     }
 
@@ -271,22 +294,13 @@ class Game {
     }
 
     reset() {
-        this.gameOver = false;
+        this.isGameOver = false;
+        this.roundNum = 1;
         this.resetHint();
         for (var i = 0; i < this.room.clients.length; i++) {
             this.room.clients[i].points = 0;
         }
-        this.curDrawerIdx = -1;
-        this.nextDrawer();
-    }
-
-    gameWon(client) {
-        emitToChat(this.room, '<p class="text-danger">' + client.name + ' has won the game!</p>');
-        emitToChat(this.room, '<p class="text-danger">Game restarting in 15 seconds.</p>');
-        playAudio('win', this.room);
-        this.roundTransition = true;
-        this.timer = 15;
-        this.gameOver = true;
+        this.nextRound();
     }
 
     // Takes in a client obj and a answer string to verify if the answer is correct
@@ -295,29 +309,23 @@ class Game {
         if (!this.roundTransition && !client.solved && correct) {
             playAudio('answerFound', this.room);
 
-            client.solved = true;
-            client.points += this.pointsAwarded;
-
             emitToChat(this.room, '<p class="text-success">' + client.name + ' got the correct answer!</p>');
             emitToChat(client, '<p class="text-success">' + 'You earned ' + this.pointsAwarded + ' points.</p>');
 
             // Scoring system for drawer
-            if(this.drawerBonusPointsCounter == 0) {
+            if(this.drawerPointsCounter == 0) {
                 this.curDrawer.points += GAME_MAX_POINTS;
-                this.drawerPointsCounter++;
             }
             else if(this.drawerPointsCounter <= 5) {
                 this.curDrawer.points++;
             }
+            this.drawerPointsCounter++;
 
+            // Scoring system for guesser
+            client.solved = true;
+            client.points += this.pointsAwarded;
             if (this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded--;
-
-            // Check if client has won
-            if (client.points >= this.pointsToWin) {
-                this.gameWon(client);
-                return correct;
-            }
 
             // Reduce the time remaining when a player has found the answer
             if(this.timer > GAME_RUSH_TIME) {
@@ -412,9 +420,6 @@ class Room {
     }
 
     removeClient(client) {
-        if(this.game) {
-            this.game.verify();
-        }
         for (var i = 0; i < this.clients.length; i++) {
             if (this.clients[i] == client) {
                 this.clients.splice(i, 1);
@@ -422,6 +427,9 @@ class Room {
         }
         delete this.clientList[client.id];
         this.surface.onClientLeave(client);
+        if(this.game) {
+            this.game.verify();
+        }
     }
 
     static updateRoomList() {
@@ -726,7 +734,7 @@ class Client {
             }
             var room = new Room(data.roomName, data.maxUsers, data.password, data.creatorId, data.mode);
             if (room.mode == "game") {
-                room.game = new Game(room, data.pointsToWin);
+                room.game = new Game(room, data.roundsPerGame);
             }
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list

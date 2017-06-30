@@ -99,7 +99,7 @@ socket.on('gameWord', function (data) {
 */
 
 socket.on('gameTimer', function (data) {
-        $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Time Left: " + Math.round(data.timer) +"</h4>");
+        $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Time Left: " + Math.ceil(data.timer) +"</h4>");
 })
 
 socket.on('gameHint', function (data) {

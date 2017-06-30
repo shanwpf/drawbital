@@ -6,7 +6,7 @@ var createBtn = document.getElementById('createBtn');
 var lobbyDiv = document.getElementById('lobbyDiv');
 var drawRadio = document.getElementById('drawRadio');
 var gameRadio = document.getElementById('gameRadio');
-var maxPoints = document.getElementById('max-points');
+var numRounds = document.getElementById('num-rounds');
 var roomData;
 var joinedRoom = false;
 var loggedIn = false;
@@ -26,17 +26,17 @@ createBtn.onclick = function () {
         password: passwordForm.value,
         creatorId: socket.id,
         mode: (drawRadio.checked ? "draw" : "game"),
-        pointsToWin: maxPoints.value
+        roundsPerGame: numRounds.value
     });
     clearChatUser();
     return false;
 }
 
 gameRadio.onclick = function () {
-    $('#max-points').removeAttr('disabled');
+    $('#num-rounds').removeAttr('disabled');
 }
 drawRadio.onclick = function () {
-    $('#max-points').attr('disabled', '');
+    $('#num-rounds').attr('disabled', '');
 }
 
 socket.on('updateRoomList', function (data) {
