@@ -258,7 +258,10 @@ class Game {
         this.room.surface.clearSurface();
 
         // Switch to next drawer
-        this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
+        do {
+            this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
+        }
+        while(!this.room.clients[this.curDrawerIdx])
         this.curDrawer = this.room.clients[this.curDrawerIdx];
         this.curDrawer.canDraw = true;
 
