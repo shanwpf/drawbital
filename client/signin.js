@@ -26,10 +26,10 @@ signInDivSignUp.onclick = function () {
         return false;
     else{
         if(signInDivUsername.value.length<3){
-            showSnackBar("User name should be at least 3 character long");
+            showSnackBar("Username should be at least 3 characters long");
         }
         else if(signInDivPassword.value.length<3){
-            showSnackBar("password should be at least 3 character long");
+            showSnackBar("Password should be at least 3 characters long");
 
         }else{
             disableButtons(true);
@@ -45,23 +45,23 @@ socket.on('signInResponse', function (data) {
         lobbyDiv.style.display = 'inline';
     } else{
         disableButtons(false);
-        showSnackBar("Sign in unsuccessful.");
+        showSnackBar("Sign in unsuccessful");
     }
     return false;
 });
 
 socket.on('signedIn', function (data) {
         disableButtons(false);
-        showSnackBar("Already logged in.");
+        showSnackBar("Already logged in");
         return false;
 });
 
 
 socket.on('signUpResponse', function (data) {
     if (data.success) {
-        showSnackBar("Sign up successful.");
+        showSnackBar("Sign up successful");
     }else{
-        showSnackBar("Sign up unsuccessful, Username taken");
+        showSnackBar("Sign up unsuccessful, username taken");
     }
     disableButtons(false);
     return false;
