@@ -103,10 +103,11 @@ socket.on('gameTimer', function (data) {
 })
 
 socket.on('gameHint', function (data) {
-        if(data.hint == "") {
+        if(data.hint == "") 
                 $('#hintText').replaceWith("<h4 id='hintText'></h4>");
-        }
-        $('#hintText').replaceWith("<h4 id='hintText'>&emsp;Hint: " + data.hint + "</h4>");
+        
+        else 
+                $('#hintText').replaceWith("<h4 id='hintText'>&emsp;Hint: " + data.hint + "</h4>");
 })
 
 $('#hintBtn').on('click', function() {
