@@ -133,6 +133,7 @@ class Game {
         this.hint = "";
         this.roundNum = 1;
         this.roundsPerGame = roundsPerGame;
+        this.numGuessers = this.room.clients.length - 1;    // Num of guessers that haven't solved the word
     }
 
     update() {
@@ -176,7 +177,7 @@ class Game {
     updateTimer() {
         this.timer -= (Date.now() - this.then) / 1000;
         this.then = Date.now();
-        if(this.timer > 10 - 1.9 && this.timer <= 10 && !this.isGameOver) {
+        if(this.timer > 10 - 1.9 && this.timer <= 10 && !this.isGameOver && !this.roundTransition) {
             playAudio('clock', this.room);
         }
         for(var i = 0; i < this.room.clients.length; i++) {
@@ -222,6 +223,7 @@ class Game {
 
     // Handle transition period between rounds
     roundOver() {
+        stopAudio('clock', this.room);
         playAudio('ding', this.room);
         this.roundTransition = true;
         this.curDrawer.canDraw = false;
@@ -256,6 +258,7 @@ class Game {
     nextRound() {
         this.roundTransition = false;
         this.room.surface.clearSurface();
+        this.numGuessers = this.room.clients.length - 1;
 
         // Switch to next drawer
         do {
@@ -282,13 +285,6 @@ class Game {
 
         playAudio('newDrawer', this.curDrawer);
         playAudio('newRound', this.room);
-    }
-
-    // Confirm that client still exists, if not, go to next round
-    verify() {
-        if(!this.curDrawer) {
-            this.nextRound();
-        }
     }
 
     // Returns a random word under the current category
@@ -327,6 +323,12 @@ class Game {
             // Scoring system for guesser
             client.solved = true;
             client.points += this.pointsAwarded;
+
+            // End the round early if everyone got the answer
+            this.numGuessers--;
+            if(this.numGuessers <= 0)
+                this.roundOver();
+
             if (this.pointsAwarded > GAME_MIN_POINTS)
                 this.pointsAwarded--;
 
@@ -349,6 +351,18 @@ function playAudio(track, listener) {
     if (listener instanceof Client) {
         SOCKET_LIST[listener.id].emit('playAudio', { track: track });
     }
+}
+
+function stopAudio(track, listener) {
+    if (listener instanceof Room) {
+        for (var i = 0; i < listener.clients.length; i++) {
+            SOCKET_LIST[listener.clients[i].id].emit('stopAudio', { track: track });
+        }
+    }
+    if (listener instanceof Client) {
+        SOCKET_LIST[listener.id].emit('stopAudio', { track: track });
+    }
+
 }
 
 // Read word bank from text file
@@ -430,9 +444,6 @@ class Room {
         }
         delete this.clientList[client.id];
         this.surface.onClientLeave(client);
-        if(this.game) {
-            this.game.verify();
-        }
     }
 
     static updateRoomList() {

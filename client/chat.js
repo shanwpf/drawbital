@@ -81,6 +81,16 @@ socket.on('playAudio', function (data) {
         }
 })
 
+socket.on('stopAudio', function (data) {
+        switch(data.track) {
+                case 'newDrawer': audioNewDrawer.pause(); audioNewDrawer.load(); break;
+                case 'answerFound': audioAnswerFound.pause(); audioAnswerFound.load(); break;
+                case 'newRound': audioNewRound.pause(); audioNewRound.load(); break;
+                case 'win': audioWin.pause(); audioWin.load(); break;
+                case 'clock': audioClock.pause(); audioClock.load(); break;
+                case 'ding': audioDing.pause(); audioDing.load(); break;
+        }
+})
 // Game handlers
 
 /* Unnecessary
