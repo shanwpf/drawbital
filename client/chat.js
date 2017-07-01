@@ -59,7 +59,7 @@ socket.on('connectRoom', function (data) {
 
         for(var i in data.chatTextList)
         {
-                chatText.innerHTML += '<div>' +data.chatTextList[i].userName +":"+ data.chatTextList[i].message + '</div>';
+                chatText.innerHTML += '<div><strong>' +data.chatTextList[i].userName +"</strong>: "+ data.chatTextList[i].message + '</div>';
         }
         // auto scrolling to the most recent
          chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
