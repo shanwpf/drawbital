@@ -928,4 +928,4 @@ setInterval(function () {
         if (room.game)
             room.game.update();
     }
-}, 1000)
+}, 250)
