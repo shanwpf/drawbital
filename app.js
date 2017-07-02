@@ -148,7 +148,7 @@ class Game {
             this.nextRound();
         }
 
-        if (this.roundTransition) {
+        if (this.roundTransition && this.started) {
             if (this.timer > 0) {
                 this.updateTimer();
             }
@@ -160,10 +160,8 @@ class Game {
                     this.nextRound();
                 }
             }
-            return;
         }
-
-        if (this.started) {
+        else if (this.started) {
             if (this.curDrawer && this.timer > 0) {
                 this.updateTimer();
             }
