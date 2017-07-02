@@ -461,6 +461,7 @@ class Room {
     }
 
     addChatMsg(client, message) {
+        message = processMsg(message);
         this.chatText.push({ message: message, userName: client.name });
         if (!this.game || client == this.game.curDrawer
             || !this.game.checkAnswer(client, message))
@@ -468,6 +469,14 @@ class Room {
     }
 }
 
+// Process message to prevent '<' from being recognized as an HTML tag
+function processMsg(message) {
+    var idx;
+    while((idx = message.search('<')) != -1) {
+        message = message.substring(0, idx) + '&lt;' + message.substring(idx + 1, message.length);
+    }
+    return message;
+}
 
 Room.list = [];
 
