@@ -264,7 +264,7 @@ class Game {
         do {
             this.curDrawerIdx = (this.curDrawerIdx + 1) % this.room.clients.length;
         }
-        while(!this.room.clients[this.curDrawerIdx])
+        while(!this.room.clients[this.curDrawerIdx] && this.room.clients.length > 0)
         this.curDrawer = this.room.clients[this.curDrawerIdx];
         this.curDrawer.canDraw = true;
 
