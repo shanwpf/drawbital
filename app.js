@@ -152,13 +152,11 @@ class Game {
             if (this.timer > 0) {
                 this.updateTimer();
             }
+            else if (this.isGameOver) {
+                this.reset();
+            }
             else {
-                if (this.isGameOver) {
-                    this.reset();
-                }
-                else {
-                    this.nextRound();
-                }
+                this.nextRound();
             }
         }
         else if (this.started) {
@@ -456,6 +454,16 @@ class Room {
             }
         }
         return pack;
+    }
+
+    static update() {
+        var room;
+        for (var i = 0; i < Room.list.length; i++) {
+            room = Room.list[i];
+            room.updateTimer();
+            if (room.game)
+                room.game.update();
+        }
     }
 
     addChatMsg(client, message) {
@@ -909,6 +917,7 @@ setInterval(function () {
 // Receive data from clients and update their states
 setInterval(function () {
     Client.update();
+    Room.update();
 }, 30);
 
 //  Send data to clients
@@ -927,12 +936,3 @@ setInterval(function () {
         timeThen = Date.now();
     }
 }, 45);
-
-setInterval(function () {
-    for (var i = 0; i < Room.list.length; i++) {
-        var room = Room.list[i];
-        room.updateTimer();
-        if (room.game)
-            room.game.update();
-    }
-}, 250)
