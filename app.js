@@ -164,7 +164,7 @@ class Game {
         }
 
         if (this.started) {
-            if (this.timer > 0) {
+            if (this.curDrawer && this.timer > 0) {
                 this.updateTimer();
             }
             else {
