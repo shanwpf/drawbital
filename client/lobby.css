@@ -6,10 +6,12 @@
     overflow-y: scroll;
 }
 #create-room-flexcontainer {
+    display: -webkit-flex;
     display: flex;
     flex-direction: column;
 }
 #create-room-flexcontainer > form {
+    display: -webkit-flex;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -21,6 +23,7 @@
     text-align: center;
 }
 .panel-group {
+    display: -webkit-flex;
     display: flex;
     flex-direction: row;
     align-items: stretch;

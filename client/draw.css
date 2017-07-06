@@ -1,4 +1,5 @@
 #flexcontainer {
+    display: -webkit-flex;
     display: flex;
 }
 #canvasDiv > canvas{
@@ -67,6 +68,7 @@ body {
     top: 0;
 }
 #gameTimerDiv {
+    display: -webkit-flex;
     display: flex;
 }
 #timerPanel {
