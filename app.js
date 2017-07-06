@@ -239,7 +239,7 @@ class Game {
         var winner = this.room.clients[0];
         for(var i = 1; i < this.room.clients.length; i++) {
             if(this.room.clients[i].points > winner.points)
-                winner = this.room.clients[i].points;
+                winner = this.room.clients[i];
         }
 
         emitToChat(this.room, '<p class="text-danger">' + winner.name + ' has won the game!</p>');
