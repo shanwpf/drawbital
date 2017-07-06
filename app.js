@@ -183,6 +183,7 @@ class Game {
 
     resetHint() {
         this.hint = "";
+        this.hintLevel = 0;
         for(var i = 0; i < this.room.clients.length; i++) {
             SOCKET_LIST[this.room.clients[i].id].emit('gameHint', { hint: this.hint});
         } 
