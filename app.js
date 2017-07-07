@@ -286,7 +286,7 @@ class Game {
 
     // Returns a random word under the current category
     getRandomWord() {
-        return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))].trim();
+        return gameWords[this.category][Math.floor(Math.random() * (gameWords[this.category].length))].trim().toLowerCase();
     }
 
     reset() {
@@ -301,7 +301,10 @@ class Game {
 
     // Takes in a client obj and a answer string to verify if the answer is correct
     checkAnswer(client, answer) {
-        var correct = answer.toLowerCase().trim() == this.word.toLowerCase().trim();
+        answer = answer.toLowerCase().trim();
+        if(!isAlphanumeric(answer))
+            return false;
+        var correct = answer == this.word;
         if (!this.roundTransition && !client.solved && correct) {
             playAudio('answerFound', this.room);
 
@@ -334,9 +337,32 @@ class Game {
                 this.timer = GAME_RUSH_TIME;
             }
         }
+        else if(!this.roundTransition && !client.solved) {
+            if(this.checkCloseness(answer)) {
+                emitToChat(client, `<i class="text-warning">${answer} is close.</i>`);
+                return true;
+            }
+        }
         return correct;
     }
+
+    checkCloseness(answer) {
+        for(var i = answer.length - 1; i > 2; i--) {
+            if(this.word.search(answer) == 0) {
+                return true;
+            }
+            answer = answer.substr(0, answer.length - 1);
+        }
+        return false;
+    }
 }
+
+function isAlphanumeric(string){
+    if( /[^a-zA-Z0-9]/.test( string ) ) {
+       return false;
+    }
+    return true;     
+ }
 
 // Plays an audio track to the listener (either Room or Client)
 function playAudio(track, listener) {
