@@ -190,7 +190,7 @@ class Game {
     }
 
     showHint(id) {
-        if(this.curDrawer.id != id)
+        if(!this.started || this.curDrawer.id != id)
             return;
 
         switch(this.hintLevel) {
