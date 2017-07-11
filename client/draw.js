@@ -267,7 +267,7 @@ viewCanvas.oncontextmenu = function (e) {
     return false;
 }
 
-$('#viewCanvas').mousestop(10, function() {
+$('#view').mousestop(10, function() {
     mousemove = false;
 })
 
