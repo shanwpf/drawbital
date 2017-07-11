@@ -55,13 +55,6 @@ body {
     top: 0;
     border: 1px solid black;
 }
-#overlay {
-    z-index: 6;
-    position: absolute;
-    left: 0;
-    top: 0;
-    cursor: default;
-}
 #cursorLayer, #publicSurface, #serverSurface, #permanentSurface {
     display: none;
     position: absolute;

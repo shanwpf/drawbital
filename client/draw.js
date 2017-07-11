@@ -18,11 +18,8 @@ var cursorCtx = cursorLayer.getContext('2d');
 var viewCanvas = document.getElementById('view');
 var viewCtx = viewCanvas.getContext('2d');
 
-// For input capture, might not be necessary
-var overlay = document.getElementById('overlay');
-
 var looping = false;
-var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas, overlay];
+var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas];
 var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
@@ -237,8 +234,8 @@ function getMousePos(canvas, evt) {
     };
 }
 
-overlay.onmousedown = function (e) {
-    var pos = getMousePos(overlay, e);
+viewCanvas.onmousedown = function (e) {
+    var pos = getMousePos(viewCanvas, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
     document.onselectstart = function () { return false; } // Prevent text selection when dragging
@@ -257,20 +254,20 @@ overlay.onmousedown = function (e) {
     }
 }
 
-overlay.onmousemove = function (e) {
+viewCanvas.onmousemove = function (e) {
     mousemove = true;
-    var pos = getMousePos(overlay, e);
+    var pos = getMousePos(viewCanvas, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     cursorDrawn = false;
 };
 
-overlay.oncontextmenu = function (e) {
+viewCanvas.oncontextmenu = function (e) {
     return false;
 }
 
-$('#overlay').mousestop(10, function() {
+$('#viewCanvas').mousestop(10, function() {
     mousemove = false;
 })
 
@@ -302,7 +299,7 @@ function drawCursor(x, y) {
     prevPosY = posy;
 }
 
-overlay.onmouseup = function (e) {
+viewCanvas.onmouseup = function (e) {
     document.onselectstart = function () { return true; } // Allow text selection
     if(e.button == 0) {
         mousedown = false;
@@ -315,7 +312,7 @@ overlay.onmouseup = function (e) {
     }
 };
 
-overlay.onmouseleave = function (e) {
+viewCanvas.onmouseleave = function (e) {
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
@@ -389,7 +386,7 @@ function drawZoomed() {
     viewCtx.restore();
 }
 
-overlay.onmousewheel = function (event) {
+viewCanvas.onmousewheel = function (event) {
     zoom((event.wheelDelta / 120) / ZOOM_STEP);
 }
 
@@ -413,7 +410,7 @@ function translateAll() {
     }
 }
 
-overlay.onkeydown = function (event) {
+viewCanvas.onkeydown = function (event) {
     if (String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = true;
     }
@@ -428,7 +425,7 @@ overlay.onkeydown = function (event) {
     }
 }
 
-overlay.onkeyup = function (event) {
+viewCanvas.onkeyup = function (event) {
     if (String.fromCharCode(event.keyCode) == 'W') {
         keyStates['W'] = false;
     }
