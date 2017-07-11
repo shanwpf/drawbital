@@ -36,7 +36,10 @@ var gameTimer = 0;
 var gameTimerDiv = document.getElementById('gameTimerDiv');
 var timerPanel = document.getElementById('timerPanel');
 var mousedown = false;
+var rightMousedown = false;
+var rMouseX, rMouseY;
 var mouseX, mouseY;
+var mousemove = false;
 // Current topleft x and y coordinates of viewCanvas
 var viewX = 0;
 var viewY = 0;
@@ -193,8 +196,6 @@ document.getElementById("brushBtn").onclick = function () {
 document.getElementById("textBtn").onclick = function () {
     changeTool("text");
 };
-document.getElementById("dragBtn").onclick = function () {
-};
 document.getElementById("undoBtn").onclick = function () {
     socket.emit('undo');
 };
@@ -237,24 +238,59 @@ function getMousePos(canvas, evt) {
 }
 
 overlay.onmousedown = function (e) {
-    mousedown = true;
-    document.onselectstart = function () { return false; } // Prevent text selection when dragging
     var pos = getMousePos(overlay, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
-    if (curTool == "brush")
-        socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
-    else if (curTool == "text")
-        socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
+    if(e.button == 0) {
+        mousedown = true;
+        document.onselectstart = function () { return false; } // Prevent text selection when dragging
+        if (curTool == "brush")
+            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+        else if (curTool == "text")
+            socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
+    }
+    
+    if(e.button == 2) {
+        rMouseX = pos.x;
+        rMouseY = pos.y;
+        rightMousedown = true;
+    }
 }
 
 overlay.onmousemove = function (e) {
+    mousemove = true;
     var pos = getMousePos(overlay, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
     socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
     cursorDrawn = false;
 };
+
+overlay.oncontextmenu = function (e) {
+    return false;
+}
+
+$('#overlay').mousestop(10, function() {
+    mousemove = false;
+})
+
+function dragMove(x, y) {
+    if(rightMousedown && mousemove) {
+        // if(prevMouseX && prevMouseY) {
+        //     var deltaX = x - prevMouseX;
+        //     var deltaY = y - prevMouseY; 
+        //     viewX -= deltaX;
+        //     viewY -= deltaY;
+        // }
+        // prevMouseX = x;
+        // prevMouseY = y;
+
+        var deltaX = x - rMouseX;
+        var deltaY = y - rMouseY;
+        viewX -= deltaX;
+        viewY -= deltaY;
+    }
+}
 
 var prevPosX, prevPosY;
 // Draw brush cursor
@@ -276,9 +312,16 @@ function drawCursor(x, y) {
 }
 
 overlay.onmouseup = function (e) {
-    mousedown = false;
-    document.onselectstart = function () { return true; } // Allow text selection
-    socket.emit('keyPress', { inputId: 'mousedown', state: false });
+    if(e.button == 0) {
+        mousedown = false;
+        document.onselectstart = function () { return true; } // Allow text selection
+        socket.emit('keyPress', { inputId: 'mousedown', state: false });
+    }
+    if(e.button == 2) {
+        rightMousedown = false;
+        rMouseX = undefined;
+        rMouseY = undefined;
+    }
 };
 
 overlay.onmouseleave = function (e) {
@@ -313,6 +356,7 @@ function resize() {
 function repeat() {
     viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
     drawAll(mouseX, mouseY);
+    dragMove(mouseX, mouseY);
     translateAll();
     drawZoomed();
     requestAnimationFrame(repeat);

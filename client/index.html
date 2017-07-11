@@ -168,10 +168,9 @@
             <button class="btn btn-primary" id="zoomOutBtn" title="Zoom out"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
             <button class="btn btn-primary" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
             <button class="btn btn-primary" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="dragBtn" title="Drag"><i class="fa fa-arrows" aria-hidden="true"></i></button>
         </div>
         <input type='text' id='full'/>
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> Pan using WASD, zoom using
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> Pan using WASD or dragging right mousebutton, zoom using
         mousewheel
         <div id="flexcontainer">
             <div id="canvasDiv" style="position: relative;">
@@ -232,6 +231,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
+    <script src='/client/mousestop.min.js'></script>
     <script src="/client/draw.js"></script>
     <script src='/client/spectrum.js'></script>
     <script src='/client/chat.js'></script>
