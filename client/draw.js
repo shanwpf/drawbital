@@ -203,13 +203,13 @@ document.getElementById("redoBtn").onclick = function () {
     socket.emit('redo');
 };
 document.getElementById("zoomOutBtn").onclick = function () {
-    zoom(0.1);
+    zoom(-0.1);
 };
 document.getElementById("resetZoomBtn").onclick = function () {
     scale = 1;
 };
 document.getElementById("zoomInBtn").onclick = function () {
-    zoom(-0.1);
+    zoom(0.1);
 };
 
 
