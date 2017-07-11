@@ -276,15 +276,6 @@ $('#overlay').mousestop(10, function() {
 
 function dragMove(x, y) {
     if(rightMousedown && mousemove) {
-        // if(prevMouseX && prevMouseY) {
-        //     var deltaX = x - prevMouseX;
-        //     var deltaY = y - prevMouseY; 
-        //     viewX -= deltaX;
-        //     viewY -= deltaY;
-        // }
-        // prevMouseX = x;
-        // prevMouseY = y;
-
         var deltaX = x - rMouseX;
         var deltaY = y - rMouseY;
         viewX -= deltaX;
