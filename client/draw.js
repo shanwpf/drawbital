@@ -273,10 +273,8 @@ $('#view').mousestop(10, function() {
 
 function dragMove(x, y) {
     if(rightMousedown && mousemove) {
-        var deltaX = x - rMouseX;
-        var deltaY = y - rMouseY;
-        viewX -= deltaX;
-        viewY -= deltaY;
+        viewX -= x - rMouseX;
+        viewY -= y - rMouseY;
     }
 }
 
