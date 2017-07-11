@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+<head> 
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <script src="https://use.fontawesome.com/35f4be5ac0.js"></script>
     <title>Drawbital</title>
     <meta charset="UTF-8">
@@ -11,6 +12,7 @@
     <link href="/client/lobby.css" rel="stylesheet">
     <link href="/client/draw.css" rel="stylesheet">
     <link href="/client/snackbar.css" rel="stylesheet">
+    <link rel="stylesheet" href="/client/bootstrap.min.css">
 
     <nav class="navbar navbar-default">
         <div class="container-fluid">
@@ -106,8 +108,8 @@
           </label>
             </div>
             Either create an account or use "default" as username and password
-            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
-            <button class="btn btn-lg btn-primary btn-block" id="signInDiv-signUp" type="submit">Register</button>
+            <button class="btn btn-lg btn-success btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-warning btn-block" id="signInDiv-signUp" type="submit">Register</button>
         </form>
     </div>
     <!-- /container -->
@@ -161,18 +163,18 @@
 
         <div class="btn-group">
             <button class="btn btn-danger" id="clearBtn" title="Clear the canvas"><i class="fa fa-trash" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="brushBtn" title="Brush"><i class="fa fa-paint-brush" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="textBtn" title="Text"><i class="fa fa-font" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="undoBtn" title="Undo"><i class="fa fa-undo" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="redoBtn" title="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="zoomOutBtn" title="Zoom out"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
-            <button class="btn btn-primary" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="brushBtn" title="Brush"><i class="fa fa-paint-brush" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="textBtn" title="Text"><i class="fa fa-font" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="undoBtn" title="Undo"><i class="fa fa-undo" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="redoBtn" title="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="zoomOutBtn" title="Zoom out"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
+            <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
         </div>
         <input type='text' id='full'/>
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> 
         <span class="dropdown">
-            <button href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
+            <button href="#" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
             <ul class="dropdown-menu multi-level">
                 <li class="dropdown-submenu">
                     <a href="#">Save</a>
@@ -236,10 +238,9 @@
     </div>
     <div id="snackbar"></div>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"-->
+        <!--crossorigin="anonymous">-->
     <!-- Optional theme -->
-    <link rel="stylesheet" href="/client/theme.min.css">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
