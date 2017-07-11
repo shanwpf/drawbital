@@ -170,8 +170,21 @@
             <button class="btn btn-primary" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
         </div>
         <input type='text' id='full'/>
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> Pan using WASD or dragging right mousebutton, zoom using
-        mousewheel
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> 
+        <span class="dropdown">
+            <button href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
+            <ul class="dropdown-menu multi-level">
+                <li class="dropdown-submenu">
+                    <a href="#">Save</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Save entire canvas</a></li>
+                        <li><a href="#">Save region</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Load</a></li>
+            </ul>
+        </span>
+        Pan using WASD or dragging right mousebutton, zoom using mousewheel
         <div id="flexcontainer">
             <div id="canvasDiv" style="position: relative;">
                 <canvas id="overlay" width="3500" height="3500" tabindex='1'></canvas>
@@ -219,6 +232,7 @@
             <!-- /chatDiv -->
         </div>
         <!-- /flexcontainer -->
+
     </div>
     <div id="snackbar"></div>
     <!-- Latest compiled and minified CSS -->
