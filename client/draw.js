@@ -241,9 +241,9 @@ overlay.onmousedown = function (e) {
     var pos = getMousePos(overlay, e);
     posx = mouseX = pos.x;
     posy = mouseY = pos.y;
+    document.onselectstart = function () { return false; } // Prevent text selection when dragging
     if(e.button == 0) {
         mousedown = true;
-        document.onselectstart = function () { return false; } // Prevent text selection when dragging
         if (curTool == "brush")
             socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
         else if (curTool == "text")
