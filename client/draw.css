@@ -72,10 +72,6 @@ body {
     display: none;
     text-align: center;
 }
-#chat-text > div {
-    font-size: 1.15em;
-}
-
 .dropdown-submenu {
     position: relative;
 }
