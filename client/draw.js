@@ -303,9 +303,9 @@ function drawCursor(x, y) {
 }
 
 overlay.onmouseup = function (e) {
+    document.onselectstart = function () { return true; } // Allow text selection
     if(e.button == 0) {
         mousedown = false;
-        document.onselectstart = function () { return true; } // Allow text selection
         socket.emit('keyPress', { inputId: 'mousedown', state: false });
     }
     if(e.button == 2) {

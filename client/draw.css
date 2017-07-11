@@ -60,6 +60,7 @@ body {
     position: absolute;
     left: 0;
     top: 0;
+    cursor: default;
 }
 #cursorLayer, #publicSurface, #serverSurface, #permanentSurface {
     display: none;
