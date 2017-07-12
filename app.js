@@ -645,6 +645,23 @@ class Surface {
             SOCKET_LIST[i].emit('clear');
         }
     }
+
+    getState() {
+        var state = [];
+        for (var i = 0; i < this.actionList.length; i++) {
+            if (!this.actionList[i].deleted) {
+                state.push(this.actionList[i]);
+            }
+        }
+        state = state.concat(this.permanentActionList);
+        return state;
+    }
+
+    loadState(state) {
+        this.clearSurface();
+        this.permanentActionList = state.slice();
+        this.refresh(true);
+    }
 }
 
 
@@ -672,6 +689,7 @@ class Client {
         this.points = 0;
         this.solved = false;
         Client.list[id] = this;
+        this.saves = [];
         return this;
     }
 
@@ -715,6 +733,17 @@ class Client {
                 this.useCurTool();
             }
         }
+    }
+
+    newSave() {
+        this.saves.push({
+            state: this.room.surface.getState(),
+            date: Date.now()
+        });
+    }
+
+    load(idx) {
+        this.room.surface.loadState(this.saves[idx].state);
     }
 
     // Handle new connections
@@ -817,6 +846,16 @@ class Client {
                 socket.emit('joinStatus', { value: false });
             }
         });
+
+        socket.on('saveState', function (data) {
+            client.newSave();
+        })
+        socket.on('loadState', function (data) {
+            client.load(data.idx);
+        })
+        socket.on('getSaveList', function() {
+            socket.emit('saveList', { saves: client.saves });
+        })
     }
 
 

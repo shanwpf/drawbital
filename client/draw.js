@@ -439,3 +439,22 @@ viewCanvas.onkeyup = function (event) {
         keyStates['D'] = false;
     }
 }
+
+$('#saveStateBtn').on('click', e => {
+    socket.emit('saveState');
+})
+
+$('#loadBtn').on('click', e => {
+    socket.emit('getSaveList');
+})
+
+socket.on('saveList', data => {
+    $('#saveList').empty();
+    for(var i = 0; i < data.saves.length; i++) {
+        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}</a>`);
+    }
+})
+
+$('#saveList').on('click', '.list-group-item', function() {
+    socket.emit('loadState', { idx: this.id.slice(4) })
+})

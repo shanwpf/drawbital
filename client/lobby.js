@@ -69,7 +69,7 @@ socket.on('joinStatus', function (data) {
     }
 })
 
-$(document.body).on('dblclick', '.list-group-item', function () {
+$('#room-panel-body').on('dblclick', '.list-group-item', function () {
     var room = roomData[this.id];
     if(room.numUsers >= room.maxUsers) {
         showSnackBar("Room is full");

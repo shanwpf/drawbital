@@ -179,13 +179,27 @@
                 <li class="dropdown-submenu">
                     <a href="#">Save</a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Save entire canvas</a></li>
-                        <li><a href="#">Save region</a></li>
+                        <li><a id="saveStateBtn" href="#">Save entire canvas</a></li>
+                        <li><a id="saveRegionBtn" href="#">Save region</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Load</a></li>
+                <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
             </ul>
         </span>
+
+        <div id="loadModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Load</h4>
+                    </div>
+                    <div id="saveList" class="modal-body list-group">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="flexcontainer">
             <div id="canvasDiv" style="position: relative;">
                 <canvas id="view" tabindex='1'></canvas>
