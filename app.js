@@ -863,16 +863,16 @@ class Client {
             client.newSave();
         })
         socket.on('loadState', function (data) {
-            client.load(data.idx);
+            if(data.x && data.y)
+                client.load(data.idx, data.x, data.y);
+            else
+                client.load(data.idx);
         })
         socket.on('getSaveList', function() {
             socket.emit('saveList', { saves: client.saves });
         })
         socket.on('saveImg', function (data) {
             client.newSave(data.img);
-        })
-        socket.on('loadImg', data => {
-            client.load(data.idx, data.x, data.y); 
         })
     }
 
