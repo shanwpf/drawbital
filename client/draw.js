@@ -18,6 +18,9 @@ var cursorCtx = cursorLayer.getContext('2d');
 var viewCanvas = document.getElementById('view');
 var viewCtx = viewCanvas.getContext('2d');
 
+var localLayer = document.getElementById('localLayer');
+var localCtx = localLayer.getContext('2d');
+
 var looping = false;
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas];
 var curColour = "#000000"
@@ -40,6 +43,7 @@ var mousemove = false;
 // Current topleft x and y coordinates of viewCanvas
 var viewX = 0;
 var viewY = 0;
+var saveStartX, saveStartY;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -245,6 +249,10 @@ viewCanvas.onmousedown = function (e) {
             socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
         else if (curTool == "text")
             socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
+        else if (curTool == "saveRegion") {
+            saveStartX = pos.x;
+            saveStartY = pos.y;
+        }
     }
     
     if(e.button == 2) {
@@ -347,7 +355,19 @@ function repeat() {
     dragMove(mouseX, mouseY);
     translateAll();
     drawZoomed();
+    drawSaveRegion();
     requestAnimationFrame(repeat);
+}
+
+// Draw the bounding box for the save region
+function drawSaveRegion() {
+    if(curTool == "saveRegion") {
+        localCtx.clearRect(0, 0, 3500, 3500);
+        if(mousedown) {
+            localCtx.strokeStyle='black';
+            localCtx.strokeRect(saveStartX, saveStartY, mouseX - saveStartX, mouseY - saveStartY);
+        }
+    }
 }
 
 // Draw on each respective canvas if an update was received for that canvas and it has not yet been drawn
@@ -457,4 +477,8 @@ socket.on('saveList', data => {
 
 $('#saveList').on('click', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.id.slice(4) })
+})
+
+$('#saveRegionBtn').on('click', e => {
+    curTool = 'saveRegion';
 })
