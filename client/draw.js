@@ -268,6 +268,10 @@ viewCanvas.onmousedown = function (e) {
             saveStartX = pos.x;
             saveStartY = pos.y;
         }
+        else if (curTool == 'getLoadPos') {
+            socket.emit('loadImg', { idx: loadIdx, x: mouseX, y: mouseY });
+            curTool = 'brush';
+        }
     }
     
     if(e.button == 2) {
@@ -510,12 +514,21 @@ $('#loadBtn').on('click', e => {
 socket.on('saveList', data => {
     $('#saveList').empty();
     for(var i = 0; i < data.saves.length; i++) {
-        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}</a>`);
+        if(data.saves[i].img)
+            $('#saveList').append(`<a id="region${i}" class="list-group-item list-group-item-action" href="#">Region ${data.saves[i].date}</a>`);
+        else
+            $('#saveList').append(`<a id="entire${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}</a>`);
     }
 })
 
 $('#saveList').on('click', '.list-group-item', function() {
-    socket.emit('loadState', { idx: this.id.slice(4) })
+    if(this.id.search('region') != -1) {
+        curTool = 'getLoadPos'
+        loadIdx = this.id.slice(6);
+        $('#loadModal').modal('hide');
+    }
+    else 
+        socket.emit('loadState', { idx: this.id.slice(6) })
 })
 
 $('#saveRegionBtn').on('click', e => {
