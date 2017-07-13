@@ -566,8 +566,8 @@ class Surface {
     }
 
     // Creates an action and adds it to actionList and updates actionMap
-    addAction(id, path, tool, colour, size, text, img) {
-        var action = new Action(id, path, tool, colour, size, text, img);
+    addAction(id, path, tool, colour, size, text) {
+        var action = new Action(id, path, tool, colour, size, text);
         this.actionList.push(action);
         this.actionMap[id].push(this.actionList.length - 1);
     }
@@ -662,14 +662,6 @@ class Surface {
         this.permanentActionList = state.slice();
         this.refresh(true);
     }
-
-    loadImg(img, x, y, id) {
-        this.addAction(id, [[x, y]], 0, 0, 0, 0, img);
-        this.refresh(false);
-        // for(var i = 0; i < this.room.clients.length; i++) {
-            // SOCKET_LIST[this.room.clients[i].id].emit('drawImg', {img: img});
-        // }
-    }
 }
 
 
@@ -743,19 +735,15 @@ class Client {
         }
     }
 
-    newSave(img = 0) {
+    newSave() {
         this.saves.push({
             state: this.room.surface.getState(),
-            date: Date.now(),
-            img: img
+            date: Date.now()
         });
     }
 
-    load(idx, x, y) {
-        if(!this.saves[idx].img)
-            this.room.surface.loadState(this.saves[idx].state);
-        else
-            this.room.surface.loadImg(this.saves[idx].img, x, y, this.id);
+    load(idx) {
+        this.room.surface.loadState(this.saves[idx].state);
     }
 
     // Handle new connections
@@ -863,16 +851,10 @@ class Client {
             client.newSave();
         })
         socket.on('loadState', function (data) {
-            if(data.x && data.y)
-                client.load(data.idx, data.x, data.y);
-            else
-                client.load(data.idx);
+            client.load(data.idx);
         })
         socket.on('getSaveList', function() {
             socket.emit('saveList', { saves: client.saves });
-        })
-        socket.on('saveImg', function (data) {
-            client.newSave(data.img);
         })
     }
 
@@ -901,14 +883,13 @@ Client.list = {};
 // An action consists of all the data required to draw an element on the canvas
 // text is optional, only needed if the action is to draw text
 class Action {
-    constructor(id, points, tool, colour, size, text = 0, img = 0) {
+    constructor(id, points, tool, colour, size, text) {
         this.id = id;
         this.points = points; // points = array of x,y coordinates = [[x,y], [x,y], ...]
         this.tool = tool; // "brush", "text", etc.
         this.colour = colour; // RGBA format
         this.size = size;
         this.text = text;
-        this.img = img
         this.deleted = false; // Mark for lazy deletion
     }
 }

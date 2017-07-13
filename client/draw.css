@@ -67,13 +67,6 @@ body {
     top: 0;
     z-index: 5;
 }
-#imageLayer {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: -1;
-}
 #gameTimerDiv {
     display: -webkit-flex;
     display: flex;

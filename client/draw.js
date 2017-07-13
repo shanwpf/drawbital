@@ -21,9 +21,6 @@ var viewCtx = viewCanvas.getContext('2d');
 var localLayer = document.getElementById('localLayer');
 var localCtx = localLayer.getContext('2d');
 
-var imageLayer = document.getElementById('imageLayer');
-var imageCtx = imageLayer.getContext('2d');
-
 var looping = false;
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas];
 var curColour = "#000000"
@@ -47,7 +44,6 @@ var mousemove = false;
 var viewX = 0;
 var viewY = 0;
 var saveStartX, saveStartY;
-var selectedImage;
 
 $(document).ready(function () {
     $('#full').spectrum({
@@ -136,11 +132,6 @@ function drawPermData(data) {
                 permCtx.stroke();
             }
         }
-        if(!data.actionList[i].deleted && data.actionList[i].img) {
-            var image = new Image();
-            image.src = data.actionList[i].img;
-            imageCtx.drawImage(image, points[0][0], points[0][1]);
-        }
     }
 }
 
@@ -148,8 +139,8 @@ function drawServerData(data) {
     var points;
     serverCtx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
-        points = data.actionList[i].points;
-        if (!data.actionList[i].deleted && !data.actionList[i].img) {
+        if (!data.actionList[i].deleted) {
+            points = data.actionList[i].points;
             if (data.actionList[i].tool === "text") {
                 serverCtx.font = data.actionList[i].size + "px sans-serif";
                 serverCtx.fillStyle = data.actionList[i].colour;
@@ -168,11 +159,6 @@ function drawServerData(data) {
                 }
                 serverCtx.stroke();
             }
-        }
-        if(!data.actionList[i].deleted && data.actionList[i].img) {
-            var image = new Image();
-            image.src = data.actionList[i].img;
-            imageCtx.drawImage(image, points[0][0], points[0][1]);
         }
     }
 }
@@ -203,7 +189,6 @@ document.getElementById("clearBtn").onclick = function () {
 socket.on('clear', function () {
     serverCtx.clearRect(0, 0, canvas.width, canvas.height);
     permCtx.clearRect(0, 0, canvas.width, canvas.height);
-    imageCtx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
 document.getElementById("brushBtn").onclick = function () {
@@ -333,9 +318,6 @@ viewCanvas.onmouseup = function (e) {
         rMouseX = undefined;
         rMouseY = undefined;
     }
-    if(curTool == 'saveRegion') {
-        saveRegion(saveStartX, saveStartY, mouseX, mouseY);
-    }
 };
 
 viewCanvas.onmouseleave = function (e) {
@@ -388,25 +370,6 @@ function drawSaveRegion() {
     }
 }
 
-function saveRegion(startX, startY, endX, endY) {
-    var region = document.createElement('canvas');
-    document.body.appendChild(region);
-    region.id = 'saveCanvas';
-    region.width = Math.abs(endX - startX);
-    region.height = Math.abs(endY - startY);
-    region.getContext('2d').drawImage(viewCanvas, startX, startY, region.width, region.height, 0, 0, region.width, region.height);
-    var img = region.toDataURL();
-    //$('#image').attr('src', img);
-    socket.emit('saveImg', {img: img});
-    return img;
-}
-
-socket.on('drawImg', data => {
-    var image = new Image();
-    image.src = data.img;
-    permCtx.drawImage(image, 0, 0);
-})
-
 // Draw on each respective canvas if an update was received for that canvas and it has not yet been drawn
 function drawAll(x, y) {
     if (!serverDrawn) {
@@ -439,8 +402,6 @@ function drawZoomed() {
     viewCtx.drawImage(cursorLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
     viewCtx.drawImage(canvas, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
-        viewCanvas.width / scale, viewCanvas.height / scale);
-    viewCtx.drawImage(imageLayer, viewX, viewY, viewCanvas.width / scale, viewCanvas.height / scale, 0, 0,
         viewCanvas.width / scale, viewCanvas.height / scale);
     viewCtx.restore();
 }
