@@ -13,11 +13,12 @@ function disableButtons(bool)
 
 signInDivSignIn.onclick = function () {
     if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        return;
+        return false;
     else
     {
         disableButtons(true);
         socket.emit('signIn', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
+        return false;
     }
 }
 
