@@ -458,3 +458,22 @@ socket.on('saveList', data => {
 $('#saveList').on('click', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.id.slice(4) })
 })
+
+$('#downloadBtn').on('click', function() {
+    generateCanvasImage();
+})
+
+function generateCanvasImage() {
+    var imageCanvas = document.createElement('canvas');
+    var imageCtx = imageCanvas.getContext('2d');
+    imageCanvas.width = 3500;
+    imageCanvas.height = 3500;
+    imageCtx.fillStyle = 'white';
+    imageCtx.fillRect(0, 0, imageCanvas.width, imageCanvas.height);
+    imageCtx.drawImage(permCanvas, 0, 0);
+    imageCtx.drawImage(serverCanvas, 0, 0);
+    var link = document.getElementById('link');
+    link.setAttribute('download', 'canvasImage.png');
+    link.setAttribute('href', imageCanvas.toDataURL('image/png').replace('image/png', 'image/octet-stream'));
+    link.click();
+}

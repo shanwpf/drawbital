@@ -171,6 +171,7 @@
             <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
             <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
         </div>
+<<<<<<< HEAD
         <input type='text' id='full' />
         <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
         <div id="saveLoadDiv" class="dropdown">
@@ -186,6 +187,23 @@
             <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
         </ul>
         </div>
+=======
+        <input type='text' id='full'/>
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> 
+        <span class="dropdown">
+            <button href="#" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
+            <ul class="dropdown-menu multi-level">
+                <li class="dropdown-submenu">
+                    <a href="#">Save</a>
+                    <ul class="dropdown-menu">
+                        <li><a id="saveStateBtn" href="#">Save entire canvas</a></li>
+                        <li><a id="downloadBtn" href="#">Download as image</a></li>
+                    </ul>
+                </li>
+                <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
+            </ul>
+        </span>
+>>>>>>> 3ac1d56b179323e24995c1b7590c3f7fca0d5f14
 
         <div id="loadModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -249,6 +267,7 @@
 
     </div>
     <div id="snackbar"></div>
+    <a id="link"></a>
     <!-- Latest compiled and minified CSS -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"-->
     <!--crossorigin="anonymous">-->
