@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head> 
+<head>
     <title>Drawbital</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +13,9 @@
     <link href="/client/snackbar.css" rel="stylesheet">
     <link rel="stylesheet" href="https://bootswatch.com/flatly/bootstrap.min.css">
     <link href="/client/tweaks.css" rel="stylesheet">
+</head>
 
+<body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -58,22 +60,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li><a data-toggle="modal" data-target="#aboutModal" href="#">About</a></li>
 
-                    <div id="aboutModal" class="modal fade" role="dialog">
-                        <div class="modal-dialog">
 
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    <h4 class="modal-title">About Drawbital</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Drawbital is a simple collaborative drawing app by Wayne Koo and Shannon Wong.</p>
-                                    <p>A project for NUS Orbital</p>
-                                    <p>Source: <a href="https://github.com/shanwpf/drawbital">Github</a></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <!--
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
@@ -92,15 +79,28 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
-</head>
+    <div id="aboutModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
 
-<body>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">About Drawbital</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Drawbital is a simple collaborative drawing app by Wayne Koo and Shannon Wong.</p>
+                    <p>A project for NUS Orbital</p>
+                    <p>Source: <a href="https://github.com/shanwpf/drawbital">Github</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container" id="signInDiv">
         <form class="form-signin">
             <h2 class="form-signin-heading">Please sign in</h2>
-            <label for="inputUsername" class="sr-only">Username</label>
-            <input type="username" id="signInDiv-username" class="form-control" placeholder="Username" required autofocus>
-            <label for="inputPassword" class="sr-only">Password</label>
+            <label for="signInDiv-username" class="sr-only">Username</label>
+            <input type="text" id="signInDiv-username" class="form-control" placeholder="Username" required autofocus>
+            <label for="signInDiv-password" class="sr-only">Password</label>
             <input type="password" id="signInDiv-password" class="form-control" placeholder="Password" required>
             <div class="checkbox">
                 <label>
@@ -131,11 +131,11 @@
                     <form>
                         <div class="panel-body">
                             <div class="form-group">
-                                <input id="room-name" class="form-control" type="text" maxlength="40" placeholder="Room name" required></input>
+                                <input id="room-name" class="form-control" type="text" maxlength="40" placeholder="Room name" required>
                             </div>
                             <div class="form-group">
                                 <label for="max-users">Room capacity</label>
-                                <input id="max-users" class="form-control" type="number" min="1" max="100" value="10" name="capacity" required></input>
+                                <input id="max-users" class="form-control" type="number" min="1" max="100" value="10" name="capacity" required>
                             </div>
                             <div class="form-group">
                                 <label class="radio-inline"><input type="radio" id="drawRadio" name="modeRadio" checked>Free Draw</label>
@@ -143,10 +143,10 @@
                             </div>
                             <div class="form-group">
                                 <label for="num-rounds">No. of rounds</label>
-                                <input id="num-rounds" class="form-control" type="number" min="2" max="50" value="10" name="wincondition" disabled required></input>
+                                <input id="num-rounds" class="form-control" type="number" min="2" max="50" value="10" name="wincondition" disabled required>
                             </div>
                             <div class="form-group">
-                                <input id="password" class="form-control" type="text" placeholder="Password (Optional)"></input>
+                                <input id="password" class="form-control" type="text" placeholder="Password (Optional)">
                             </div>
                         </div>
                         <div class="panel-footer">
@@ -171,21 +171,21 @@
             <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
             <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
         </div>
-        <input type='text' id='full'/>
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> 
-        <span class="dropdown">
-            <button href="#" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
-            <ul class="dropdown-menu multi-level">
-                <li class="dropdown-submenu">
-                    <a href="#">Save</a>
-                    <ul class="dropdown-menu">
-                        <li><a id="saveStateBtn" href="#">Save entire canvas</a></li>
-                        <li><a id="saveRegionBtn" href="#">Save region</a></li>
-                    </ul>
-                </li>
-                <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
-            </ul>
-        </span>
+        <input type='text' id='full' />
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
+        <div id="saveLoadDiv" class="dropdown">
+            <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
+        <ul class="dropdown-menu multi-level">
+            <li class="dropdown-submenu">
+                <a href="#">Save</a>
+                <ul class="dropdown-menu">
+                    <li><a id="saveStateBtn" href="#">Save entire canvas</a></li>
+                    <li><a id="saveRegionBtn" href="#">Save region</a></li>
+                </ul>
+            </li>
+            <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
+        </ul>
+        </div>
 
         <div id="loadModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -235,8 +235,8 @@
                 <!-- /user-list -->
 
                 <form id="chat-form" class="panel-footer input-group">
-                    <input id="chat-input" class="form-control" placeholder="Type a message" type="text"></input>
-                      <span class="input-group-btn">
+                    <input id="chat-input" class="form-control" placeholder="Type a message" type="text">
+                    <span class="input-group-btn">
                         <button class="btn btn-success" type="submit">
                             <i class="fa fa-reply"></i>
                         </button>
@@ -251,7 +251,7 @@
     <div id="snackbar"></div>
     <!-- Latest compiled and minified CSS -->
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"-->
-        <!--crossorigin="anonymous">-->
+    <!--crossorigin="anonymous">-->
     <!-- Optional theme -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
