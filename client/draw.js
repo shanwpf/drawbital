@@ -317,6 +317,11 @@ viewCanvas.onmouseup = function (e) {
 };
 
 viewCanvas.onmouseleave = function (e) {
+    mousedown = false;
+    viewCanvas.style.cursor = 'auto';
+    rightMousedown = false;
+    rMouseX = undefined;
+    rMouseY = undefined;
     socket.emit('keyPress', { inputId: 'mousedown', state: false });
 };
 
