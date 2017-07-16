@@ -899,7 +899,7 @@ Client.list = {};
 // An action consists of all the data required to draw an element on the canvas
 // text is optional, only needed if the action is to draw text
 class Action {
-    constructor(id, points, tool, colour, size, text) {
+    constructor(id, points, tool, colour, size, text = 0) {
         this.id = id;
         this.points = points; // points = array of x,y coordinates = [[x,y], [x,y], ...]
         this.tool = tool; // "brush", "text", etc.
