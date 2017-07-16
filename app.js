@@ -741,7 +741,8 @@ class Client {
     }
 
     load(idx) {
-        this.room.surface.loadState(this.saves[idx].state);
+        if(!this.room.game)
+            this.room.surface.loadState(this.saves[idx].state);
     }
 
     // Handle new connections
