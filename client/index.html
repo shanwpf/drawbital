@@ -22,11 +22,11 @@
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
                     aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
                 <a class="navbar-brand" href="#">Drawbital</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -34,45 +34,9 @@
                 <ul class="nav navbar-nav">
                     <li id="lobby-li"><a id="lobby-tab" href="#">Lobby<span class="sr-only">(current)</span></a></li>
                     <li id="draw-li"><a id="draw-tab" href="#">Draw</a></li>
-                    <!--
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
-                    -->
                 </ul>
-                <!--
-                <form class="navbar-form navbar-left">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Search">
-                    </div>
-                    <button type="submit" class="btn btn-default">Submit</button>
-                </form>
-                -->
                 <ul class="nav navbar-nav navbar-right">
                     <li><a data-toggle="modal" data-target="#aboutModal" href="#">About</a></li>
-
-
-                    <!--
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </li>
-                    -->
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -171,20 +135,20 @@
             <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
             <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
         </div>
-        <input type='text' id='full'/>
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size"> 
+        <input type='text' id='full' />
+        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
         <span class="dropdown">
             <button href="#" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Save/Load<span class="caret"></span></button>
-            <ul class="dropdown-menu multi-level">
-                <li class="dropdown-submenu">
-                    <a href="#">Save</a>
-                    <ul class="dropdown-menu">
-                        <li><a data-toggle="modal" data-target="#saveModal" href="#">Save entire canvas</a></li>
-                        <li><a id="downloadBtn" href="#">Download as image</a></li>
-                    </ul>
-                </li>
-                <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
-            </ul>
+        <ul class="dropdown-menu multi-level">
+            <li class="dropdown-submenu">
+                <a href="#">Save</a>
+                <ul class="dropdown-menu">
+                    <li><a data-toggle="modal" data-target="#saveModal" href="#">Save entire canvas</a></li>
+                    <li><a id="downloadBtn" href="#">Download as image</a></li>
+                </ul>
+            </li>
+            <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
+        </ul>
         </span>
 
         <div id="saveModal" class="modal fade" role="dialog">
@@ -196,8 +160,8 @@
                     </div>
                     <div class="modal-body input-group">
                         <form>
-                        <input id="saveName" class="form-control" type="text" maxlength="40" placeholder="Save name" required autofocus>
-                        <button id="saveStateBtn" type="submit" class="btn btn-success">Save</button>
+                            <input id="saveName" class="form-control" type="text" maxlength="40" placeholder="Save name" required autofocus>
+                            <button id="saveStateBtn" type="submit" class="btn btn-success">Save</button>
                         </form>
                     </div>
                 </div>
@@ -268,10 +232,6 @@
     </div>
     <div id="snackbar"></div>
     <a id="link"></a>
-    <!-- Latest compiled and minified CSS -->
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"-->
-    <!--crossorigin="anonymous">-->
-    <!-- Optional theme -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"

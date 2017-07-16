@@ -91,23 +91,8 @@ socket.on('stopAudio', function (data) {
                 case 'ding': audioDing.pause(); audioDing.load(); break;
         }
 })
+
 // Game handlers
-
-/* Unnecessary
-socket.on('gameCheckAnswer', function (data) {
-    if (data.value) {
-        alert('You are correct!');
-    }
-    else {
-        alert('Try again');
-    }
-})
-
-socket.on('gameWord', function (data) {
-
-})
-*/
-
 socket.on('gameTimer', function (data) {
         $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Timer: " + Math.ceil(data.timer) +"</h4>");
 })
