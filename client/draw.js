@@ -69,6 +69,8 @@ $(document).ready(function () {
         ]
     });
     resize();
+    viewX = (canvas.width / 2) - (viewCanvas.width / 2);
+    viewY = (canvas.height / 2) - (viewCanvas.height / 2);
 });
 
 socket.on('drawServerData', function (data) {
