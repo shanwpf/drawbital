@@ -218,6 +218,12 @@ class Game {
         } 
     }
 
+    skip(client) {
+        if(client == this.curDrawer) {
+            this.roundOver(); 
+        }
+    }
+
     // Handle transition period between rounds
     roundOver() {
         stopAudio('clock', this.room);
@@ -809,6 +815,10 @@ class Client {
 
         socket.on('showHint', function (data) {
             client.room.game.showHint(data.id);
+        })
+
+        socket.on('skip', function() {
+            client.room.game.skip(client);
         })
 
         socket.on('createRoom', function (data) {

@@ -109,7 +109,7 @@ socket.on('gameWord', function (data) {
 */
 
 socket.on('gameTimer', function (data) {
-        $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Time Left: " + Math.ceil(data.timer) +"</h4>");
+        $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Timer: " + Math.ceil(data.timer) +"</h4>");
 })
 
 socket.on('gameHint', function (data) {
@@ -122,6 +122,10 @@ socket.on('gameHint', function (data) {
 
 $('#hintBtn').on('click', function() {
         socket.emit('showHint', { id: socket.id });
+})
+
+$('#skipBtn').on('click', function() {
+        socket.emit('skip');
 })
 // /Game handlers
 
