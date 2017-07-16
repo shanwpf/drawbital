@@ -658,12 +658,10 @@ class Surface {
     }
 
     loadState(state) {
-        this.clearSurface();
-        this.permanentActionList = state.slice();
+        this.permanentActionList = this.permanentActionList.concat(state.slice());
         this.refresh(true);
     }
 }
-
 
 class Client {
     constructor(id) {
