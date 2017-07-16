@@ -250,6 +250,7 @@ viewCanvas.onmousedown = function (e) {
     }
     
     if(e.button == 2) {
+        viewCanvas.style.cursor = 'move';
         rMouseX = pos.x;
         rMouseY = pos.y;
         rightMousedown = true;
@@ -308,6 +309,7 @@ viewCanvas.onmouseup = function (e) {
         socket.emit('keyPress', { inputId: 'mousedown', state: false });
     }
     if(e.button == 2) {
+        viewCanvas.style.cursor = 'auto';
         rightMousedown = false;
         rMouseX = undefined;
         rMouseY = undefined;
@@ -445,6 +447,7 @@ viewCanvas.onkeyup = function (event) {
 $('#saveStateBtn').on('click', e => {
     socket.emit('saveState', {saveName: $('#saveName').val()});
     $('#saveModal').modal('hide');
+    showSnackBar('Saved')
     return false;
 })
 
@@ -462,6 +465,7 @@ socket.on('saveList', data => {
 $('#saveList').on('dblclick', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.id.slice(4) })
     $('#loadModal').modal('hide');
+    showSnackBar('Save loaded')
 })
 
 $('#saveList').on('click', '.close', function() {
@@ -473,6 +477,7 @@ $('#downloadBtn').on('click', function() {
     generateCanvasImage();
 })
 
+// Saves an image of the current canvas and creates a download link
 function generateCanvasImage() {
     var imageCanvas = document.createElement('canvas');
     var imageCtx = imageCanvas.getContext('2d');
