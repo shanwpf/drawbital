@@ -451,12 +451,17 @@ $('#loadBtn').on('click', e => {
 socket.on('saveList', data => {
     $('#saveList').empty();
     for(var i = 0; i < data.saves.length; i++) {
-        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}</a>`);
+        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}<button type="button" class="close" id="delete${i}">&times;</button></a>`);
     }
 })
 
-$('#saveList').on('click', '.list-group-item', function() {
+$('#saveList').on('dblclick', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.id.slice(4) })
+})
+
+$('#saveList').on('click', '.close', function() {
+    $(`#load${this.id.slice(6)}`).remove();
+    socket.emit('deleteSave', { idx: this.id.slice(6) })
 })
 
 $('#downloadBtn').on('click', function() {

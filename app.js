@@ -751,6 +751,10 @@ class Client {
             this.room.surface.loadState(this.saves[idx].state);
     }
 
+    deleteSave(idx) {
+        this.saves.splice(idx);
+    }
+
     // Handle new connections
     static onConnect(socket, username) {
         var client = new Client(socket.id);
@@ -864,6 +868,9 @@ class Client {
         })
         socket.on('getSaveList', function() {
             socket.emit('saveList', { saves: client.saves });
+        })
+        socket.on('deleteSave', function (data) {
+            client.deleteSave(data.idx);
         })
     }
 
