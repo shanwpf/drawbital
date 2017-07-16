@@ -44,6 +44,28 @@ function writeSaveData(userId, saveName ,data) {
     });
 }
 
+function getSaveNameList(userId, client) {
+    firebase.database().ref('users/'+ userId + "/saves/").once('value').then(function (snapshot) {
+            var list = snapshot.val();
+            var saveNameList = [];
+             for(var i in list)
+             {
+                 saveNameList.push(i);
+             }
+             client.saves = saveNameList;
+    });
+}
+
+function loadSaveData(userId, saveName) {
+    firebase.database().ref('users/'+ userId + "/saves/").once('value').then(function (snapshot) {
+      //  console.log("TEST");
+       // console.log(saveName);
+      // console.log(snapshot.val());
+     // console.log(snapshot.val()[saveName]);
+       return snapshot.val()[saveName];
+    });
+}
+
 //cb stands for callback
 var isValidPassword = function (data, cb) {
     setTimeout(function () {
@@ -746,17 +768,15 @@ class Client {
     }
 
     newSave(saveName) {
-        this.saves.push({
-            state: this.room.surface.getState(),
-            saveName: saveName
-        });
-
+        this.saves.push(saveName)
         writeSaveData(this.name ,saveName,this.room.surface.getState());
     }
 
     load(idx) {
-        if(!this.room.game)
-            this.room.surface.loadState(this.saves[idx].state);
+       // console.log(loadSaveData(this.name, idx));
+       loadSaveData(this.name, idx)
+        //if(!this.room.game)
+         //  this.room.surface.loadState(loadSaveData(this.name, idx));
     }
 
     deleteSave(idx) {
@@ -767,8 +787,7 @@ class Client {
     static onConnect(socket, username) {
         var client = new Client(socket.id);
         client.name = username;
-
-        //emitConnection(client.name, client); Unnecessary
+        getSaveNameList(username, client);
         USER_TRACKER[username] = true;
         socket.on('undo', function () {
             client.room.surface.undo(client.id);
@@ -882,6 +901,7 @@ class Client {
         })
     }
 
+    
 
     static onDisconnect(socket) {
         var client = Client.list[socket.id];

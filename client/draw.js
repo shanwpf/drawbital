@@ -462,8 +462,8 @@ $('#loadBtn').on('click', e => {
 
 socket.on('saveList', data => {
     $('#saveList').empty();
-    for(var i = 0; i < data.saves.length; i++) {
-        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].saveName}<button type="button" class="close" id="delete${i}">&times;</button></a>`);
+    for(var i in data.saves){
+        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i]}<button type="button" class="close" id="delete${i}">&times;</button></a>`);
     }
 })
 
