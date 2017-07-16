@@ -946,7 +946,7 @@ class Brush extends Tool {
         var id = this.client.id;
         this.surface.clientColours[id] = this.client.colour;
         this.surface.clientSizes[id] = this.client.size;
-        this.surface.publicPathMap[id].push([this.client.mouseX, this.client.mouseY]);
+        this.surface.publicPathMap[id].push([this.client.mouseX || this.surface.publicPathMap[id][this.surface.publicPathMap[id].length - 1], this.client.mouseY || this.surface.publicPathMap[id][this.surface.publicPathMap[id].length - 1]]);
     }
 }
 
