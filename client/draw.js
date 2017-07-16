@@ -449,11 +449,18 @@ viewCanvas.onkeyup = function (event) {
     }
 }
 
-$('#saveStateBtn').on('click', e => {
-    socket.emit('saveState', {saveName: $('#saveName').val()});
-    $('#saveModal').modal('hide');
-    showSnackBar('Saved')
-    return false;
+$('#saveForm').submit(e => {
+    socket.emit('saveState', {saveName: $('#saveName').val()}, data => {
+        if(data.nameExists) {
+            showSnackBar('A save with the same name already exists.')
+        }
+        else {
+            $('#saveModal').modal('hide');
+            $('#saveName').val('');
+            showSnackBar('Saved')
+        }
+        return false;
+    });
 })
 
 $('#loadBtn').on('click', e => {

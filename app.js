@@ -868,7 +868,14 @@ class Client {
             }
         });
 
-        socket.on('saveState', function (data) {
+        socket.on('saveState', function (data, fn) {
+            for(var i = 0; i < client.saves.length; i++) {
+                if(client.saves[i].saveName == data.saveName) {
+                    fn({nameExists: true});
+                    return;
+                }
+            }
+            fn({nameExists: false});
             client.newSave(data.saveName);
         })
         socket.on('loadState', function (data) {
