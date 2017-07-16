@@ -38,6 +38,12 @@ function writeUserData(userId, password) {
     });
 }
 
+function writeSaveData(userId, saveName ,data) {
+    firebase.database().ref('users/'+ userId + "/saves/" + saveName).set({
+        datas:data
+    });
+}
+
 //cb stands for callback
 var isValidPassword = function (data, cb) {
     setTimeout(function () {
@@ -744,6 +750,8 @@ class Client {
             state: this.room.surface.getState(),
             saveName: saveName
         });
+
+        writeSaveData(this.name ,saveName,this.room.surface.getState());
     }
 
     load(idx) {
