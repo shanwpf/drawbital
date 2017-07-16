@@ -739,10 +739,10 @@ class Client {
         }
     }
 
-    newSave() {
+    newSave(saveName) {
         this.saves.push({
             state: this.room.surface.getState(),
-            date: Date.now()
+            saveName: saveName
         });
     }
 
@@ -861,7 +861,7 @@ class Client {
         });
 
         socket.on('saveState', function (data) {
-            client.newSave();
+            client.newSave(data.saveName);
         })
         socket.on('loadState', function (data) {
             client.load(data.idx);

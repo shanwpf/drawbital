@@ -441,7 +441,9 @@ viewCanvas.onkeyup = function (event) {
 }
 
 $('#saveStateBtn').on('click', e => {
-    socket.emit('saveState');
+    socket.emit('saveState', {saveName: $('#saveName').val()});
+    $('#saveModal').modal('hide');
+    return false;
 })
 
 $('#loadBtn').on('click', e => {
@@ -451,12 +453,13 @@ $('#loadBtn').on('click', e => {
 socket.on('saveList', data => {
     $('#saveList').empty();
     for(var i = 0; i < data.saves.length; i++) {
-        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].date}<button type="button" class="close" id="delete${i}">&times;</button></a>`);
+        $('#saveList').append(`<a id="load${i}" class="list-group-item list-group-item-action" href="#">${data.saves[i].saveName}<button type="button" class="close" id="delete${i}">&times;</button></a>`);
     }
 })
 
 $('#saveList').on('dblclick', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.id.slice(4) })
+    $('#loadModal').modal('hide');
 })
 
 $('#saveList').on('click', '.close', function() {
