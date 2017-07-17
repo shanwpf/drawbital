@@ -18,6 +18,11 @@ var audioDing = new Audio('./client/audio/ding.wav');
 
 timerCanvas.width = timerCanvas.height = 50;
 function drawTimer(time, totalTime) {
+    timerCtx.save();
+    timerCtx.translate(timerCanvas.width / 2, timerCanvas.height / 2);
+    timerCtx.rotate(0.5*Math.PI);
+    timerCtx.scale(-1, 1);
+    timerCtx.translate(-timerCanvas.width / 2, -timerCanvas.height / 2);
     timerCtx.clearRect(0, 0, timerCanvas.width, timerCanvas.height);
     timerCtx.beginPath();
     timerCtx.arc(timerCanvas.width / 2, timerCanvas.height / 2, timerCanvas.height / 2 - 3, 0, 2*Math.PI);
@@ -31,6 +36,7 @@ function drawTimer(time, totalTime) {
     timerCtx.fillStyle = 'blue';
     timerCtx.fill();
     timerCtx.stroke();
+    timerCtx.restore();
 }
 
 socket.on('addToChat', function (data) {
