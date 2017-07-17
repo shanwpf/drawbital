@@ -8,7 +8,7 @@ var USER_TRACKER = {};
 var MIN_FONT_SIZE = 15;
 var MINUTES_UNTIL_PERMANENT = 1;
 var ROOM_DELETE_TIME = 60 * 30; // Time in seconds before unused rooms are deleted
-var DEBUG = true;
+var DEBUG = false;
 var GAME_TIME_LIMIT = 60;
 var GAME_MAX_POINTS = 10;
 var GAME_MIN_POINTS = 5;
@@ -810,10 +810,12 @@ class Client {
         {
             if(this.saves[i] === idx)
             {
+                firebase.database().ref('users/'+ this.name + "/saves/" + idx).remove();
                 this.saves.splice(i, 1);
                 return;
             }
         }
+
     }
 
     // Handle new connections

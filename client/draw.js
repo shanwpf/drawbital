@@ -459,8 +459,8 @@ $('#saveForm').submit(e => {
             $('#saveName').val('');
             showSnackBar('Saved')
         }
-        return false;
     });
+    return false;
 })
 
 $('#loadBtn').on('click', e => {
