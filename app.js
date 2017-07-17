@@ -40,7 +40,7 @@ function writeUserData(userId, password) {
 
 function writeSaveData(userId, saveName ,data) {
     firebase.database().ref('users/'+ userId + "/saves/" + saveName).set({
-        datas:data
+        data
     });
 }
 
@@ -56,15 +56,38 @@ function getSaveNameList(userId, client) {
     });
 }
 
-function loadSaveData(userId, saveName) {
-    firebase.database().ref('users/'+ userId + "/saves/").once('value').then(function (snapshot) {
-      //  console.log("TEST");
-       // console.log(saveName);
-      // console.log(snapshot.val());
-     // console.log(snapshot.val()[saveName]);
-       return snapshot.val()[saveName];
+function loadaveData(userId, saveName) {
+    firebase.database().ref('users/'+ userId + "/saves/" + saveName).once('value').then(function (snapshot) {
+       var datas =  snapshot.val().data;
+       var listAction = [];
+       for(var i in datas)
+       {
+           var action = new Action(datas[i].id, datas[i].points,datas[i].tool,
+          datas[i].colour, datas[i].size,datas[i].text );
+           action.deleted = datas[i].deleted;
+           listAction.push(action);
+       }
+       return listAction;
     });
 }
+
+var loadSaveData = function (userId, saveName, cb) {
+     setTimeout(function () {
+       firebase.database().ref('users/'+ userId + "/saves/" + saveName).once('value').then(function (snapshot) {
+       var datas =  snapshot.val().data;
+       var listAction = [];
+       for(var i in datas)
+       {
+           var action = new Action(datas[i].id, datas[i].points,datas[i].tool,
+           datas[i].colour, datas[i].size,datas[i].text );
+           action.deleted = datas[i].deleted;
+           listAction.push(action);
+       }
+       cb(listAction);
+    });
+    }, 10);
+}
+
 
 //cb stands for callback
 var isValidPassword = function (data, cb) {
@@ -768,19 +791,29 @@ class Client {
     }
 
     newSave(saveName) {
-        this.saves.push(saveName)
-        writeSaveData(this.name ,saveName,this.room.surface.getState());
+        this.saves.push(saveName);
+        writeSaveData(this.name ,saveName, this.room.surface.getState());
     }
 
     load(idx) {
-       // console.log(loadSaveData(this.name, idx));
-       loadSaveData(this.name, idx)
-        //if(!this.room.game)
-         //  this.room.surface.loadState(loadSaveData(this.name, idx));
+         var self = this;
+         loadSaveData(this.name, idx, function (res) {
+            if (res) {
+                if(!self.room.game)
+                    self.room.surface.loadState(res);
+                }
+        });
     }
 
     deleteSave(idx) {
-        this.saves.splice(idx);
+        for(var i in this.saves)
+        {
+            if(this.saves[i] === idx)
+            {
+                this.saves.splice(i, 1);
+                return;
+            }
+        }
     }
 
     // Handle new connections
@@ -889,7 +922,7 @@ class Client {
 
         socket.on('saveState', function (data, fn) {
             for(var i = 0; i < client.saves.length; i++) {
-                if(client.saves[i].saveName == data.saveName) {
+                if(client.saves[i] == data.saveName) {
                     fn({nameExists: true});
                     return;
                 }
