@@ -127,7 +127,7 @@ socket.on('stopAudio', function (data) {
 
 // Game handlers
 socket.on('gameTimer', function (data) {
-    $('#timerText').replaceWith("<h4 id='timerText'>&emsp;Timer: " + Math.ceil(data.timer) +"</h4>");
+    $('#timerText').replaceWith("");
     drawTimer(data.timer, 60);
 })
 
