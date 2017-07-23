@@ -17,6 +17,10 @@ var audioClock = new Audio('./client/audio/clock_ticking.wav');
 var audioDing = new Audio('./client/audio/ding.wav');
 
 timerCanvas.width = timerCanvas.height = 50;
+
+// Draws timer graphics on game panel
+// time is the current timer in seconds
+// totalTime is the starting timer in seconds
 function drawTimer(time, totalTime) {
     timerCtx.save();
     timerCtx.translate(timerCanvas.width / 2, timerCanvas.height / 2);
@@ -33,7 +37,10 @@ function drawTimer(time, totalTime) {
     timerCtx.arc(timerCanvas.width / 2, timerCanvas.height / 2, timerCanvas.height / 2 - 5, 0, (time/totalTime)*2*Math.PI);
     timerCtx.lineTo(timerCanvas.width / 2, timerCanvas.height / 2);
     timerCtx.closePath();
-    timerCtx.fillStyle = 'blue';
+    if(time / totalTime <= 0.167) 
+        timerCtx.fillStyle = 'red';
+    else
+        timerCtx.fillStyle = 'blue';
     timerCtx.fill();
     timerCtx.stroke();
     timerCtx.restore();
