@@ -495,8 +495,8 @@ $('#downloadBtn').on('click', function() {
 function generateCanvasImage() {
     var imageCanvas = document.createElement('canvas');
     var imageCtx = imageCanvas.getContext('2d');
-    imageCanvas.width = 3500;
-    imageCanvas.height = 3500;
+    imageCanvas.width = canvas.width;
+    imageCanvas.height = canvas.height;
     imageCtx.fillStyle = 'white';
     imageCtx.fillRect(0, 0, imageCanvas.width, imageCanvas.height);
     imageCtx.drawImage(permCanvas, 0, 0);
