@@ -29,8 +29,6 @@ var scale = 1;
 var ZOOM_STEP = 20; // Higher value = smaller steps
 var serverData, publicData, permData;
 var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
-var gameTimer = 0;
-var gameTimerDiv = document.getElementById('gameTimerDiv');
 var timerPanel = document.getElementById('timerPanel');
 var mousedown = false;
 var rightMousedown = false;
