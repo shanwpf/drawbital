@@ -475,9 +475,13 @@ socket.on('saveList', data => {
 })
 
 $('#saveList').on('dblclick', '.list-group-item', function() {
-    socket.emit('loadState', { idx: this.getAttribute("saveName") })
+    socket.emit('loadState', { idx: this.getAttribute("saveName") }, function(data) {
+        if(data) 
+            showSnackBar('Save loaded')
+        else
+            showSnackBar('Load not allowed in Guessketch')
+    })
     $('#loadModal').modal('hide');
-    showSnackBar('Save loaded')
 })
 
 $('#saveList').on('click', '.close', function() {

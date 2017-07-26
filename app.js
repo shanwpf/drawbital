@@ -796,12 +796,14 @@ class Client {
     }
 
     load(idx) {
+        if(this.room.game)
+            return false;
+
          var self = this;
          loadSaveData(this.name, idx, function (res) {
             if (res) {
-                if(!self.room.game)
-                    self.room.surface.loadState(res);
-                }
+                self.room.surface.loadState(res);
+            }
         });
     }
 
@@ -932,8 +934,11 @@ class Client {
             fn({nameExists: false});
             client.newSave(data.saveName);
         })
-        socket.on('loadState', function (data) {
-            client.load(data.idx);
+        socket.on('loadState', function (data, fn) {
+            if(client.load(data.idx))
+                fn(true);
+            else
+                fn(false);
         })
         socket.on('getSaveList', function() {
             socket.emit('saveList', { saves: client.saves });
