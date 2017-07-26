@@ -18,6 +18,8 @@ var cursorCtx = cursorLayer.getContext('2d');
 var viewCanvas = document.getElementById('view');
 var viewCtx = viewCanvas.getContext('2d');
 
+var CANVAS_WIDTH = 3500;
+var CANVAS_HEIGHT = 3500;
 var looping = false;
 var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas];
 var curColour = "#000000"
@@ -38,6 +40,11 @@ var mousemove = false;
 // Current topleft x and y coordinates of viewCanvas
 var viewX = 0;
 var viewY = 0;
+
+for(var i = 0; i < canvasArray.length; i++) {
+    canvasArray[i].width = CANVAS_WIDTH;
+    canvasArray[i].height = CANVAS_HEIGHT;
+}
 
 $(document).ready(function () {
     $('#full').spectrum({
