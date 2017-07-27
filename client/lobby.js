@@ -27,6 +27,9 @@ createBtn.onclick = function () {
         creatorId: socket.id,
         mode: (drawRadio.checked ? "draw" : "game"),
         roundsPerGame: numRounds.value
+    }, data => {
+        if(!data)
+            showSnackBar("A room with the same name already exists");
     });
     clearChatUser();
     return false;

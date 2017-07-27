@@ -557,6 +557,14 @@ class Room {
             || !this.game.checkAnswer(client, message))
             emitToChat(this, '<strong>' + client.name + '</strong>: ' + message);
     }
+
+    static roomNameExists(name) {
+        for(var i = 0; i < Room.list.length; i++) {
+            if(Room.list[i].name == name)
+                return true;
+        }
+        return false;
+    }
 }
 
 // Process message to prevent '<' from being recognized as an HTML tag
@@ -890,7 +898,12 @@ class Client {
             client.room.game.skip(client);
         })
 
-        socket.on('createRoom', function (data) {
+        socket.on('createRoom', function (data, fn) {
+            if(Room.roomNameExists(data.roomName)) {
+                fn(false);
+                return;
+            }
+
             if (client.room) {
                 client.room.chatUsers = client.room.chatUsers.filter(function (e) { return e !== client.name });
                 refreshUserList(client.room, '<p class="text-primary">' + client.name + " has left the room</p>");
@@ -904,6 +917,7 @@ class Client {
             room.chatUsers.push(Client.list[room.creatorId].name);
             socket.emit('connectRoom', { chatTextList: client.room.chatText });
             refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
+            fn(true);
         });
 
         socket.on('joinRoom', function (data) {
