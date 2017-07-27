@@ -109,78 +109,51 @@ socket.on('joinStatus', function (data) {
     }
 })
 
-
-function drawPermData(data) {
+// Draws non-realtime data to context
+function drawToCtx(context, data) {
     var points;
-    permCtx.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < data.actionList.length; i++) {
         if (!data.actionList[i].deleted) {
             points = data.actionList[i].points;
             if (data.actionList[i].tool === "text") {
-                permCtx.font = data.actionList[i].size + "px sans-serif";
-                permCtx.fillStyle = data.actionList[i].colour;
-                permCtx.fillText(data.actionList[i].text, points[0][0], points[0][1]);
+                context.font = data.actionList[i].size + "px sans-serif";
+                context.fillStyle = data.actionList[i].colour;
+                context.fillText(data.actionList[i].text, points[0][0], points[0][1]);
             }
             else {
-                permCtx.lineJoin = "round";
-                permCtx.lineCap = "round";
-                permCtx.strokeStyle = data.actionList[i].colour;
-                permCtx.lineWidth = data.actionList[i].size;
-                permCtx.beginPath();
-                permCtx.moveTo(points[0][0], points[0][1] - 0.01);
+                context.lineJoin = "round";
+                context.lineCap = "round";
+                context.strokeStyle = data.actionList[i].colour;
+                context.lineWidth = data.actionList[i].size;
+                context.beginPath();
+                context.moveTo(points[0][0], points[0][1] - 0.01);
                 for (var j = 1; j < points.length; j++) {
                     if (points[j][0] > 0)
-                        permCtx.lineTo(points[j][0], points[j][1]);
+                        context.lineTo(points[j][0], points[j][1]);
                 }
-                permCtx.stroke();
+                context.stroke();
             }
         }
     }
 }
 
-function drawServerData(data) {
-    var points;
-    serverCtx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var i = 0; i < data.actionList.length; i++) {
-        if (!data.actionList[i].deleted) {
-            points = data.actionList[i].points;
-            if (data.actionList[i].tool === "text") {
-                serverCtx.font = data.actionList[i].size + "px sans-serif";
-                serverCtx.fillStyle = data.actionList[i].colour;
-                serverCtx.fillText(data.actionList[i].text, points[0][0], points[0][1]);
-            }
-            else {
-                serverCtx.lineJoin = "round";
-                serverCtx.lineCap = "round";
-                serverCtx.strokeStyle = data.actionList[i].colour;
-                serverCtx.lineWidth = data.actionList[i].size;
-                serverCtx.beginPath();
-                serverCtx.moveTo(points[0][0], points[0][1] - 0.01);
-                for (var j = 1; j < points.length; j++) {
-                    if (points[j][0] > 0)
-                        serverCtx.lineTo(points[j][0], points[j][1]);
-                }
-                serverCtx.stroke();
-            }
-        }
-    }
-}
-
-function drawPublicData(data) {
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Draws realtime data to context
+function drawToCtxRealtime(context, data) {
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     for (var i in data.publicPathMap) {
-        ctx.strokeStyle = data.clientColours[i];
-        ctx.lineWidth = data.clientSizes[i];
+        context.strokeStyle = data.clientColours[i];
+        context.lineWidth = data.clientSizes[i];
         if (data.publicPathMap[i][0]) {
-            ctx.beginPath();
-            ctx.moveTo(data.publicPathMap[i][0][0], data.publicPathMap[i][0][1]);
+            context.beginPath();
+            context.moveTo(data.publicPathMap[i][0][0], data.publicPathMap[i][0][1]);
             for (var j = 1; j < data.publicPathMap[i].length; j++) {
-                ctx.lineTo(data.publicPathMap[i][j][0], data.publicPathMap[i][j][1]);
+                context.lineTo(data.publicPathMap[i][j][0], data.publicPathMap[i][j][1]);
             }
-            ctx.stroke();
+            context.stroke();
         }
     }
 }
@@ -215,7 +188,6 @@ document.getElementById("resetZoomBtn").onclick = function () {
 document.getElementById("zoomInBtn").onclick = function () {
     zoom(0.1);
 };
-
 
 function changeTool(tool) {
     curTool = tool;
@@ -299,12 +271,12 @@ function drawCursor(x, y) {
         cursorCtx.fillStyle = curColour;
         cursorCtx.lineWidth = 1;
         cursorCtx.beginPath();
-        cursorCtx.arc(posx, posy, r, 0, Math.PI * 2, true);
+        cursorCtx.arc(x, y, r, 0, Math.PI * 2, true);
         cursorCtx.closePath();
         cursorCtx.fill();
     }
-    prevPosX = posx;
-    prevPosY = posy;
+    prevPosX = x;
+    prevPosY = y;
 }
 
 viewCanvas.onmouseup = function (e) {
@@ -367,15 +339,15 @@ function repeat() {
 // Draw on each respective canvas if an update was received for that canvas and it has not yet been drawn
 function drawAll(x, y) {
     if (!serverDrawn) {
-        drawServerData(serverData);
+        drawToCtx(serverCtx, serverData);
         serverDrawn = true;
     }
     if (!publicDrawn) {
-        drawPublicData(publicData);
+        drawToCtxRealtime(ctx, publicData);
         publicDrawn = true;
     }
     if (!permDrawn) {
-        drawPermData(permData);
+        drawToCtx(permCtx, permData);
         permDrawn = true;
     }
     if (!cursorDrawn) {
@@ -383,7 +355,6 @@ function drawAll(x, y) {
         cursorDrawn = true;
     }
 }
-
 
 // Draw viewCanvas taking zoom into account
 function drawZoomed() {
