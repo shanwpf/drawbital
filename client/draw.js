@@ -284,13 +284,14 @@ function drawPublicCursors(data) {
 function labelCursors(data) {
     cursorCtx.lineWidth = 0.8;
     cursorCtx.font = "15pt Calibri"
+    cursorCtx.textAlign='center';
     cursorCtx.fillStyle = 'white';
     cursorCtx.strokeStyle = 'black';
     for(var i in data.colour) {
         if(socket.id == i)
             continue;
-        cursorCtx.fillText(data.name[i], data.position[i][0] + data.size[i] / 2 + 5, data.position[i][1]);
-        cursorCtx.strokeText(data.name[i], data.position[i][0] + data.size[i] / 2 + 5, data.position[i][1]);
+        cursorCtx.fillText(data.name[i], data.position[i][0], data.position[i][1] + data.size[i] / 2 + 15);
+        cursorCtx.strokeText(data.name[i], data.position[i][0], data.position[i][1] + data.size[i] / 2 + 15);
     }
 }
 
