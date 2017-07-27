@@ -29,7 +29,7 @@ var socket = io();
 var PANNING_SPEED = 10;
 var scale = 1;
 var ZOOM_STEP = 20; // Higher value = smaller steps
-var serverData, publicData, permData;
+var serverData, publicData, permData, cursorData;
 var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
 var timerPanel = document.getElementById('timerPanel');
 var mousedown = false;
@@ -87,6 +87,11 @@ socket.on('drawPublicData', function (data) {
     publicData = data;
     publicDrawn = false;
 });
+
+socket.on('drawCursorData', function (data) {
+    cursorData = data;
+    cursorDrawn = false;
+})
 
 socket.on('drawPermData', function (data) {
     permData = data;
@@ -260,23 +265,50 @@ function dragMove(x, y) {
     }
 }
 
-var prevPosX, prevPosY;
-// Draw brush cursor
-function drawCursor(x, y) {
-    if (curTool == "brush") {
-        var r = curSize / 2;
-        var clear_r = Math.max(1, r);
-        if (prevPosX || prevPosX >= 0)
-            cursorCtx.clearRect(prevPosX - 2 * clear_r, prevPosY - 2 * clear_r, clear_r * 4, clear_r * 4);
-        cursorCtx.fillStyle = curColour;
+// Draw other clients cursors
+function drawPublicCursors(data) {
+    for(var i in data.colour) {
+        if(socket.id == i)
+            continue;
+        cursorCtx.fillStyle = data.colour[i];
         cursorCtx.lineWidth = 1;
         cursorCtx.beginPath();
-        cursorCtx.arc(x, y, r, 0, Math.PI * 2, true);
+        cursorCtx.arc(data.position[i][0], data.position[i][1], data.size[i] / 2, 0, Math.PI * 2, true);
         cursorCtx.closePath();
-        cursorCtx.fill();
     }
-    prevPosX = x;
-    prevPosY = y;
+    cursorCtx.fill();
+    labelCursors(data);
+}
+
+// Draw client names under their cursors
+function labelCursors(data) {
+    cursorCtx.lineWidth = 0.8;
+    cursorCtx.font = "15pt Calibri"
+    cursorCtx.fillStyle = 'white';
+    cursorCtx.strokeStyle = 'black';
+    for(var i in data.colour) {
+        if(socket.id == i)
+            continue;
+        cursorCtx.fillText(data.name[i], data.position[i][0] + data.size[i] / 2 + 5, data.position[i][1]);
+        cursorCtx.strokeText(data.name[i], data.position[i][0] + data.size[i] / 2 + 5, data.position[i][1]);
+    }
+}
+
+// Draw user's cursor
+function drawLocalCursor(x, y) {
+    cursorCtx.fillStyle = curColour;
+    cursorCtx.lineWidth = 1;
+    cursorCtx.beginPath();
+    cursorCtx.arc(x, y, curSize / 2, 0, Math.PI * 2, true);
+    cursorCtx.closePath();
+    cursorCtx.fill();
+}
+
+// Draw all cursors
+function drawCursors() {
+    cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPublicCursors(cursorData);
+    drawLocalCursor(mouseX, mouseY);
 }
 
 viewCanvas.onmouseup = function (e) {
@@ -351,7 +383,7 @@ function drawAll(x, y) {
         permDrawn = true;
     }
     if (!cursorDrawn) {
-        drawCursor(x, y);
+        drawCursors();
         cursorDrawn = true;
     }
 }

@@ -696,6 +696,21 @@ class Surface {
         return pack;
     }
 
+    getCursorData() {
+        var positions = {};
+        var names = {};
+        for(var i in this.room.clientList) {
+            positions[i] = [this.room.clientList[i].mouseX, this.room.clientList[i].mouseY];
+            names[i] = this.room.clientList[i].name;
+        }
+        return {
+            position: positions,
+            name: names,
+            colour: this.clientColours,
+            size: this.clientSizes,
+        };
+    }
+
     // Deletes ALL data (including permanent data)
     // Probably won't be a public feature at release
     clearSurface() {
@@ -1099,6 +1114,10 @@ setInterval(function () {
         var pack = room.surface.getPublicData();
         for (var j in room.clientList) {
             SOCKET_LIST[j].emit('drawPublicData', pack);
+        }
+        pack = room.surface.getCursorData();
+        for (var j in room.clientList) {
+            SOCKET_LIST[j].emit('drawCursorData', pack);
         }
     }
     if (Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
