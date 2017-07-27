@@ -805,6 +805,7 @@ class Client {
                 self.room.surface.loadState(res);
             }
         });
+        return true;
     }
 
     deleteSave(idx) {
