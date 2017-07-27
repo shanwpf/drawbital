@@ -309,7 +309,8 @@ function drawLocalCursor(x, y) {
 function drawCursors() {
     cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
     drawPublicCursors(cursorData);
-    drawLocalCursor(mouseX, mouseY);
+    if(curTool == "brush")
+        drawLocalCursor(mouseX, mouseY);
 }
 
 viewCanvas.onmouseup = function (e) {
