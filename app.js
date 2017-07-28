@@ -130,29 +130,31 @@ io.sockets.on('connection', function (socket) {
     console.log('socket connection');
     SOCKET_LIST[socket.id] = socket;
 
-    socket.on('signIn', function (data) {
+    socket.on('signIn', function (data, fn) {
         isValidPassword(data, function (res) {
             if (res) {
                 if(isLoggedIn(data)){
-                    socket.emit('signedIn', true);
+                    fn({loggedIn: true});
                     return;
                 }
                 loggedIn = true;
                 Client.onConnect(socket, data.username);
-                socket.emit('signInResponse', { success: true });
+                fn({success: true});
             } else {
-                socket.emit('signInResponse', { success: false });
+                fn({success: false});
             }
         });
     });
 
-    socket.on('signUp', function (data) {
+    socket.on('signUp', function (data, fn) {
         isUsernameTaken(data, function (res) {
             if (res) {
-                socket.emit('signUpResponse', { success: false });
+                fn({success: false});
+                // socket.emit('signUpResponse', { success: false });
             } else {
                 addUser(data, function () {
-                    socket.emit('signUpResponse', { success: true });
+                    fn({success: true});
+                    // socket.emit('signUpResponse', { success: true });
                 });
             }
         });

@@ -362,7 +362,8 @@ function resize() {
 
 // Update loop
 function repeat() {
-    viewCtx.clearRect(0, 0, viewCanvas.width, viewCanvas.height);
+    viewCtx.fillStyle = 'white';
+    viewCtx.fillRect(0, 0, viewCanvas.width, viewCanvas.height);
     drawAll(mouseX, mouseY);
     dragMove(mouseX, mouseY);
     translateAll();
@@ -462,12 +463,12 @@ viewCanvas.onkeyup = function (event) {
 $('#saveForm').submit(e => {
     socket.emit('saveState', {saveName: $('#saveName').val()}, data => {
         if(data.nameExists) {
-            showSnackBar('A save with the same name already exists.')
+            showSnackBar('A save with the same name already exists.', 'danger')
         }
         else {
             $('#saveModal').modal('hide');
             $('#saveName').val('');
-            showSnackBar('Saved')
+            showSnackBar('Saved', 'success')
         }
     });
     return false;
@@ -487,9 +488,9 @@ socket.on('saveList', data => {
 $('#saveList').on('dblclick', '.list-group-item', function() {
     socket.emit('loadState', { idx: this.getAttribute("saveName") }, function(data) {
         if(data) 
-            showSnackBar('Save loaded')
+            showSnackBar('Save loaded', 'success')
         else
-            showSnackBar('Load not allowed in Guessketch')
+            showSnackBar('Load not allowed in Guessketch', 'danger')
     })
     $('#loadModal').modal('hide');
 })

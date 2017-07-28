@@ -3,13 +3,13 @@ var roomNameForm = document.getElementById('room-name');
 var maxUsersForm = document.getElementById('max-users');
 var passwordForm = document.getElementById('password');
 var createBtn = document.getElementById('createBtn');
+var displayDiv = document.getElementById('displayDiv');
 var lobbyDiv = document.getElementById('lobbyDiv');
 var drawRadio = document.getElementById('drawRadio');
 var gameRadio = document.getElementById('gameRadio');
 var numRounds = document.getElementById('num-rounds');
 var roomData;
 var joinedRoom = false;
-var loggedIn = false;
 
 socket.on('signInResponse', function (data) {
     if (data.success)
@@ -29,7 +29,7 @@ createBtn.onclick = function () {
         roundsPerGame: numRounds.value
     }, data => {
         if(!data)
-            showSnackBar("A room with the same name already exists");
+            showSnackBar("A room with the same name already exists", 'danger');
     });
     clearChatUser();
     return false;
@@ -68,14 +68,14 @@ socket.on('joinStatus', function (data) {
         joinedRoom = true;
     }
     else {
-        showSnackBar("Incorrect password");
+        showSnackBar("Incorrect password", 'danger');
     }
 })
 
 $('#room-panel-body').on('dblclick', '.list-group-item', function () {
     var room = roomData[this.id];
     if(room.numUsers >= room.maxUsers) {
-        showSnackBar("Room is full");
+        showSnackBar("Room is full", 'danger');
         return;
     }
     var password;
@@ -103,15 +103,6 @@ $('#lobby-tab').on('click', function () {
     }
 })
 
-function showSnackBar(message) {
-    // Get the snackbar DIV
-    var x = document.getElementById("snackbar")
-
-    x.innerHTML = message;
-
-    // Add the "show" class to DIV
-    x.className = "show";
-
-    // After 3 seconds, remove the show class from DIV
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+function showSnackBar(message, type) {
+    $.notify(message, {type: type});
 }

@@ -1,69 +1,45 @@
 var signInDiv = document.getElementById('signInDiv');
-var signInDivUsername = document.getElementById('signInDiv-username');
-var signInDivSignIn = document.getElementById('signInDiv-signIn');
-var signInDivSignUp = document.getElementById('signInDiv-signUp');
-var signInDivPassword = document.getElementById('signInDiv-password');
 var lobbyDiv = document.getElementById('lobbyDiv');
+var loggedIn = false;
 
-function disableButtons(bool)
-{
-    signInDivSignIn.disabled = bool;
-    signInDivSignUp.disabled = bool;
-}
-
-signInDivSignIn.onclick = function () {
-    if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        return false;
-    else
-    {
-        disableButtons(true);
-        socket.emit('signIn', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
-        return false;
-    }
-}
-
-signInDivSignUp.onclick = function () {
-    if (signInDivUsername.value.trim() === "" || signInDivPassword.value.trim() === "" )
-        return false;
-    else{
-        if(signInDivUsername.value.length<3){
-            showSnackBar("Username should be at least 3 characters long");
-        }
-        else if(signInDivPassword.value.length<3){
-            showSnackBar("Password should be at least 3 characters long");
-
-        }else{
-            disableButtons(true);
-            socket.emit('signUp', { username: signInDivUsername.value.trim(), password: signInDivPassword.value });
+$('#login-submit').on("click", () => {
+    socket.emit('signIn', { username: $('#login-username').val().trim(), password: $('#login-password').val() }, data => {
+        if (data.loggedIn)
+            showSnackBar("Already logged in", 'danger');
+        else if (!data.success)
+            showSnackBar("Incorrect username/password", 'danger');
+        else {
+            signInDiv.style.display = 'none';
+            lobbyDiv.style.display = 'inline';
+            loggedIn = true;
+            $('#login-modal').modal('hide');
         }
         return false;
-    }
-}
-
-socket.on('signInResponse', function (data) {
-    if (data.success) {
-        signInDiv.style.display = 'none';
-        lobbyDiv.style.display = 'inline';
-    } else{
-        disableButtons(false);
-        showSnackBar("Sign in unsuccessful");
-    }
+    });
     return false;
 });
 
-socket.on('signedIn', function (data) {
-        disableButtons(false);
-        showSnackBar("Already logged in");
-        return false;
-});
-
-
-socket.on('signUpResponse', function (data) {
-    if (data.success) {
-        showSnackBar("Sign up successful");
-    }else{
-        showSnackBar("Sign up unsuccessful, username taken");
+$('#register-submit').on("click", () => {
+    if ($('#register-password').val() != $('#register-password2').val()) {
+        showSnackBar("Passwords don't match", 'danger');
     }
-    disableButtons(false);
+    else if ($('#register-username').val().length < 3) {
+        showSnackBar("Username should be at least 3 characters long", 'danger');
+    }
+    else if ($('#register-password').val().length < 3) {
+        showSnackBar("Password should be at least 3 characters long", 'danger');
+    }
+    else {
+        socket.emit('signUp', { username: $('#register-username').val().trim(), password: $('#register-password').val() }, data => {
+            if (data.success) {
+                showSnackBar("Sign up successful", 'success');
+                $('#register-modal').modal('hide');
+            }
+            else
+                showSnackBar("Sign up unsuccessful, username taken", 'danger');
+            return false;
+        });
+        return false;
+    }
     return false;
-});
+})

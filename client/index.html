@@ -11,8 +11,9 @@
     <link href="/client/signin.css" rel="stylesheet">
     <link href="/client/lobby.css" rel="stylesheet">
     <link href="/client/draw.css" rel="stylesheet">
-    <link href="/client/snackbar.css" rel="stylesheet">
     <link rel="stylesheet" href="https://bootswatch.com/flatly/bootstrap.min.css">
+    <link href="/client/notify.css" rel="stylesheet">
+    <link href="/client/prettify.css" rel="stylesheet">
     <link href="/client/tweaks.css" rel="stylesheet">
 </head>
 
@@ -63,7 +64,93 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="loginmodal-container">
+                <h1>Login to Drawbital</h1><br>
+                <form class="form-signin">
+                    <input id="login-username" class="form-control" type="text" name="user" placeholder="Username" required>
+                    <input id="login-password" class="form-control" type="password" name="pass" placeholder="Password" required>
+                    <input id="login-submit" type="submit" name="login" class="login loginmodal-submit" value="Login">
+                </form>
+
+                <div class="login-help">
+                    <a href="#" data-dismiss="modal" data-target="#register-modal" data-toggle="modal">Register</a> -
+                    <a
+                        href="#">Forgot Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+        style="display: none;">
+        <div class="modal-dialog">
+            <div class="loginmodal-container">
+                <h1>Register for Drawbital</h1><br>
+                <form class="form-signin">
+                    <input id="register-username" class="form-control" type="text" name="user" placeholder="Username" required>
+                    <input id="register-password" class="form-control" type="password" name="pass" placeholder="Password" required>
+                    <input id="register-password2" class="form-control" type="password" name="pass" placeholder="Confirm Password" required>
+                    <input id="register-submit" type="submit" name="login" class="login loginmodal-submit" value="Login">
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="container" id="signInDiv">
+        <div class="row">
+            <div class="col col-sm-12">
+                <div class="header-content text-center">
+                    <h1>Welcome to Drawbital</h1>
+                    <h3>Drawbital is a collaborative drawing web app that lets you draw with your friends, and more!</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-sm-1 col-sm-offset-5 text-center">
+                <button class="btn btn-success center-block" data-toggle="modal" data-target="#login-modal">Login</button>
+            </div>
+            <div class="col col-sm-1 text-center">
+                <button class="btn btn-warning center-block" data-toggle="modal" data-target="#register-modal">Register</button>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col col-sm-12">
+                <div class="header-content text-center">
+                    <h1>Features</h1>
+                    <p class="text-muted">Check out what you can do with Drawbital.</p>
+                    <hr>
+                </div>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col col-md-6">
+                <h3>Realtime Drawing Canvas</h3>
+                <p class="text-muted">Instantly see changes in the canvas as others draw.</p>
+            </div>
+            <div class="col col-md-6">
+                <h3>Guessketch</h3>
+                <p class="text-muted">Guessketch is our take on iSketch/Pictionary. Take turns to draw and guess what others are drawing to earn
+                    the most points!</p>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col col-md-6">
+                <h3>Save and Load</h3>
+                <p class="text-muted">Like what you see on the canvas? You can save it and load it again in the future!</p>
+            </div>
+            <div class="col col-md-6">
+                <h3>Room-based Lobby</h3>
+                <p class="text-muted">Visit different rooms to check out what people are drawing.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!--
         <form class="form-signin">
             <h2 class="form-signin-heading">Please sign in</h2>
             <label for="signInDiv-username" class="sr-only">Username</label>
@@ -78,7 +165,7 @@
             <button class="btn btn-lg btn-success btn-block" id="signInDiv-signIn" type="submit">Sign in</button>
             <button class="btn btn-lg btn-warning btn-block" id="signInDiv-signUp" type="submit">Register</button>
         </form>
-    </div>
+        -->
     <!-- /container -->
 
     <div class="container">
@@ -196,8 +283,8 @@
             <div class="panel panel-default" id="timerPanel">
                 <div class="panel-body" id="gameTimerDiv">
                     <button class="btn btn-danger" id="skipBtn" title="Hint"><i class="fa fa-step-forward" aria-hidden="true"></i> Skip</button>
-                    <button class="btn btn-success" id="hintBtn" title="Hint"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Hint</button>
-                    &emsp;<canvas id="timerCanvas"></canvas>
+                    <button class="btn btn-success" id="hintBtn" title="Hint"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Hint</button>                    &emsp;
+                    <canvas id="timerCanvas"></canvas>
                     <h4 id="timerText">&emsp;Waiting for players...</h4>
                     <h5 id="hintText"></h5>
                 </div>
@@ -234,7 +321,6 @@
         <!-- /flexcontainer -->
 
     </div>
-    <div id="snackbar"></div>
     <a id="link"></a>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
@@ -249,5 +335,7 @@
     <script src='/client/signin.js'></script>
     <script src='/client/lobby.js'></script>
     <script src='/client/game.js'></script>
+    <script src='/client/notify.js'></script>
+    <script src='/client/prettify.js'></script>
 </body>
 </html>
