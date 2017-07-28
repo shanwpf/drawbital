@@ -1,6 +1,17 @@
 SIGNIN_BG_COLOUR = '#72145d';
-LOBBY_BG_COLOUR = '#e0597b';
-DRAW_BG_COLOUR = '#3d3d3d';
+LOBBY_BG_COLOUR = '#cc4f6e';
+DRAW_BG_COLOUR = '#303d63';
+
+$('#draw-tab').on('click', function () {
+    if (joinedRoom && loggedIn) {
+        gotoDraw();
+    }
+})
+
+$('#lobby-tab').on('click', function () {
+    if (loggedIn) 
+        gotoLobby();
+})
 
 function gotoLobby() {
     $('#lobby-li').attr('class', 'active');
@@ -28,7 +39,12 @@ function gotoSignin() {
     displayDiv.style.display = "none";
     transitionBackground(SIGNIN_BG_COLOUR);
 }
+
 function transitionBackground(colour) {
     document.body.style.background = colour;
     document.body.style.backgroundImage = 'url(/client/bg-pattern.png)';
+}
+
+function showSnackBar(message, type) {
+    $.notify(message, {type: type});
 }

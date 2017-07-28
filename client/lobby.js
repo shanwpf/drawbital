@@ -84,18 +84,3 @@ $('#room-panel-body').on('dblclick', '.list-group-item', function () {
     }    
     socket.emit('joinRoom', { roomNumber: this.id, clientId: socket.id, password: password });
 })
-
-$('#draw-tab').on('click', function () {
-    if (joinedRoom && loggedIn) {
-        gotoDraw();
-    }
-})
-
-$('#lobby-tab').on('click', function () {
-    if (loggedIn) 
-        gotoLobby();
-})
-
-function showSnackBar(message, type) {
-    $.notify(message, {type: type});
-}
