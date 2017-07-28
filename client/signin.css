@@ -126,3 +126,7 @@ body {
 .login-help{
   font-size: 12px;
 }
+
+#signInDiv {
+  color: white;
+}

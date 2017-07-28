@@ -64,8 +64,8 @@ socket.on('updateRoomList', function (data) {
 
 socket.on('joinStatus', function (data) {
     if (data.value) {
-        lobbyDiv.style.display = "none";
         joinedRoom = true;
+        gotoDraw();
     }
     else {
         showSnackBar("Incorrect password", 'danger');
@@ -87,20 +87,13 @@ $('#room-panel-body').on('dblclick', '.list-group-item', function () {
 
 $('#draw-tab').on('click', function () {
     if (joinedRoom && loggedIn) {
-        $('#draw-li').attr('class', 'active');
-        $('#lobby-li').removeAttr('class');
-        lobbyDiv.style.display = "none";
-        displayDiv.style.display = "inline-block";
+        gotoDraw();
     }
 })
 
 $('#lobby-tab').on('click', function () {
-    if (loggedIn) {
-        $('#lobby-li').attr('class', 'active');
-        $('#draw-li').removeAttr('class');
-        lobbyDiv.style.display = "inline";
-        displayDiv.style.display = "none";
-    }
+    if (loggedIn) 
+        gotoLobby();
 })
 
 function showSnackBar(message, type) {

@@ -9,8 +9,7 @@ $('#login-submit').on("click", () => {
         else if (!data.success)
             showSnackBar("Incorrect username/password", 'danger');
         else {
-            signInDiv.style.display = 'none';
-            lobbyDiv.style.display = 'inline';
+            gotoLobby();
             loggedIn = true;
             $('#login-modal').modal('hide');
         }
