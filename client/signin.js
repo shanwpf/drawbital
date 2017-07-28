@@ -12,6 +12,8 @@ $('#login-submit').on("click", () => {
             gotoLobby();
             loggedIn = true;
             $('#login-modal').modal('hide');
+            $('#user-menu').css('display', 'inline');
+            $('#greeting').prepend(`Welcome, ${$('#login-username').val().trim()}`);
         }
         return false;
     });

@@ -2,15 +2,19 @@ SIGNIN_BG_COLOUR = '#72145d';
 LOBBY_BG_COLOUR = '#cc4f6e';
 DRAW_BG_COLOUR = '#303d63';
 
-$('#draw-tab').on('click', function () {
+$('#draw-tab').on('click', () => {
     if (joinedRoom && loggedIn) {
         gotoDraw();
     }
 })
 
-$('#lobby-tab').on('click', function () {
+$('#lobby-tab').on('click', () => {
     if (loggedIn) 
         gotoLobby();
+})
+
+$('#logout-btn').on('click', () => {
+    location.reload();
 })
 
 function gotoLobby() {
