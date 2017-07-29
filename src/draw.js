@@ -4,7 +4,7 @@ var ctx = canvas.getContext('2d');
 
 // Saved client drawing but not permanent (able to undo/redo)
 var serverCanvas = document.getElementById('serverSurface');
-var serverCtx = serverSurface.getContext('2d');
+var serverCtx = serverCanvas.getContext('2d');
 
 // Saved and permanent drawings (unable to undo/redo)
 var permCanvas = document.getElementById('permanentSurface');
@@ -25,14 +25,14 @@ var canvasArray = [canvas, serverCanvas, cursorLayer, permCanvas];
 var curColour = "#000000"
 var curTool = "brush";
 var curSize = 5;
+/* global io */
 var socket = io();
 var PANNING_SPEED = 10;
 var scale = 1;
 var ZOOM_STEP = 20; // Higher value = smaller steps
 var serverData, publicData, permData, cursorData;
-var serverDrawn = true, publicDrawn = true, permDrawn = true; cursorDrawn = true;
+var serverDrawn = true, publicDrawn = true, permDrawn = true, cursorDrawn = true;
 var timerPanel = document.getElementById('timerPanel');
-var mousedown = false;
 var rightMousedown = false;
 var rMouseX, rMouseY;
 var mouseX, mouseY;
@@ -101,7 +101,6 @@ socket.on('drawPermData', function (data) {
 // Start the requestAnimationFrame loop on successful sign in
 socket.on('joinStatus', function (data) {
     if (data.value) {
-        displayDiv.style.display = "inline-block";
         if (data.roomMode == "game")
             timerPanel.style.display = "inline";
         else
@@ -220,15 +219,14 @@ function getMousePos(canvas, evt) {
 
 viewCanvas.onmousedown = function (e) {
     var pos = getMousePos(viewCanvas, e);
-    posx = mouseX = pos.x;
-    posy = mouseY = pos.y;
+    mouseX = pos.x;
+    mouseY = pos.y;
     document.onselectstart = function () { return false; } // Prevent text selection when dragging
     if(e.button == 0) {
-        mousedown = true;
         if (curTool == "brush")
-            socket.emit('keyPress', { inputId: 'mousedown', x: posx, y: posy, state: true });
+            socket.emit('keyPress', { inputId: 'mousedown', x: pos.x, y: pos.y, state: true });
         else if (curTool == "text")
-            socket.emit('drawText', { x: posx, y: posy, text: prompt("Enter text:", "") });
+            socket.emit('drawText', { x: pos.x, y: pos.y, text: prompt("Enter text:", "") });
     }
     
     if(e.button == 2) {
@@ -242,13 +240,13 @@ viewCanvas.onmousedown = function (e) {
 viewCanvas.onmousemove = function (e) {
     mousemove = true;
     var pos = getMousePos(viewCanvas, e);
-    posx = mouseX = pos.x;
-    posy = mouseY = pos.y;
-    socket.emit('keyPress', { inputId: 'mousemove', x: posx, y: posy, state: true });
+    mouseX = pos.x;
+    mouseY = pos.y;
+    socket.emit('keyPress', { inputId: 'mousemove', x: pos.x, y: pos.y, state: true });
     cursorDrawn = false;
 };
 
-viewCanvas.oncontextmenu = function (e) {
+viewCanvas.oncontextmenu = function() {
     return false;
 }
 
@@ -316,7 +314,6 @@ function drawCursors() {
 viewCanvas.onmouseup = function (e) {
     document.onselectstart = function () { return true; } // Allow text selection
     if(e.button == 0) {
-        mousedown = false;
         socket.emit('keyPress', { inputId: 'mousedown', state: false });
     }
     if(e.button == 2) {
@@ -327,8 +324,7 @@ viewCanvas.onmouseup = function (e) {
     }
 };
 
-viewCanvas.onmouseleave = function (e) {
-    mousedown = false;
+viewCanvas.onmouseleave = () => {
     viewCanvas.style.cursor = 'auto';
     rightMousedown = false;
     rMouseX = undefined;
@@ -337,8 +333,8 @@ viewCanvas.onmouseleave = function (e) {
 };
 
 document.getElementById("brushSize").onchange = function () {
-    curSize = brushSize.value;
-    socket.emit('size', { value: brushSize.value });
+    curSize = $('#brushSize').val();
+    socket.emit('size', { value: curSize });
 }
 
 var keyStates = {
@@ -364,7 +360,7 @@ function resize() {
 function repeat() {
     viewCtx.fillStyle = 'white';
     viewCtx.fillRect(0, 0, viewCanvas.width, viewCanvas.height);
-    drawAll(mouseX, mouseY);
+    drawAll();
     dragMove(mouseX, mouseY);
     translateAll();
     drawZoomed();
@@ -372,7 +368,7 @@ function repeat() {
 }
 
 // Draw on each respective canvas if an update was received for that canvas and it has not yet been drawn
-function drawAll(x, y) {
+function drawAll() {
     if (!serverDrawn) {
         drawToCtx(serverCtx, serverData);
         serverDrawn = true;
@@ -460,10 +456,10 @@ viewCanvas.onkeyup = function (event) {
     }
 }
 
-$('#saveForm').submit(e => {
+$('#saveForm').submit(() => {
     socket.emit('saveState', {saveName: $('#saveName').val()}, data => {
         if(data.nameExists) {
-            showSnackBar('A save with the same name already exists.', 'danger')
+            showSnackBar('A save with the same name already exists.', 'danger');
         }
         else {
             $('#saveModal').modal('hide');
@@ -474,7 +470,7 @@ $('#saveForm').submit(e => {
     return false;
 })
 
-$('#loadBtn').on('click', e => {
+$('#loadBtn').on('click', () => {
     socket.emit('getSaveList');
 })
 

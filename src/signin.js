@@ -1,5 +1,4 @@
 var signInDiv = document.getElementById('signInDiv');
-var lobbyDiv = document.getElementById('lobbyDiv');
 var loggedIn = false;
 
 $('#login-submit').on("click", () => {

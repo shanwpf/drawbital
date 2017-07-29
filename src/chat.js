@@ -7,38 +7,35 @@ var userList = document.getElementById('user-list');
 var userListPanel = document.getElementById('user-list-panel');
 
 socket.on('addToChat', function (data) {
-        //detect if the user is at the end of the scroll
-        var auto = false;
-        if (Math.abs(chatText.scrollTop - (chatText.scrollHeight - chatText.offsetHeight)) < 1)
-            auto = true;
+    //detect if the user is at the end of the scroll
+    var auto = false;
+    if (Math.abs(chatText.scrollTop - (chatText.scrollHeight - chatText.offsetHeight)) < 1)
+        auto = true;
 
-        // add string into the chatbox
-        chatText.innerHTML += '<div>' + data + '</div>';
+    // add string into the chatbox
+    chatText.innerHTML += '<div>' + data + '</div>';
 
-        // auto scrolling to the most recent
-        if (auto)
-            chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
-    });
+    // auto scrolling to the most recent
+    if (auto)
+        chatText.scrollTop = chatText.scrollHeight - chatText.offsetHeight;
+});
 
 socket.on('refreshUserList', function (data) {
-    while (userList.firstChild){
+    while (userList.firstChild) {
         userList.removeChild(userList.firstChild);
-    };
+    }
 
-    if(data[0] === undefined)
+    if (data[0] === undefined)
         return;
 
-    if(data[0].name){
-        for(var i in data)
-        {
+    if (data[0].name) {
+        for (var i in data) {
             userList.innerHTML += '<li class="list-group-item">' + data[i].name + ' <span class="badge">' + data[i].score + '</span></li>';
         }
 
-    }else
-    {
-        for(var i in data)
-        {
-            userList.innerHTML += '<li class="list-group-item">' + data[i] + '</li>';
+    } else {
+        for (var j in data) {
+            userList.innerHTML += '<li class="list-group-item">' + data[j] + '</li>';
         }
     }
 });
@@ -70,20 +67,16 @@ chatForm.onsubmit = function (e) {
     chatInput.value = '';
 }
 
-var signDiv = document.getElementById('signDiv');
-var signDivUsername = document.getElementById('signDiv-username');
-var signDivApply = document.getElementById('signDiv-Apply');
-
-function clearChatUser(){
+function clearChatUser() {
     while (chatText.firstChild) {
         chatText.removeChild(chatText.firstChild);
-    };
+    }
     while (userList.firstChild) {
         userList.removeChild(userList.firstChild);
-    };
+    }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     chatText.style.width = chatDiv.style.width;
     userListPanel.style.width = chatDiv.style.width;
 })

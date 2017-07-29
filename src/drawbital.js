@@ -1,6 +1,6 @@
-SIGNIN_BG_COLOUR = '#72145d';
-LOBBY_BG_COLOUR = '#cc4f6e';
-DRAW_BG_COLOUR = '#303d63';
+// var SIGNIN_BG_COLOUR = '#72145d';
+var LOBBY_BG_COLOUR = '#cc4f6e';
+var DRAW_BG_COLOUR = '#303d63';
 
 $('#draw-tab').on('click', () => {
     if (joinedRoom && loggedIn) {
@@ -35,14 +35,14 @@ function gotoDraw() {
     transitionBackground(DRAW_BG_COLOUR);
 }
 
-function gotoSignin() {
-    $('#draw-li').removeAttr('class');
-    $('#lobby-li').removeAttr('class');
-    lobbyDiv.style.display = "none";
-    signInDiv.style.display = 'inline-block';
-    displayDiv.style.display = "none";
-    transitionBackground(SIGNIN_BG_COLOUR);
-}
+// function gotoSignin() {
+//     $('#draw-li').removeAttr('class');
+//     $('#lobby-li').removeAttr('class');
+//     lobbyDiv.style.display = "none";
+//     signInDiv.style.display = 'inline-block';
+//     displayDiv.style.display = "none";
+//     transitionBackground(SIGNIN_BG_COLOUR);
+// }
 
 function transitionBackground(colour) {
     document.body.style.background = colour;

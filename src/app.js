@@ -56,21 +56,6 @@ function getSaveNameList(userId, client) {
     });
 }
 
-function loadaveData(userId, saveName) {
-    firebase.database().ref('users/'+ userId + "/saves/" + saveName).once('value').then(function (snapshot) {
-       var datas =  snapshot.val().data;
-       var listAction = [];
-       for(var i in datas)
-       {
-           var action = new Action(datas[i].id, datas[i].points,datas[i].tool,
-          datas[i].colour, datas[i].size,datas[i].text );
-           action.deleted = datas[i].deleted;
-           listAction.push(action);
-       }
-       return listAction;
-    });
-}
-
 var loadSaveData = function (userId, saveName, cb) {
      setTimeout(function () {
        firebase.database().ref('users/'+ userId + "/saves/" + saveName).once('value').then(function (snapshot) {
@@ -266,8 +251,8 @@ class Game {
             }
         }
 
-        for(var i = 0; i < this.room.clients.length; i++) {
-            SOCKET_LIST[this.room.clients[i].id].emit('gameHint', { hint: this.hint});
+        for(var j = 0; j < this.room.clients.length; j++) {
+            SOCKET_LIST[this.room.clients[j].id].emit('gameHint', { hint: this.hint});
         } 
     }
 
@@ -450,9 +435,9 @@ function stopAudio(track, listener) {
 // Read word bank from text file
 function getWords() {
     var fs = require("fs");
-    fs.readFile("./words-hard.txt", function (text) {
-        var text = fs.readFileSync("./words-hard.txt").toString('utf-8');
-        gameWords["hard"] = text.split("\n")
+    fs.readFile("./words-hard.txt", () => {
+        var words = fs.readFileSync("./words-hard.txt").toString('utf-8');
+        gameWords["hard"] = words.split("\n")
     });
 }
 getWords();
@@ -618,9 +603,9 @@ class Surface {
             }
         }
         this.actionList.splice(0);
-        for (var i in this.actionMap) {
-            this.actionMap[i] = [];
-            this.deletedActionMap[i] = [];
+        for (var j in this.actionMap) {
+            this.actionMap[j] = [];
+            this.deletedActionMap[j] = [];
         }
         this.refresh(true);
     }
@@ -669,8 +654,8 @@ class Surface {
             }
         }
         else {
-            for (var i in this.room.clientList) {
-                SOCKET_LIST[i].emit('drawServerData', this.getServerData());
+            for (var j in this.room.clientList) {
+                SOCKET_LIST[j].emit('drawServerData', this.getServerData());
             }
         }
     }
@@ -723,8 +708,8 @@ class Surface {
             this.deletedActionMap[i] = [];
             this.publicPathMap[i] = [];
         }
-        for (var i in this.room.clientList) {
-            SOCKET_LIST[i].emit('clear');
+        for (var j in this.room.clientList) {
+            SOCKET_LIST[j].emit('clear');
         }
     }
 
@@ -994,7 +979,7 @@ class Client {
         delete Client.list[socket.id];
     }
 
-    static update(ClientArr) {
+    static update() {
         for (var i in Client.list) {
             Client.list[i].update();
         }
@@ -1086,10 +1071,10 @@ function refreshUserList(room, string) {
         }
     }
 
-    for (var i in room.clientList) {
-        SOCKET_LIST[i].emit('refreshUserList', chatTextList);
+    for (var j in room.clientList) {
+        SOCKET_LIST[j].emit('refreshUserList', chatTextList);
         if (string != "empty")
-            SOCKET_LIST[i].emit('addToChat', string);
+            SOCKET_LIST[j].emit('addToChat', string);
     }
 
 }
@@ -1111,19 +1096,19 @@ setInterval(function () {
 
 //  Send data to clients
 setInterval(function () {
-    for (var i = 0; i < Room.list.length; i++) {
+    for (let i = 0; i < Room.list.length; i++) {
         var room = Room.list[i];
         var pack = room.surface.getPublicData();
-        for (var j in room.clientList) {
+        for (const j in room.clientList) {
             SOCKET_LIST[j].emit('drawPublicData', pack);
         }
         pack = room.surface.getCursorData();
-        for (var j in room.clientList) {
+        for (const j in room.clientList) {
             SOCKET_LIST[j].emit('drawCursorData', pack);
         }
     }
     if (Date.now() - timeThen >= MINUTES_UNTIL_PERMANENT * 60 * 1000) {
-        for (var i = 0; i < Room.list.length; i++) {
+        for (let i = 0; i < Room.list.length; i++) {
             Room.list[i].surface.makePermanent();
         }
         timeThen = Date.now();
