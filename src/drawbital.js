@@ -1,6 +1,12 @@
 // var SIGNIN_BG_COLOUR = '#72145d';
 var LOBBY_BG_COLOUR = '#cc4f6e';
 var DRAW_BG_COLOUR = '#303d63';
+var PRO_TIPS = [
+    'You can pan using right mouse button or WASD',
+    'You can zoom in and out using your mousewheel'
+]
+var PRO_TIP_TIMER = 1000 * 60 * 5;
+var tipCounter = 0;
 
 $('#draw-tab').on('click', () => {
     if (joinedRoom && loggedIn) {
@@ -52,3 +58,11 @@ function transitionBackground(colour) {
 function showSnackBar(message, type) {
     $.notify(message, {type: type});
 }
+
+setInterval(() => {
+    if(loggedIn) {
+        showSnackBar(`Did you know: ${PRO_TIPS[tipCounter]}`, 'warning');
+        if(++tipCounter == PRO_TIPS.length)
+            tipCounter = 0;
+    }    
+}, PRO_TIP_TIMER);
