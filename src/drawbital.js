@@ -3,7 +3,7 @@ var LOBBY_BG_COLOUR = '#cc4f6e';
 var DRAW_BG_COLOUR = '#303d63';
 var PRO_TIPS = [
     'You can pan using right mouse button or WASD',
-    'You can zoom in and out using your mousewheel'
+    'You can zoom in and out using your mousewheel',
 ]
 var PRO_TIP_TIMER = 1000 * 60 * 5;
 var tipCounter = 0;

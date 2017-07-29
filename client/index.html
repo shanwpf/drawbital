@@ -72,12 +72,12 @@
         </div>
     </div>
 
-    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="login-modal" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="loginmodal-container">
                 <h1>Login to Drawbital</h1><br>
                 <form class="form-signin">
-                    <input id="login-username" class="form-control" type="text" name="user" placeholder="Username" required>
+                    <input id="login-username" class="form-control" type="text" name="user" placeholder="Username" autofocus required>
                     <input id="login-password" class="form-control" type="password" name="pass" placeholder="Password" required>
                     <input id="login-submit" type="submit" name="login" class="login loginmodal-submit" value="Login">
                 </form>
@@ -88,12 +88,12 @@
         </div>
     </div>
 
-    <div class="modal fade" id="register-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="register-modal" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="loginmodal-container">
                 <h1>Register for Drawbital</h1><br>
                 <form class="form-signin">
-                    <input id="register-username" class="form-control" type="text" name="user" placeholder="Username" required>
+                    <input id="register-username" class="form-control" type="text" name="user" placeholder="Username" autofocus required>
                     <input id="register-password" class="form-control" type="password" name="pass" placeholder="Password" required>
                     <input id="register-password2" class="form-control" type="password" name="pass" placeholder="Confirm Password" required>
                     <input id="register-submit" type="submit" name="login" class="login loginmodal-submit" value="Login">
@@ -113,10 +113,10 @@
         </div>
         <div class="row">
             <div class="col col-sm-1 col-sm-offset-5 text-center">
-                <button class="btn btn-success center-block" data-toggle="modal" data-target="#login-modal">Login</button>
+                <button class="btn btn-success center-block login-modal" data-toggle="modal" data-target="#login-modal">Login</button>
             </div>
             <div class="col col-sm-1 text-center">
-                <button class="btn btn-warning center-block" data-toggle="modal" data-target="#register-modal">Register</button>
+                <button class="btn btn-warning center-block login-modal" data-toggle="modal" data-target="#register-modal">Register</button>
             </div>
         </div>
         <hr>
