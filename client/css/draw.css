@@ -1,15 +1,35 @@
-#flexcontainer {
-    display: -webkit-flex;
-    display: flex;
+#gridcontainer {
+    display: grid;
+    grid-template-columns: 5% 50% 20% 20% 5%;
+    grid-template-rows: 50px auto;
+    height: 100vh !important;
+}
+.grid-pad-left {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+}
+.grid-pad-left {
+    grid-column: 5 / 6;
+    grid-row: 1 / 3;
+}
+.controlpanel {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+#canvasDiv {
+    grid-column: 2 / 4;
+    grid-row: 2 / 3;
 }
 #canvasDiv > canvas{
     outline-style: none;
 }
 #chat-input {
     flex: 1 1 auto;
-    width: 250px;
+    width: 100%;
 }
 #chatDiv {
+    grid-column: 4 / 5;
+    grid-row: 2 / 3;
     z-index: 7;
     display: flex;
     flex-direction: column;
@@ -19,13 +39,13 @@
 }
 #chat-text {
     flex: 1;
-    width: 330px;
+    width: 100%;
     overflow-y: scroll;
 }
 #user-list-panel {
     padding: 0;
     flex-direction: column;
-    width: 330px;
+    width: 100%;
     display: none;
     flex: 1;
 }
@@ -50,25 +70,22 @@ body {
 }
 #view {
     z-index: 5;
-    position: relative;
-    left: 0;
-    top: 0;
+    align-self: start;
     border: 1px solid black;
 }
 #cursorLayer, #publicSurface, #serverSurface, #permanentSurface {
     display: none;
-    position: absolute;
-    left: 0;
-    top: 0;
+    align-self: start;
 }
 #gameTimerDiv {
     display: -webkit-flex;
     display: flex;
 }
 #timerPanel {
-    position: absolute;
-    left: 10;
+    grid-column: 2 / 3;
     z-index: 8;
+    grid-row: 2 / 3;
+    align-self: start;
     width: 450px;
     display: none;
     text-align: center;

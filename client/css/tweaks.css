@@ -5,7 +5,11 @@ body {
     background-image: url('/client/img/bg-pattern.png');
     background-color: #72145d;
     background-repeat: repeat;
-    transition: background 1.5s
+    transition: background 1.5s;
+    height: 100vh;
+}
+html {
+    height: 100vh;
 }
 #user-menu {
     display: none;

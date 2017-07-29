@@ -37,7 +37,7 @@ function gotoDraw() {
     $('#lobby-li').removeAttr('class');
     lobbyDiv.style.display = "none";
     signInDiv.style.display = 'none';
-    displayDiv.style.display = "inline-block";
+    displayDiv.style.display = "grid";
     transitionBackground(DRAW_BG_COLOUR);
 }
 

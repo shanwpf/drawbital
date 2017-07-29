@@ -201,8 +201,10 @@
     </div>
     <!-- /lobbyDiv -->
 
-    <div class="container" id="displayDiv" style="display:none;">
+    <div class="gridcontainer" id="displayDiv" style="display:none;">
 
+    <div class="grid-pad-left">&emsp;</div>
+    <div class="controlpanel">
         <div class="btn-group">
             <button class="btn btn-danger" id="clearBtn" title="Clear the canvas"><i class="fa fa-trash" aria-hidden="true"></i></button>
             <button class="btn btn-info" id="brushBtn" title="Brush"><i class="fa fa-paint-brush" aria-hidden="true"></i></button>
@@ -231,6 +233,7 @@
             <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
         </ul>
         </div>
+    </div>
 
         <div id="saveModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -261,16 +264,6 @@
                 </div>
             </div>
         </div>
-
-        <div id="flexcontainer">
-            <div id="canvasDiv" style="position: relative;">
-                <canvas id="view" tabindex='1'></canvas>
-                <canvas id="cursorLayer"></canvas>
-                <canvas id="publicSurface"></canvas>
-                <canvas id="serverSurface"></canvas>
-                <canvas id="permanentSurface"></canvas>
-            </div>
-
             <div class="panel panel-default" id="timerPanel">
                 <div class="panel-body" id="gameTimerDiv">
                     <button class="btn btn-danger" id="skipBtn" title="Hint"><i class="fa fa-step-forward" aria-hidden="true"></i> Skip</button>
@@ -279,6 +272,14 @@
                     <h4 id="timerText">&emsp;Waiting for players...</h4>
                     <h5 id="hintText"></h5>
                 </div>
+            </div>
+
+            <div id="canvasDiv" style="position: relative;">
+                <canvas id="view" tabindex='1'></canvas>
+                <canvas id="cursorLayer"></canvas>
+                <canvas id="publicSurface"></canvas>
+                <canvas id="serverSurface"></canvas>
+                <canvas id="permanentSurface"></canvas>
             </div>
 
             <div id="chatDiv" class="panel panel-default">
@@ -308,8 +309,8 @@
                 </form>
             </div>
             <!-- /chatDiv -->
-        </div>
         <!-- /flexcontainer -->
+    <div class="grid-pad-right">&emsp;</div>
 
     </div>
     <a id="link"></a>

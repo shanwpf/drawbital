@@ -352,7 +352,7 @@ window.onresize = function () {
 var chatDiv = document.getElementById('chatDiv');
 function resize() {
     viewCanvas.width = window.innerWidth - 400;
-    viewCanvas.height = window.innerHeight - 250;
+    viewCanvas.height = window.innerHeight - 200;
     chatDiv.style.height = viewCanvas.height + "px";
 }
 
