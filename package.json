@@ -15,7 +15,17 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
-    "firebase": "^4.1.1",
-    "socket.io": "^2.0.1"
+    "firebase": "^4.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-uglify": "^3.0.0",
+    "socket.io": "^2.0.3",
+    "uglify-es": "^3.0.26"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-count": "^0.3.0",
+    "gulp-uglify": "^3.0.0",
+    "uglify-es": "^3.0.26"
   }
 }
