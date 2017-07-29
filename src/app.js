@@ -244,6 +244,28 @@ class Game {
                 this.hintLevel++;
                 break;
             }
+            case 1: {
+                var numReveal = Math.max(1, Math.floor(this.word.length / 3));
+                var split = this.hint.split(" ");
+                var revealed = 0;
+                var pos;
+                str = "";
+                while(revealed != numReveal) {
+                    pos = Math.floor(Math.random() * (this.word.length - 1));
+                    if(split[pos] == '_') {
+                        split[pos] = this.word.charAt(pos);
+                        revealed++;
+                    }
+                    console.log("loop");
+                }
+                for(let i = 0; i < split.length; i++) {
+                    str += split[i] + " ";
+                }
+                this.hint = str.trim();
+                this.curDrawer.points -= GAME_HINT_PENALTY;
+                this.hintLevel++;
+                break;
+            }
         }
         this.room.emitToRoom('gameHint', {hint: this.hint});
     }

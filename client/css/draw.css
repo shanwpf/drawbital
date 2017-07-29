@@ -3,8 +3,6 @@
     grid-template-columns: 50% auto 20%;
     grid-template-rows: 50px auto;
     height: 100vh !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
 }
 .controlpanel {
     grid-column: 1 / 2;

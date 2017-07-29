@@ -64,6 +64,7 @@ socket.on('gameTimer', function (data) {
     if(data.timer == -1) {
         $('#timerText').css('display', 'inline');
         $('#timerCanvas').css('display', 'none');
+        $('#hintText').replaceWith("<h4 id='hintText'></h4>");
     }
     else {
         $('#timerText').css('display', 'none');
