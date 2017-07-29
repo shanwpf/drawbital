@@ -35,3 +35,7 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
+.panel-default {
+    background-image: url('/client/img/bg-pattern.png') !important;
+}
