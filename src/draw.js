@@ -265,7 +265,7 @@ function dragMove(x, y) {
 
 // Draw other clients cursors
 function drawPublicCursors(data) {
-    for(var i in data.colour) {
+    for(var i in data.position) {
         if(socket.id == i)
             continue;
         cursorCtx.fillStyle = data.colour[i];
@@ -285,7 +285,7 @@ function labelCursors(data) {
     cursorCtx.textAlign='center';
     cursorCtx.fillStyle = 'white';
     cursorCtx.strokeStyle = 'black';
-    for(var i in data.colour) {
+    for(var i in data.position) {
         if(socket.id == i)
             continue;
         cursorCtx.fillText(data.name[i], data.position[i][0], data.position[i][1] + data.size[i] / 2 + 15);

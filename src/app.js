@@ -135,11 +135,9 @@ io.sockets.on('connection', function (socket) {
         isUsernameTaken(data, function (res) {
             if (res) {
                 fn({success: false});
-                // socket.emit('signUpResponse', { success: false });
             } else {
                 addUser(data, function () {
                     fn({success: true});
-                    // socket.emit('signUpResponse', { success: true });
                 });
             }
         });
@@ -686,9 +684,15 @@ class Surface {
     getCursorData() {
         var positions = {};
         var names = {};
-        for(var i in this.room.clientList) {
-            positions[i] = [this.room.clientList[i].mouseX, this.room.clientList[i].mouseY];
-            names[i] = this.room.clientList[i].name;
+        if(this.room.game && this.room.game.curDrawer) {
+            positions[this.room.game.curDrawer.id] = [this.room.game.curDrawer.mouseX, this.room.game.curDrawer.mouseY];
+            names[this.room.game.curDrawer.id] = this.room.game.curDrawer.name;
+        }
+        else {
+            for(var i in this.room.clientList) {
+                positions[i] = [this.room.clientList[i].mouseX, this.room.clientList[i].mouseY];
+                names[i] = this.room.clientList[i].name;
+            }
         }
         return {
             position: positions,
