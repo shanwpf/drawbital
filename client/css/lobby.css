@@ -29,3 +29,9 @@
     align-items: stretch;
     height: 60vh;
 }
+
+.right {
+    float: right;
+    padding-left: 10px;
+    padding-right: 10px;
+}
