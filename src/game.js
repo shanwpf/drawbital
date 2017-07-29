@@ -61,8 +61,16 @@ socket.on('stopAudio', function (data) {
 })
 
 socket.on('gameTimer', function (data) {
-    $('#timerText').replaceWith("");
-    drawTimer(data.timer, 60);
+    if(data.timer == -1) {
+        $('#timerText').css('display', 'inline');
+        $('#timerCanvas').css('display', 'none');
+    }
+    else {
+        $('#timerText').css('display', 'none');
+        if(!$('#timerCanvas').css('display') == 'inline')
+            $('#timerCanvas').css('display', 'inline');
+        drawTimer(data.timer, 60);
+    }
 })
 
 socket.on('gameHint', function (data) {

@@ -176,6 +176,7 @@ class Game {
         refreshUserList(this.room, "empty");
         if (this.started && this.room.clients.length <= 1) {
             this.started = false;
+            this.room.emitToRoom('gameTimer', {timer: -1});
             emitToChat(this.room, '<p class="text-warning">Game stopped</p>');
         }
         else if (!this.started && this.room.clients.length >= 2) {
@@ -212,17 +213,13 @@ class Game {
         if(this.timer > 10 - 1.9 && this.timer <= 10 && !this.isGameOver && !this.roundTransition) {
             playAudio('clock', this.room);
         }
-        for(var i = 0; i < this.room.clients.length; i++) {
-            SOCKET_LIST[this.room.clients[i].id].emit('gameTimer', { timer: this.timer});
-        } 
+        this.room.emitToRoom('gameTimer', {timer: this.timer});
     }
 
     resetHint() {
         this.hint = "";
         this.hintLevel = 0;
-        for(var i = 0; i < this.room.clients.length; i++) {
-            SOCKET_LIST[this.room.clients[i].id].emit('gameHint', { hint: this.hint});
-        } 
+        this.room.emitToRoom('gameHint', {hint: this.hint});
     }
 
     showHint(id) {
@@ -248,10 +245,7 @@ class Game {
                 break;
             }
         }
-
-        for(var j = 0; j < this.room.clients.length; j++) {
-            SOCKET_LIST[this.room.clients[j].id].emit('gameHint', { hint: this.hint});
-        } 
+        this.room.emitToRoom('gameHint', {hint: this.hint});
     }
 
     skip(client) {
@@ -549,6 +543,12 @@ class Room {
                 return true;
         }
         return false;
+    }
+
+    emitToRoom(event, data) {
+        for(let i = 0; i < this.clients.length; i++) {
+            SOCKET_LIST[this.clients[i].id].emit(event, data);
+        }
     }
 }
 
