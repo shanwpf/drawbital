@@ -55,7 +55,7 @@ module.exports = {
         "consistent-this": "off",
         "curly": "off",
         "default-case": "off",
-        "dot-location": "error",
+        "dot-location": "off",
         "dot-notation": "off",
         "eol-last": [
             "error",
