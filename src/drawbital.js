@@ -20,6 +20,7 @@ $('#lobby-tab').on('click', () => {
 })
 
 $('#logout-btn').on('click', () => {
+    socket.emit('disconnect');
     location.reload();
 })
 
