@@ -20,7 +20,7 @@ $('#lobby-tab').on('click', () => {
 })
 
 $('#logout-btn').on('click', () => {
-    location.reload(true);
+    location.reload();
 })
 
 function gotoLobby() {
