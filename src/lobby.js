@@ -47,9 +47,9 @@ socket.on('updateRoomList', function (data) {
     roomList.innerHTML = "";
     for (var i = 0; i < data.length; i++) {
         $('#room-list').append(`<a id="${i}" href="#" class="list-group-item list-group-item-action"></a>`);
-        $(`#${i}`).append(`${data[i].roomName} <span class="badge"><i class="fa fa-user"></i> ${data[i].numUsers}</span>`);
-        $(`#${i}`).append(`${data[i].mode == "draw" ? '<i class="fa fa-paint-brush fa-lg right"></i>&emsp;' : '<i class="fa fa-gamepad fa-lg right"></i>&emsp;'}`);
-        $(`#${i}`).append(`${data[i].isPrivate ? '<i class="fa fa-lock fa-lg right"></i>&emsp;</a>' : '</a>'}`);
+        $(`#${i}`).append(`${data[i].roomName} <span class="badge"><i class="fa fa-user"></i> ${data[i].numUsers}</span>`)
+            .append(`${data[i].mode == "draw" ? '<i class="fa fa-paint-brush fa-lg right"></i>&emsp;' : '<i class="fa fa-gamepad fa-lg right"></i>&emsp;'}`)
+            .append(`${data[i].isPrivate ? '<i class="fa fa-lock fa-lg right"></i>&emsp;</a>' : '</a>'}`);
     }
 })
 
