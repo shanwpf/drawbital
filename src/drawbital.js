@@ -9,9 +9,8 @@ var PRO_TIP_TIMER = 1000 * 60 * 5;
 var tipCounter = 0;
 
 $('#draw-tab').on('click', () => {
-    if (joinedRoom && loggedIn) {
+    if (joinedRoom && loggedIn)
         gotoDraw();
-    }
 })
 
 $('#lobby-tab').on('click', () => {

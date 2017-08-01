@@ -15,6 +15,7 @@
     <link href="/client/lib/notify.css" rel="stylesheet">
     <link href="/client/lib/prettify.css" rel="stylesheet">
     <link href="/client/css/tweaks.css" rel="stylesheet">
+    <script src="https://use.fontawesome.com/35f4be5ac0.js"></script>
 </head>
 
 <body>
@@ -202,37 +203,36 @@
     <!-- /lobbyDiv -->
 
     <div class="gridcontainer" id="displayDiv" style="display:none;">
-
-    <div class="controlpanel">
-        <div class="btn-group">
-            <button class="btn btn-danger" id="clearBtn" title="Clear the canvas"><i class="fa fa-trash" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="brushBtn" title="Brush"><i class="fa fa-paint-brush" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="textBtn" title="Text"><i class="fa fa-font" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="undoBtn" title="Undo"><i class="fa fa-undo" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="redoBtn" title="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="zoomOutBtn" title="Zoom out"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
-            <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-        </div>
-        <input type='text' id='full' />
-        <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
-        <div class="dropdown saveload-dropdown">
-            <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="controlpanel">
+            <div class="btn-group">
+                <button class="btn btn-danger" id="clearBtn" title="Clear the canvas"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="brushBtn" title="Brush"><i class="fa fa-paint-brush" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="textBtn" title="Text"><i class="fa fa-font" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="undoBtn" title="Undo"><i class="fa fa-undo" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="redoBtn" title="Redo"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="zoomOutBtn" title="Zoom out"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="resetZoomBtn" title="Reset zoom"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <button class="btn btn-info" id="zoomInBtn" title="Zoom in"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+            </div>
+            <input type='text' id='full' />
+            <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
+            <div class="dropdown saveload-dropdown">
+                <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-floppy-o"></i>
                 <span class="caret"></span>
             </button>
-        <ul class="dropdown-menu multi-level">
-            <li class="dropdown-submenu">
-                <a href="#">Save</a>
-                <ul class="dropdown-menu">
-                    <li><a data-toggle="modal" data-target="#saveModal" href="#">Save entire canvas</a></li>
-                    <li><a id="downloadBtn" href="#">Download as image</a></li>
+                <ul class="dropdown-menu multi-level">
+                    <li class="dropdown-submenu">
+                        <a href="#">Save</a>
+                        <ul class="dropdown-menu">
+                            <li><a data-toggle="modal" data-target="#saveModal" href="#">Save entire canvas</a></li>
+                            <li><a id="downloadBtn" href="#">Download as image</a></li>
+                        </ul>
+                    </li>
+                    <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
                 </ul>
-            </li>
-            <li><a id="loadBtn" data-toggle="modal" data-target="#loadModal" href="#">Load</a></li>
-        </ul>
+            </div>
         </div>
-    </div>
 
         <div id="saveModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -263,52 +263,50 @@
                 </div>
             </div>
         </div>
-            <div class="panel panel-default" id="timerPanel">
-                <div class="panel-body" id="gameTimerDiv">
-                    <button class="btn btn-danger" id="skipBtn" title="Hint"><i class="fa fa-step-forward" aria-hidden="true"></i> Skip</button>
-                    <button class="btn btn-success" id="hintBtn" title="Hint"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Hint</button>                    &emsp;
-                    <canvas id="timerCanvas"></canvas>
-                    <h4 id="timerText">&emsp;Waiting for players...</h4>
-                    <h5 id="hintText"></h5>
-                </div>
+        <div class="panel panel-default" id="timerPanel">
+            <div class="panel-body" id="gameTimerDiv">
+                <button class="btn btn-danger" id="skipBtn" title="Hint"><i class="fa fa-step-forward" aria-hidden="true"></i> Skip</button>
+                <button class="btn btn-success" id="hintBtn" title="Hint"><i class="fa fa-lightbulb-o" aria-hidden="true"></i> Hint</button>                &emsp;
+                <canvas id="timerCanvas"></canvas>
+                <h4 id="timerText">&emsp;Waiting for players...</h4>
+                <h5 id="hintText"></h5>
+            </div>
+        </div>
+
+        <div id="canvasDiv">
+            <canvas id="view" tabindex='1'></canvas>
+            <canvas id="cursorLayer"></canvas>
+            <canvas id="publicSurface"></canvas>
+            <canvas id="serverSurface"></canvas>
+            <canvas id="permanentSurface"></canvas>
+        </div>
+
+        <div id="chatDiv" class="panel panel-default">
+            <div class="panel-heading">
+                <ul class="nav nav-tabs">
+                    <li id="chatTab" class="active"><a href="#">Chat</a></li>
+                    <li id="userTab"><a href="#">View users</a></li>
+                </ul>
             </div>
 
-            <div id="canvasDiv" style="position: relative;">
-                <canvas id="view" tabindex='1'></canvas>
-                <canvas id="cursorLayer"></canvas>
-                <canvas id="publicSurface"></canvas>
-                <canvas id="serverSurface"></canvas>
-                <canvas id="permanentSurface"></canvas>
+            <div id="chat-text" class="panel-body">
             </div>
+            <!--/chat-text-->
+            <div class="panel-body" id="user-list-panel">
+                <ul class="list-group panel-body" id="user-list">
+                </ul>
+            </div>
+            <!-- /user-list -->
 
-            <div id="chatDiv" class="panel panel-default">
-                <div class="panel-heading">
-                    <ul class="nav nav-tabs">
-                        <li id="chatTab" class="active"><a href="#">Chat</a></li>
-                        <li id="userTab"><a href="#">View users</a></li>
-                    </ul>
-                </div>
-
-                <div id="chat-text" class="panel-body">
-                </div>
-                <!--/chat-text-->
-                <div class="panel-body" id="user-list-panel">
-                    <ul class="list-group panel-body" id="user-list">
-                    </ul>
-                </div>
-                <!-- /user-list -->
-
-                <form id="chat-form" class="panel-footer input-group">
-                    <input id="chat-input" class="form-control" placeholder="Type a message" type="text">
-                    <span class="input-group-btn">
+            <form id="chat-form" class="panel-footer input-group">
+                <input id="chat-input" class="form-control" placeholder="Type a message" type="text">
+                <span class="input-group-btn">
                         <button class="btn btn-success" type="submit">
                             <i class="fa fa-reply"></i>
                         </button>
                     </span>
-                </form>
-            </div>
-            <!-- /chatDiv -->
-        <!-- /flexcontainer -->
+            </form>
+        </div>
     </div>
     <a id="link"></a>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -316,7 +314,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
-    <script src="https://use.fontawesome.com/35f4be5ac0.js"></script>
     <script src='/client/lib/mousestop.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js'></script>
     <script src='/client/js/drawbital-compiled.js'></script>

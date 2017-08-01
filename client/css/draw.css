@@ -3,6 +3,7 @@
     grid-template-columns: 50% auto 20%;
     grid-template-rows: 50px auto;
     height: 100vh !important;
+    overflow: hidden;
 }
 .controlpanel {
     grid-column: 1 / 2;
@@ -50,9 +51,6 @@
 #user-list {
     flex: 1;
     overflow-y: scroll;
-}
-body {
-    overflow: hidden;
 }
 #permanentSurface {
     z-index: 1;
