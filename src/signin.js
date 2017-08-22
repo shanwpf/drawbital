@@ -43,3 +43,17 @@ $('#register-submit').on("click", () => {
     }
     return false;
 })
+
+$('#guest-login').on("click", () => {
+    socket.emit('guestLogin', data => {
+        if(data.success) {
+            gotoLobby();
+            loggedIn = true;
+            $('#login-modal').modal('hide');
+            $('#user-menu').css('display', 'inline');
+            $('#greeting').prepend(`Welcome, ${data.username}`);
+            $('#save-load-btn').prop('disabled', true);
+        } 
+    });
+    return false;
+})

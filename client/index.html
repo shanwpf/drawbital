@@ -81,6 +81,7 @@
                     <input id="login-username" class="form-control" type="text" name="user" placeholder="Username" autofocus required>
                     <input id="login-password" class="form-control" type="password" name="pass" placeholder="Password" required>
                     <input id="login-submit" type="submit" name="login" class="login loginmodal-submit" value="Login">
+                    <input id="guest-login" type="submit" name="login" class="login loginmodal-submit" value="Enter as guest">
                 </form>
                 <div class="login-help">
                     <a href="#" data-dismiss="modal" data-target="#register-modal" data-toggle="modal">Register</a>
@@ -217,7 +218,7 @@
             <input type='text' id='full' />
             <input id="brushSize" type="number" min="1" max="100" step="2" value="5" name="size">
             <div class="dropdown saveload-dropdown">
-                <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button id="save-load-btn" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fa fa-floppy-o"></i>
                 <span class="caret"></span>
             </button>

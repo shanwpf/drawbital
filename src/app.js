@@ -143,6 +143,12 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+    socket.on('guestLogin', fn => {
+        loggedIn = true;
+        Client.onConnect(socket);
+        fn({success: true, username: Client.list[socket.id].name});        
+    })
+
     socket.on('disconnect', function () {
         console.log('socket disconnected');
         delete SOCKET_LIST[socket.id];
@@ -781,6 +787,7 @@ class Client {
         this.solved = false;
         Client.list[id] = this;
         this.saves = [];
+        this.isGuest = false;
         return this;
     }
 
@@ -860,8 +867,14 @@ class Client {
     // Handle new connections
     static onConnect(socket, username) {
         var client = new Client(socket.id);
-        client.name = username;
-        getSaveNameList(username, client);
+        if(username) {
+            client.name = username;
+            getSaveNameList(username, client);
+        }
+        else {
+            client.name = "Guest-" + socket.id.slice(0, 4);
+            client.isGuest = true;
+        }
         USER_TRACKER[username] = true;
         socket.on('undo', function () {
             client.room.surface.undo(client.id);
