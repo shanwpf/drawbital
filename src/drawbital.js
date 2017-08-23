@@ -58,6 +58,12 @@ if (uagent.search("iphone") > -1 || uagent.search("ipad") > -1
     $('#mobileModal').modal() 
     $("#loginbtn").addClass("disabled");
     $("#loginbtn").prop('disabled', true);
+}else if (/Edge\/\d./i.test(navigator.userAgent)){
+    $('#unavailText').text("Unfortunately, Microsoft Edge isnt compatible for our application. To use, please use other browser instead!!!!!");
+    $('#mobileModal').modal();
+    $("#loginbtn").addClass("disabled");
+    $("#loginbtn").prop('disabled', true);
+
 }
 
 
