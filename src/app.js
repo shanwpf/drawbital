@@ -16,6 +16,7 @@ var GAME_TRANSITION_TIME = 10;
 var GAME_RUSH_TIME = 20;
 var GAME_HINT_PENALTY = 2;
 var timeThen = 0;
+var CHAT_HISTORY_SIZE = 50;
 var gameWords = {
     "hard": []
 }
@@ -564,6 +565,11 @@ class Room {
         if (!this.game || client == this.game.curDrawer
             || !this.game.checkAnswer(client, message))
             emitToChat(this, '<strong>' + client.name + '</strong>: ' + message);
+
+        while(this.chatText.length > CHAT_HISTORY_SIZE)
+        {
+            this.chatText.shift();
+        }    
     }
 
     static roomNameExists(name) {
@@ -957,7 +963,6 @@ class Client {
             room.addClient(Client.list[room.creatorId]);
             //add user's name into the room chatusers list
             room.chatUsers.push(Client.list[room.creatorId].name);
-            socket.emit('connectRoom', { chatTextList: client.room.chatText });
             refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
             fn(true);
         });
@@ -972,7 +977,7 @@ class Client {
                 Room.list[data.roomNumber].addClient(Client.list[data.clientId]);
                 //add user's name into the room chatusers list
                 Room.list[data.roomNumber].chatUsers.push(Client.list[data.clientId].name);
-                socket.emit('connectRoom', { chatTextList: client.room.chatText });
+                socket.emit('connectRoom', { chatTextList: Room.list[data.roomNumber].chatText });
                 // refresh for those who are in next room
                 refreshUserList(client.room, '<p class="text-primary">' + client.name + " has joined the room</p>");
             }
