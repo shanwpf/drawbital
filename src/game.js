@@ -68,7 +68,7 @@ socket.on('gameTimer', function (data) {
     }
     else {
         $('#timerText').css('display', 'none');
-        if(!$('#timerCanvas').css('display') == 'inline')
+        if($('#timerCanvas').css('display') != 'inline')
             $('#timerCanvas').css('display', 'inline');
         drawTimer(data.timer, 60);
     }

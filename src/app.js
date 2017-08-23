@@ -182,8 +182,9 @@ class Game {
         refreshUserList(this.room, "empty");
         if (this.started && this.room.clients.length <= 1) {
             this.started = false;
+            this.room.clients[0].canDraw = false;
             this.room.emitToRoom('gameTimer', {timer: -1});
-            emitToChat(this.room, '<p class="text-warning">Game stopped</p>');
+            emitToChat(this.room, '<p class="text-warning">Game stopped, insufficient players</p>');
         }
         else if (!this.started && this.room.clients.length >= 2) {
             this.started = true;
