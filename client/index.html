@@ -57,7 +57,7 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
-    <div id="aboutModal" class="modal fade" role="dialog">
+    <div id="aboutModal" class="modal fade" role="dialog" >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -68,6 +68,20 @@
                     <p>Drawbital is a simple collaborative drawing app by Wayne Koo and Shannon Wong.</p>
                     <p>A project for NUS Orbital</p>
                     <p>Source: <a href="https://github.com/shanwpf/drawbital">Github</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><center>SORRY!</center></h4>
+                </div>
+                <div class="modal-body">
+                    <p>Unfortunately, our application isn't available for mobile device. To use, please visit bit.ly/drawbital on your desktop</p>
                 </div>
             </div>
         </div>
@@ -115,7 +129,7 @@
         </div>
         <div class="row">
             <div class="col col-sm-1 col-sm-offset-5 text-center">
-                <button class="btn btn-success center-block login-modal" data-toggle="modal" data-target="#login-modal">Login</button>
+                <button id="loginbtn" class="btn btn-success center-block login-modal" data-toggle="modal" data-target="#login-modal" >Login</button>
             </div>
             <div class="col col-sm-1 text-center">
                 <button class="btn btn-warning center-block login-modal" data-toggle="modal" data-target="#register-modal">Register</button>
@@ -320,5 +334,6 @@
     <script src='/client/js/drawbital-compiled.js'></script>
     <script src='/client/lib/notify.js'></script>
     <script src='/client/lib/prettify.js'></script>
+
 </body>
 </html>

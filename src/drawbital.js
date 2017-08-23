@@ -50,6 +50,19 @@ function gotoDraw() {
 //     transitionBackground(SIGNIN_BG_COLOUR);
 // }
 
+//script to detect phone
+var uagent = navigator.userAgent.toLowerCase();
+if (uagent.search("iphone") > -1 || uagent.search("ipad") > -1 
+    || uagent.search("android") > -1 || uagent.search("blackberry") > -1
+    || uagent.search("webos") > -1){
+    $('#mobileModal').modal() 
+    $("#loginbtn").addClass("disabled");
+    $("#loginbtn").prop('disabled', true);
+}
+
+
+
+
 function transitionBackground(colour) {
     document.body.style.background = colour;
     document.body.style.backgroundImage = 'url(/client/img/bg-pattern.png)';
