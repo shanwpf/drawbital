@@ -17,6 +17,7 @@ We're hosted at [bit.ly/drawbital](bit.ly/drawbital)
 2. Install node dependencies
 
 	`> npm install`
+	`> npm install gulp -g`
 	
 3. (Optional) Modify /src/app.js to use your own Firebase database
 
